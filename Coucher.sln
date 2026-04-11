@@ -1,8 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coucher.WebApi", "Coucher.WebApi\Coucher.WebApi.csproj", "{6FDD5F57-C2AD-4226-A6D4-64BEC8E3C7B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Augustus.Infra.Core", "..\Infra.Core\Augustus.Infra.Core\Augustus.Infra.Core.csproj", "{2F4DE4B8-B409-41E4-A82B-590B800D198B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coucher.Lib", "Coucher.Lib\Coucher.Lib.csproj", "{1681471D-828C-4D02-AA3B-93BFBC959ED6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coucher.Shared", "Coucher.Shared\Coucher.Shared.csproj", "{F6EAE4AE-A819-42A9-A622-8070DAA33D0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +23,13 @@ Global
 		{2F4DE4B8-B409-41E4-A82B-590B800D198B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F4DE4B8-B409-41E4-A82B-590B800D198B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F4DE4B8-B409-41E4-A82B-590B800D198B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1681471D-828C-4D02-AA3B-93BFBC959ED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1681471D-828C-4D02-AA3B-93BFBC959ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1681471D-828C-4D02-AA3B-93BFBC959ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1681471D-828C-4D02-AA3B-93BFBC959ED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6EAE4AE-A819-42A9-A622-8070DAA33D0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6EAE4AE-A819-42A9-A622-8070DAA33D0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6EAE4AE-A819-42A9-A622-8070DAA33D0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6EAE4AE-A819-42A9-A622-8070DAA33D0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

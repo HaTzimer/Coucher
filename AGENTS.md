@@ -1,12 +1,32 @@
 # AGENTS Guide for `Coucher`
 
 ## Scope
-This repository (`Coucher`) is a .NET 7 Web API solution that references a second project located in a sibling repository:
+This repository (`Coucher`) is a .NET 7 solution with three local projects and one sibling Infra project:
 
-- `Coucher.WebApi` (local project in this repo)
-- `Augustus.Infra.Core` (project path: `..\Infra.Core\Augustus.Infra.Core\Augustus.Infra.Core.csproj`)
+- `Coucher.WebApi` (API host)
+- `Coucher.Lib` (business logic and DAL layer)
+- `Coucher.Shared` (shared models and interfaces)
+- `Augustus.Infra.Core` (sibling repo project path: `..\Infra.Core\Augustus.Infra.Core\Augustus.Infra.Core.csproj`)
 
-Important: `Coucher.WebApi` currently does **not** include a direct `ProjectReference` to `Augustus.Infra.Core` in its `.csproj`, and no code in `Coucher.WebApi` currently uses Infra.Core types.
+Current dependency direction:
+
+- `Coucher.WebApi` -> `Coucher.Lib`
+- `Coucher.Lib` -> `Coucher.Shared`
+
+Recommended direction for new code: keep `Coucher.Shared` dependency-light, put application logic and integrations in `Coucher.Lib`, and keep `Coucher.WebApi` as composition/wiring only.
+
+## Project Conventions
+`Coucher.Shared`:
+
+- Put DTOs/domain transfer models under `Models/`
+- Put cross-layer contracts under `Interfaces/`
+- Avoid DAL or framework-heavy dependencies
+
+`Coucher.Lib`:
+
+- Put business/application logic under `Logic/`
+- Put data-access and external integrations under `DAL/`
+- Reuse `Augustus.Infra.Core` implementations before adding local utility infrastructure
 
 ## What `Augustus.Infra.Core` Provides
 `Augustus.Infra.Core` is an infrastructure utility library with:
@@ -63,6 +83,10 @@ If using SQL pooled factory:
 ## Working Rules for Agents
 - Treat `..\Infra.Core` as an external sibling codebase; avoid editing it unless explicitly requested.
 - Prefer changes inside `Coucher.WebApi` that wire Infra.Core through DI and configuration.
+- Reuse existing `Augustus.Infra.Core` classes, methods, and extension methods whenever possible instead of creating new local equivalents.
+- Before adding any new local abstraction, check whether Infra.Core already provides the capability (logging, config access, filters, serializers, rate limiting, pipeline, Redis/Kafka/S3/Mongo helpers).
+- If a new local class/function is still required, document why Infra.Core could not be used for that case.
+- Document every Infra.Core adoption in code changes (startup wiring, filters, configuration keys, and any behavior changes).
 - When adding Infra.Core usage, keep startup fail-fast for missing required config (`GetBySectionOrThrow` behavior).
 - Verify with:
   - `dotnet restore Coucher.sln`
