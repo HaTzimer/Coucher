@@ -1,93 +1,80 @@
 # AGENTS Guide for `Coucher`
 
 ## Scope
-This repository (`Coucher`) is a .NET 7 solution with three local projects and one sibling Infra project:
+This repository (`Coucher`) is a .NET 7 solution with:
 
-- `Coucher.WebApi` (API host)
-- `Coucher.Lib` (business logic and DAL layer)
-- `Coucher.Shared` (shared models and interfaces)
+- `Coucher.WebApi` (API host + transport layer)
+- `Coucher.Lib` (business logic + DAL orchestration)
+- `Coucher.Shared` (canonical domain/DAL entities + enums + shared interfaces)
 - `Augustus.Infra.Core` (sibling repo project path: `..\Infra.Core\Augustus.Infra.Core\Augustus.Infra.Core.csproj`)
 
-Current dependency direction:
+Dependency direction:
 
 - `Coucher.WebApi` -> `Coucher.Lib`
 - `Coucher.Lib` -> `Coucher.Shared`
 
-Recommended direction for new code: keep `Coucher.Shared` dependency-light, put application logic and integrations in `Coucher.Lib`, and keep `Coucher.WebApi` as composition/wiring only.
-
-## Project Conventions
+## Model Architecture
 `Coucher.Shared`:
 
-- Put DTOs/domain transfer models under `Models/`
-- Put cross-layer contracts under `Interfaces/`
-- Avoid DAL or framework-heavy dependencies
+- Contains EF-ready DAL/domain entities
+- Entity model rules:
+  - Use `get; set;` only (no `init`)
+  - No default property values
+  - Use `required` on mandatory DAL fields where applicable
+  - Use `List<T>` for collections (do not use `IReadOnlyCollection<T>` / `IEnumerable<T>` in entities)
 
-`Coucher.Lib`:
+`Coucher.WebApi`:
 
-- Put business/application logic under `Logic/`
-- Put data-access and external integrations under `DAL/`
-- Reuse `Augustus.Infra.Core` implementations before adding local utility infrastructure
+- Contains request/transport DTOs only
+- DTO location:
+  - `Models/WebApi/Requests/Auth`
+  - `Models/WebApi/Requests/Exercises`
+  - `Models/WebApi/Requests/Tasks`
+  - `Models/WebApi/Requests/Common`
 
-## What `Augustus.Infra.Core` Provides
-`Augustus.Infra.Core` is an infrastructure utility library with:
+Mapping rule:
 
-- Logging and correlation context propagation (`AugustusLogger`, `ContextCorrelationIdProvider`, resource filters)
-- Standard exception filters for REST and GraphQL (`ExceptionFilter`, `GqlErrorFilter`)
-- Configuration wrappers and helpers (`IAugustusConfiguration`, `BasicConfiguration`, `ConfigurationExtensions`)
-- Data/integration helpers (Redis, Kafka, Mongo, S3, SQL DbContext factory)
-- Pipeline and rate-limiter utilities
+- WebApi request DTOs are mapped to DAL/domain entities in WebApi/Lib layers.
+- Do not put API request DTOs in `Coucher.Shared`.
 
-Primary DI entry points:
+## COACHER System Design
+Source of truth is the COACHER system-spec PDF provided by the user in `C:\Users\Tasht\Downloads\`.
+
+Core domain:
+
+- `Exercise` root entity
+- `ExerciseTask` entities under each exercise
+- Participants, influencers, threat arenas, dependencies, statuses, notifications
+- Role model: global (`User`, `Auditor`, `Admin`) and exercise-scoped (`ExerciseManager`, `ExerciseParticipant`, `TraineeUnitContact`)
+
+Core flows:
+
+1. Authentication: login, registration, first-login setup, security-question reset.
+2. Exercise wizard: exercise details + participants.
+3. Exercise task management: generate/filter/update tasks, dependencies, responsibility, due-state.
+4. Admin management: closed lists, fixed templates, privileged users.
+5. Archive lifecycle: active to archive by policy.
+
+## Current Canonical Shared Entities
+- `Models/Enums`
+- `Models/DAL/Users`
+- `Models/DAL/Exercises`
+- `Models/DAL/Tasks`
+- `Models/DAL/Admin`
+- `Models/DAL/Notifications`
+
+## Infra.Core Reuse Policy
+- Treat `..\Infra.Core` as external sibling codebase; avoid editing it unless explicitly requested.
+- Reuse existing `Augustus.Infra.Core` classes/methods/extensions before adding local infrastructure.
+- Before adding a new local infra abstraction, verify Infra.Core does not already provide it.
+- Document every Infra.Core adoption in code changes.
+
+Primary Infra.Core DI entry points:
 
 - `AddGenericAugustusServices(this IServiceCollection services)`
 - `AddGenericPipelineServices(this IServiceCollection services)`
 - `AddPooledDbContextFactory<T>(this IServiceCollection services, IConfiguration configuration)`
 
-## Required Configuration (When Enabling Infra.Core)
-At minimum, logging expects:
-
-- `Logger:serviceName`
-
-Optional but used for UDP log shipping:
-
-- `Logger:remoteAddress`
-- `Logger:remotePort`
-
-Useful correlation/config sections used by filters:
-
-- `ResourceFilter:logDebug`
-- Correlation headers:
-  - `AUGUSTUS_CORRELATION_ID`
-  - `MAMRAZ_CORRELATION_ID`
-  - `AUGUSTUS_CORRELATION_CREATION_TIMESTAMP`
-
-If using SQL pooled factory:
-
-- `SqlDb:uri`
-- `SqlDb:initialCatalog`
-- `SqlDb:userId`
-- `SqlDb:password`
-
-## Integration Checklist for `Coucher.WebApi`
-1. Add a project reference from `Coucher.WebApi` to `..\Infra.Core\Augustus.Infra.Core\Augustus.Infra.Core.csproj`.
-2. In `Program.cs`, register Infra.Core services:
-   - `builder.Services.AddGenericAugustusServices();`
-   - Optional pipeline services: `builder.Services.AddGenericPipelineServices();`
-3. Register MVC filters if desired:
-   - `options.Filters.AddService<CorrelationIdResourceFilter>();`
-   - `options.Filters.AddService<ExceptionFilter>();`
-4. Add Swagger correlation header support:
-   - `builder.Services.AddSwaggerGen(c => c.OperationFilter<CorrelationHeaderFilter>());`
-5. Ensure `appsettings*.json` includes the required keys above.
-
-## Working Rules for Agents
-- Treat `..\Infra.Core` as an external sibling codebase; avoid editing it unless explicitly requested.
-- Prefer changes inside `Coucher.WebApi` that wire Infra.Core through DI and configuration.
-- Reuse existing `Augustus.Infra.Core` classes, methods, and extension methods whenever possible instead of creating new local equivalents.
-- Before adding any new local abstraction, check whether Infra.Core already provides the capability (logging, config access, filters, serializers, rate limiting, pipeline, Redis/Kafka/S3/Mongo helpers).
-- If a new local class/function is still required, document why Infra.Core could not be used for that case.
-- Document every Infra.Core adoption in code changes (startup wiring, filters, configuration keys, and any behavior changes).
-- When adding Infra.Core usage, keep startup fail-fast for missing required config (`GetBySectionOrThrow` behavior).
-- Verify with:
-  - `dotnet restore Coucher.sln`
-  - `dotnet build Coucher.sln`
+## Verification
+- `dotnet restore Coucher.sln`
+- `dotnet build Coucher.sln`

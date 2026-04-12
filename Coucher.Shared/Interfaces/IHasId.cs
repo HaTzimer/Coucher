@@ -2,5 +2,5 @@ namespace Coucher.Shared.Interfaces;
 
 public interface IHasId<TId>
 {
-    TId Id { get; }
+    TId Id { get; set; }
 }
