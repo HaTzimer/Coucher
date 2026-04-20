@@ -1,4 +1,5 @@
 using Coucher.Shared.Models.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Coucher.Shared.Models.DAL.Admin;
 
@@ -11,6 +12,10 @@ public sealed class FixedTaskTemplate
     public required string Name { get; set; }
     public required string Description { get; set; }
     public int DefaultWeeksBeforeExerciseStart { get; set; }
+
+    [InverseProperty("FixedTaskTemplate")]
     public required List<FixedTaskTemplateInfluencerLink> Influencers { get; set; }
+
+    [InverseProperty("FixedTaskTemplate")]
     public required List<FixedTaskTemplateDependency> Dependencies { get; set; }
 }

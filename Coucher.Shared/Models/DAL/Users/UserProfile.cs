@@ -1,12 +1,12 @@
-using Coucher.Shared.Interfaces;
 using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Notifications;
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Coucher.Shared.Models.DAL.Users;
 
-public sealed class UserProfile : IHasId<Guid>
+public sealed class UserProfile
 {
     public Guid Id { get; set; }
     public required string IdentityNumber { get; set; }
@@ -23,9 +23,19 @@ public sealed class UserProfile : IHasId<Guid>
     public bool IsForgotPasswordLocked { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
+
+    [InverseProperty("User")]
     public required List<UserRole> Roles { get; set; }
+
+    [InverseProperty("User")]
     public required List<UserSecurityQuestion> SecurityQuestions { get; set; }
+
+    [InverseProperty("User")]
     public required List<ExerciseParticipant> ExerciseParticipants { get; set; }
+
+    [InverseProperty("ResponsibleUser")]
     public required List<ExerciseTask> ResponsibleTasks { get; set; }
+
+    [InverseProperty("User")]
     public required List<UserNotification> Notifications { get; set; }
 }

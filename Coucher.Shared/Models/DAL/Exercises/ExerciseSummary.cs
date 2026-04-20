@@ -1,7 +1,9 @@
 using Coucher.Shared.Models.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Coucher.Shared.Models.DAL.Exercises;
 
+[Keyless]
 public sealed class ExerciseSummary
 {
     public Guid ExerciseId { get; set; }

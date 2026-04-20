@@ -1,0 +1,4 @@
+interface:
+  display_name: "DAL DbContext"
+  short_description: "Enforce local EF Core DbContext and DAL mapping rules."
+  default_prompt: "Use $dal-dbcontext-practices to keep this DAL or DbContext change aligned with the repo's EF Core rules."

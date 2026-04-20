@@ -1,0 +1,4 @@
+interface:
+  display_name: "Augustus Logger Practices"
+  short_description: "Use Augustus logging correctly in Coucher."
+  default_prompt: "Apply the repo rules for IAugustusLogger, structured payloads, and exception logging."
