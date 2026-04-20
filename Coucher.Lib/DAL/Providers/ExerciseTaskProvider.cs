@@ -6,72 +6,65 @@ namespace Coucher.Lib.DAL.Providers;
 
 public sealed class ExerciseTaskProvider : IExerciseTaskProvider
 {
-    private readonly CoucherDbContext _dbContext;
-    private readonly DbSet<ExerciseTask> _entities;
+    private readonly IDbContextFactory<CoucherDbContext> _dbContextFactory;
 
-    public ExerciseTaskProvider(CoucherDbContext dbContext)
+    public ExerciseTaskProvider(IDbContextFactory<CoucherDbContext> dbContextFactory)
     {
-        _dbContext = dbContext;
-        _entities = dbContext.Set<ExerciseTask>();
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<List<ExerciseTask>> ListAsync(CancellationToken cancellationToken = default)
     {
-        var query = BuildQuery();
-        var items = await query.ToListAsync(cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        var items = await entities.ToListAsync(cancellationToken);
 
         return items;
     }
 
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var query = BuildQuery();
-        var exists = await query.AnyAsync(item => item.Id == id, cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        var exists = await entities.AnyAsync(item => item.Id == id, cancellationToken);
 
         return exists;
     }
 
     public async Task<ExerciseTask?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var query = BuildQuery();
-        var entity = await query.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
         return entity;
     }
 
     public async Task<ExerciseTask> AddAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
     {
-        await _entities.AddAsync(entity, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
 
     public async Task<ExerciseTask> UpdateAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
     {
-        _entities.Update(entity);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        entities.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
 
     public async Task DeleteAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
     {
-        _entities.Remove(entity);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    private IQueryable<ExerciseTask> BuildQuery()
-    {
-        var query = _entities
-        .Include(item => item.Exercise)
-        .Include(item => item.ResponsibleUser)
-        .Include(item => item.Influencers)
-        .Include(item => item.Dependencies)
-        .ThenInclude(item => item.DependsOnTask)
-        .Include(item => item.DependedOnByTasks)
-        .ThenInclude(item => item.ExerciseTask);
-
-        return query;
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        entities.Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -18,6 +18,7 @@ Read [references/rules.md](references/rules.md) before making structural or form
 - Do not return expressions directly when a value can be assigned first.
 - Store returned values in a local `var` before returning them.
 - Always put an empty line before a `return` statement.
+- After `await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);`, always add an empty line.
 - In fluent chains, keep the chained calls aligned to the left of the chain instead of adding extra indentation for each call.
 
 ## Return Style
@@ -71,10 +72,28 @@ var query = Entities
         .ThenInclude(item => item.ExerciseTask);
 ```
 
+## DbContext Factory Spacing
+
+Prefer:
+
+```csharp
+await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+var entities = dbContext.Set<UserNotification>();
+```
+
+Do not use:
+
+```csharp
+await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+var entities = dbContext.Set<UserNotification>();
+```
+
 ## Review Checklist
 
 - Reject direct-expression returns when a local variable should be used instead.
 - Reject `return` statements that are not separated by an empty line.
 - Reject fluent chains that use extra indentation before chained calls.
+- Reject missing empty lines after async DbContext factory creation statements.
 - Reject code placed in the wrong project, layer, or folder.
 - Reject compact code that hides intent when a small local variable would make the flow clearer.

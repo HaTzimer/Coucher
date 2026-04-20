@@ -100,6 +100,52 @@ return items;
 
 if the caller only needs `Id`, `Name`, and `Status`.
 
+## Provider DbContext access
+
+In this repository, providers should access EF through `IDbContextFactory<CoucherDbContext>`.
+
+Preferred provider pattern:
+
+```csharp
+private readonly IDbContextFactory<CoucherDbContext> _dbContextFactory;
+
+public ExerciseProvider(IDbContextFactory<CoucherDbContext> dbContextFactory)
+{
+    _dbContextFactory = dbContextFactory;
+}
+
+public async Task<List<ExerciseListItemInternalModel>> ListAsync(CancellationToken cancellationToken = default)
+{
+    await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+    var entities = dbContext.Set<Exercise>();
+    var items = await entities
+        .Select(item => new ExerciseListItemInternalModel
+        {
+            Id = item.Id,
+            Name = item.Name
+        })
+        .ToListAsync(cancellationToken);
+
+    return items;
+}
+```
+
+Avoid direct provider injection of `CoucherDbContext` when using pooled factory registration.
+Prefer `CreateDbContextAsync(cancellationToken)` with `await using`.
+After the `await using` line, leave an empty line.
+Keep provider constructors minimal: only assign `_dbContextFactory`.
+Resolve `DbSet<T>` once per method and reuse that local variable.
+
+## Query shape in providers
+
+Do not create generic `BuildQuery()` helper methods in providers by default.
+
+Build each query inline inside the method so the required shape is explicit and easy to review.
+
+Do not add broad `Include(...)` chains unless the caller explicitly needs that navigation graph.
+If only a subset is needed, project directly to the required model and avoid eager-loading unrelated data.
+
 ## Internal DAL models
 
 Use `Coucher.Shared/Models/DAL/Internal` for SQL-only projection shapes that are not public domain entities.
@@ -144,6 +190,12 @@ Treat these as violations:
 - SQL reads that fetch more columns or entities than the caller needs.
 - Missing internal projection models for repeated partial-read shapes.
 - Row-by-row delete or update logic where `ExecuteDeleteAsync(...)` or `ExecuteUpdateAsync(...)` should be used.
+- Providers that inject `CoucherDbContext` directly instead of using `IDbContextFactory<CoucherDbContext>`.
+- Providers that use synchronous factory creation when async factory creation with cancellation can be used.
+- Providers with constructors that do more than assigning `_dbContextFactory`.
+- Missing empty lines after `await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);`.
+- Repeated `dbContext.Set<T>()` calls in a method instead of one local `DbSet<T>` variable.
+- Provider `BuildQuery()` patterns and broad eager-loading include chains without explicit need.
 
 ## Current direction
 

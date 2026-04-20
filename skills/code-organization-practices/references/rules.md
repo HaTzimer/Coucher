@@ -43,6 +43,23 @@ var exists = await provider.ExistsAsync(id, cancellationToken);
 return exists;
 ```
 
+When using async DbContext factory creation, always leave an empty line after the `await using` statement.
+
+Preferred:
+
+```csharp
+await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+var entities = dbContext.Set<UserNotification>();
+```
+
+Avoid:
+
+```csharp
+await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+var entities = dbContext.Set<UserNotification>();
+```
+
 ## Readability
 
 - Prefer `var` for local variables when the right-hand side makes the type obvious.

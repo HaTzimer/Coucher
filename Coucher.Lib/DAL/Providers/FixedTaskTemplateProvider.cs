@@ -6,67 +6,65 @@ namespace Coucher.Lib.DAL.Providers;
 
 public sealed class FixedTaskTemplateProvider : IFixedTaskTemplateProvider
 {
-    private readonly CoucherDbContext _dbContext;
-    private readonly DbSet<FixedTaskTemplate> _entities;
+    private readonly IDbContextFactory<CoucherDbContext> _dbContextFactory;
 
-    public FixedTaskTemplateProvider(CoucherDbContext dbContext)
+    public FixedTaskTemplateProvider(IDbContextFactory<CoucherDbContext> dbContextFactory)
     {
-        _dbContext = dbContext;
-        _entities = dbContext.Set<FixedTaskTemplate>();
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<List<FixedTaskTemplate>> ListAsync(CancellationToken cancellationToken = default)
     {
-        var query = BuildQuery();
-        var items = await query.ToListAsync(cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<FixedTaskTemplate>();
+        var items = await entities.ToListAsync(cancellationToken);
 
         return items;
     }
 
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var query = BuildQuery();
-        var exists = await query.AnyAsync(item => item.Id == id, cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<FixedTaskTemplate>();
+        var exists = await entities.AnyAsync(item => item.Id == id, cancellationToken);
 
         return exists;
     }
 
     public async Task<FixedTaskTemplate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var query = BuildQuery();
-        var entity = await query.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<FixedTaskTemplate>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
         return entity;
     }
 
     public async Task<FixedTaskTemplate> AddAsync(FixedTaskTemplate entity, CancellationToken cancellationToken = default)
     {
-        await _entities.AddAsync(entity, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<FixedTaskTemplate>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
 
     public async Task<FixedTaskTemplate> UpdateAsync(FixedTaskTemplate entity, CancellationToken cancellationToken = default)
     {
-        _entities.Update(entity);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<FixedTaskTemplate>();
+        entities.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
     }
 
     public async Task DeleteAsync(FixedTaskTemplate entity, CancellationToken cancellationToken = default)
     {
-        _entities.Remove(entity);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    private IQueryable<FixedTaskTemplate> BuildQuery()
-    {
-        var query = _entities
-        .Include(item => item.Influencers)
-        .Include(item => item.Dependencies);
-
-        return query;
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<FixedTaskTemplate>();
+        entities.Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
