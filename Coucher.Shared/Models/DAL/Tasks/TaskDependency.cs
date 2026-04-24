@@ -9,6 +9,10 @@ public sealed class TaskDependency
     public Guid Id { get; set; }
     public Guid ExerciseTaskId { get; set; }
     public Guid DependsOnTaskId { get; set; }
+    public bool IsBlocking { get; set; }
+    public int DisplayOrder { get; set; }
+    public string? Notes { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     [ForeignKey(nameof(ExerciseTaskId))]
     [InverseProperty("Dependencies")]

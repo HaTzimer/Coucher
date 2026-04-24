@@ -10,6 +10,7 @@ public sealed class FixedTaskTemplateInfluencerLink
     public Guid Id { get; set; }
     public Guid FixedTaskTemplateId { get; set; }
     public ExerciseInfluencer Influencer { get; set; }
+    public int DisplayOrder { get; set; }
 
     [ForeignKey(nameof(FixedTaskTemplateId))]
     [InverseProperty("Influencers")]

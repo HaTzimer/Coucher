@@ -8,5 +8,6 @@ public enum ExerciseInfluencer
     WetAct = 3,
     SimulationIntegration = 4,
     IntelligenceIntegration = 5,
-    AdditionalUnitsParticipation = 6
+    AdditionalUnitsParticipation = 6,
+    Core = 7
 }

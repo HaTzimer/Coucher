@@ -10,6 +10,7 @@ public sealed class ExerciseThreatArenaLink
     public Guid Id { get; set; }
     public Guid ExerciseId { get; set; }
     public ThreatArenaCode ThreatArenaCode { get; set; }
+    public int DisplayOrder { get; set; }
 
     [ForeignKey(nameof(ExerciseId))]
     [InverseProperty("ThreatArenas")]

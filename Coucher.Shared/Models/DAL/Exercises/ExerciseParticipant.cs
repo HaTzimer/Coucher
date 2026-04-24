@@ -17,6 +17,11 @@ public sealed class ExerciseParticipant
     public string? Position { get; set; }
     public string? PhoneNumber { get; set; }
     public ExerciseRole Role { get; set; }
+    public bool IsExerciseCreator { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime AddedAt { get; set; }
+    public DateTime? RemovedAt { get; set; }
+    public string? Notes { get; set; }
 
     [ForeignKey(nameof(ExerciseId))]
     [InverseProperty("Participants")]

@@ -10,6 +10,7 @@ public sealed class ExerciseInfluencerLink
     public Guid Id { get; set; }
     public Guid ExerciseId { get; set; }
     public ExerciseInfluencer Influencer { get; set; }
+    public int DisplayOrder { get; set; }
 
     [ForeignKey(nameof(ExerciseId))]
     [InverseProperty("Influencers")]

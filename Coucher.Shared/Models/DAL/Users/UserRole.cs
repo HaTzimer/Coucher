@@ -10,6 +10,9 @@ public sealed class UserRole
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public GlobalRole Role { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime AssignedAt { get; set; }
+    public Guid? AssignedByUserId { get; set; }
 
     [ForeignKey(nameof(UserId))]
     [InverseProperty("Roles")]
