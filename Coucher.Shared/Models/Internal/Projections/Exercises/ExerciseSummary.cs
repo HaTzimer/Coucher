@@ -1,7 +1,6 @@
-using Coucher.Shared.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace Coucher.Shared.Models.DAL.Exercises;
+namespace Coucher.Shared.Models.Internal.Projections.Exercises;
 
 [Keyless]
 public sealed class ExerciseSummary
@@ -10,10 +9,8 @@ public sealed class ExerciseSummary
     public required string Name { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
-    public required string TraineeUnitName { get; set; }
-    public required string TrainerUnitName { get; set; }
-    public UnitEchelon TraineeUnitEchelon { get; set; }
-    public UnitEchelon TrainerUnitEchelon { get; set; }
+    public Guid TraineeUnitId { get; set; }
+    public Guid TrainerUnitId { get; set; }
     public int AssignedTaskCountForCurrentUser { get; set; }
     public int OpenTaskCount { get; set; }
     public int OverdueTaskCount { get; set; }
@@ -25,6 +22,6 @@ public sealed class ExerciseSummary
     public string? ManagerPosition { get; set; }
     public string? ManagerRank { get; set; }
     public string? CurrentUserRole { get; set; }
-    public ExerciseStatus Status { get; set; }
+    public Guid StatusClosedListItemId { get; set; }
     public DateTime? ArchivedAt { get; set; }
 }

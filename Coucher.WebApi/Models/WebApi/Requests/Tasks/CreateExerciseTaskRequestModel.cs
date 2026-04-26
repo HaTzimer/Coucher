@@ -12,7 +12,7 @@ public sealed class CreateExerciseTaskRequestModel
     public string? Notes { get; set; }
     public DateOnly DueDate { get; set; }
     public Guid? ResponsibleUserId { get; set; }
-    public required List<ExerciseInfluencer> Influencers { get; set; }
+    public required List<Guid> InfluencerClosedListItemIds { get; set; }
     public required List<Guid> DependencyTaskIds { get; set; }
     public bool SaveAsFixedTemplate { get; set; }
 }

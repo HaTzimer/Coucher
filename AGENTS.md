@@ -63,6 +63,7 @@ Keep canonical entities under:
 - `Models/DAL/Tasks`
 - `Models/DAL/Admin`
 - `Models/DAL/Notifications`
+- `Models/Internal/Projections` (read models only; do not place projections under `Models/DAL`)
 
 ### Users + Access Models
 - `UserProfile`: identity and profile fields, password/first-login state, forgot-password lock state, contact details.
@@ -76,7 +77,7 @@ Keep canonical entities under:
   - selected influencers and threat arenas
   - participant set and manager/contact pointers
   - archive lifecycle timestamps/policy fields (planned)
-- `ExerciseSummary`: read-model projection for grid/dashboard.
+- `ExerciseSummary`: read-model projection for grid/dashboard (keep under `Models/Internal/Projections/Exercises`).
 - `ExerciseInfluencerLink`, `ExerciseThreatArenaLink`: closed-list selections per exercise.
 
 ### Task + Sub-Task Models

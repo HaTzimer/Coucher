@@ -1,3 +1,4 @@
+using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Users;
 using Coucher.Shared.Models.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,18 +13,16 @@ public sealed class UserNotification
     public NotificationSeverity Severity { get; set; }
     public required string Title { get; set; }
     public required string Message { get; set; }
-    public string? DeepLink { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool IsRead { get; set; }
-    public bool IsPinned { get; set; }
     public DateTime? ReadAt { get; set; }
-    public DateTime? SeenAt { get; set; }
-    public DateTime? ExpiresAt { get; set; }
     public Guid? ExerciseId { get; set; }
     public Guid? TaskId { get; set; }
-    public Guid? RelatedEntityId { get; set; }
 
     [ForeignKey(nameof(UserId))]
     [InverseProperty("Notifications")]
     public required UserProfile User { get; set; }
+
+    [ForeignKey(nameof(ExerciseId))]
+    public Exercise? Exercise { get; set; }
 }

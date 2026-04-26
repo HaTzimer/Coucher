@@ -1,4 +1,5 @@
 using Coucher.Shared.Models.DAL.Tasks;
+using Coucher.Shared.Models.DAL.Admin;
 using Coucher.Shared.Models.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,18 +12,13 @@ public sealed class Exercise
     public string? Description { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
-    public required string TraineeUnitName { get; set; }
-    public required string TrainerUnitName { get; set; }
-    public UnitEchelon TraineeUnitEchelon { get; set; }
-    public UnitEchelon TrainerUnitEchelon { get; set; }
+    public Guid TraineeUnitId { get; set; }
+    public Guid TrainerUnitId { get; set; }
     public bool IsOperationalTerrainExercise { get; set; }
-    public ExerciseStatus Status { get; set; }
-    public bool UsesRelativeDueCompression { get; set; }
+    public Guid StatusClosedListItemId { get; set; }
     public double? DueCompressionFactor { get; set; }
-    public int? RecommendedPreparationDays { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public DateTime? ActivatedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
     public DateTime? ArchiveDueAt { get; set; }
     public DateTime? ArchivedAt { get; set; }
@@ -36,6 +32,15 @@ public sealed class Exercise
 
     [ForeignKey(nameof(PrimaryTraineeUnitContactParticipantId))]
     public ExerciseParticipant? PrimaryTraineeUnitContactParticipant { get; set; }
+
+    [ForeignKey(nameof(TraineeUnitId))]
+    public required Unit TraineeUnit { get; set; }
+
+    [ForeignKey(nameof(TrainerUnitId))]
+    public required Unit TrainerUnit { get; set; }
+
+    [ForeignKey(nameof(StatusClosedListItemId))]
+    public required ClosedListItem StatusClosedListItem { get; set; }
 
     [InverseProperty("Exercise")]
     public required List<ExerciseParticipant> Participants { get; set; }

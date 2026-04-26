@@ -10,7 +10,7 @@ public sealed class FixedTaskTemplateDependency
     public Guid FixedTaskTemplateId { get; set; }
     public Guid DependsOnTemplateId { get; set; }
     public bool IsBlocking { get; set; }
-    public string? Notes { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     [ForeignKey(nameof(FixedTaskTemplateId))]
     [InverseProperty("Dependencies")]

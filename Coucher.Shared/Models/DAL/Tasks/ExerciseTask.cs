@@ -19,7 +19,7 @@ public sealed class ExerciseTask
     public required string Name { get; set; }
     public required string Description { get; set; }
     public string? Notes { get; set; }
-    public DateOnly DueDate { get; set; }
+    public DateTime DueDate { get; set; }
     public Guid? ResponsibleUserId { get; set; }
     public Guid? LastStatusChangedByUserId { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -53,9 +53,6 @@ public sealed class ExerciseTask
 
     [InverseProperty(nameof(ParentTask))]
     public required List<ExerciseTask> SubTasks { get; set; }
-
-    [InverseProperty("ExerciseTask")]
-    public required List<ExerciseTaskInfluencerLink> Influencers { get; set; }
 
     [InverseProperty("ExerciseTask")]
     public required List<TaskDependency> Dependencies { get; set; }
