@@ -1,7 +1,6 @@
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Admin;
 using Coucher.Shared.Constants;
-using Coucher.Shared.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

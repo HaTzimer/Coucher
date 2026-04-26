@@ -1,5 +1,3 @@
-using Coucher.Shared.Models.Enums;
-
 namespace Coucher.WebApi.Models.WebApi.Requests.Tasks;
 
 public sealed class CreateExerciseTaskRequestModel

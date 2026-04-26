@@ -2,8 +2,6 @@ using Coucher.Lib.DAL;
 using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Users;
-using HotChocolate;
-using HotChocolate.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Coucher.Lib.Gql;

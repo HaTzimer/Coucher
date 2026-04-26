@@ -8,7 +8,6 @@ using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
 using HotChocolate.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coucher.WebApi;
 
