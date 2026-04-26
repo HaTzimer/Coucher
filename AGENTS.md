@@ -22,7 +22,7 @@ Dependency direction:
   - No default property values
   - Use `required` on mandatory DAL fields where applicable
   - Use `List<T>` for collections (do not use `IReadOnlyCollection<T>` / `IEnumerable<T>` in entities)
-  - For DAL DateTime field names, use `...At` (for example `CreatedAt`, `UpdatedAt`, `CompletedAt`), not `...AtUtc`
+  - For DAL DateTime field names, prefer `...Time` (for example `CreationTime`, `LastUpdateTime`, `CompletionTime`) and avoid ending with `At` or `AtUtc`
 
 `Coucher.WebApi`:
 

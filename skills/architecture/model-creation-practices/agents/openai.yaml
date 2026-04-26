@@ -1,0 +1,4 @@
+interface:
+  display_name: "Model Creation"
+  short_description: "Enforce shared model creation rules and required usage."
+  default_prompt: "Use $model-creation-practices to keep this model aligned with the repo's model rules."

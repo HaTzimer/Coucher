@@ -1,0 +1,4 @@
+interface:
+  display_name: "Configuration Use"
+  short_description: "Enforce config keys and GetOrThrow access."
+  default_prompt: "Apply repository configuration rules with ConfigurationKeys and throw-on-missing retrieval."

@@ -30,21 +30,21 @@ public sealed class Startup
         services.AddScoped<IExerciseTaskProvider, ExerciseTaskProvider>();
         services.AddScoped<IUserProfileProvider, UserProfileProvider>();
         services.AddScoped<IClosedListItemProvider, ClosedListItemProvider>();
-        services.AddScoped<IFixedTaskTemplateProvider, FixedTaskTemplateProvider>();
+        services.AddScoped<ITaskTemplateProvider, TaskTemplateProvider>();
         services.AddScoped<IUserNotificationProvider, UserNotificationProvider>();
 
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IExerciseTaskRepository, ExerciseTaskRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
         services.AddScoped<IClosedListItemRepository, ClosedListItemRepository>();
-        services.AddScoped<IFixedTaskTemplateRepository, FixedTaskTemplateRepository>();
+        services.AddScoped<ITaskTemplateRepository, TaskTemplateRepository>();
         services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
 
         services.AddScoped<IExerciseService, ExerciseService>();
         services.AddScoped<IExerciseTaskService, ExerciseTaskService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IClosedListItemService, ClosedListItemService>();
-        services.AddScoped<IFixedTaskTemplateService, FixedTaskTemplateService>();
+        services.AddScoped<ITaskTemplateService, TaskTemplateService>();
         services.AddScoped<IUserNotificationService, UserNotificationService>();
 
         var graphQlBuilder = services.AddGraphQLServer();

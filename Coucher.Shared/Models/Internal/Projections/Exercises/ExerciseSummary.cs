@@ -22,6 +22,6 @@ public sealed class ExerciseSummary
     public string? ManagerPosition { get; set; }
     public string? ManagerRank { get; set; }
     public string? CurrentUserRole { get; set; }
-    public Guid StatusClosedListItemId { get; set; }
-    public DateTime? ArchivedAt { get; set; }
+    public Guid StatusId { get; set; }
+    public DateTime? ArchiveTime { get; set; }
 }

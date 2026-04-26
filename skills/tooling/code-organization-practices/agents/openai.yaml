@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Organization"
+  short_description: "Enforce local code organization and return-style rules."
+  default_prompt: "Use $code-organization-practices to keep this change aligned with the repo's code organization rules."

@@ -4,44 +4,44 @@ using Coucher.Shared.Models.DAL.Admin;
 
 namespace Coucher.Lib.Services;
 
-public sealed class FixedTaskTemplateService : IFixedTaskTemplateService
+public sealed class TaskTemplateService : ITaskTemplateService
 {
-    private readonly IFixedTaskTemplateRepository _repository;
+    private readonly ITaskTemplateRepository _repository;
 
-    public FixedTaskTemplateService(IFixedTaskTemplateRepository repository)
+    public TaskTemplateService(ITaskTemplateRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<List<FixedTaskTemplate>> ListAsync(CancellationToken cancellationToken = default)
+    public async Task<List<TaskTemplate>> ListAsync(CancellationToken cancellationToken = default)
     {
         var items = await _repository.ListAsync(cancellationToken);
 
         return items;
     }
 
-    public async Task<FixedTaskTemplate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TaskTemplate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await _repository.GetByIdAsync(id, cancellationToken);
 
         return entity;
     }
 
-    public async Task<FixedTaskTemplate> GetRequiredByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TaskTemplate> GetRequiredByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await _repository.GetRequiredByIdAsync(id, cancellationToken);
 
         return entity;
     }
 
-    public async Task<FixedTaskTemplate> AddAsync(FixedTaskTemplate entity, CancellationToken cancellationToken = default)
+    public async Task<TaskTemplate> AddAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
     {
         var createdEntity = await _repository.AddAsync(entity, cancellationToken);
 
         return createdEntity;
     }
 
-    public async Task<FixedTaskTemplate> UpdateAsync(FixedTaskTemplate entity, CancellationToken cancellationToken = default)
+    public async Task<TaskTemplate> UpdateAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
     {
         var updatedEntity = await _repository.UpdateAsync(entity, cancellationToken);
 

@@ -18,9 +18,9 @@ public enum NotificationType
     TaskStatusChanged = 13,
     TaskMentioned = 14,
     SubTaskCreated = 15,
-    FixedTaskTemplateCreated = 16,
-    FixedTaskTemplateUpdated = 17,
-    FixedTaskTemplateDeleted = 18,
+    TaskTemplateCreated = 16,
+    TaskTemplateUpdated = 17,
+    TaskTemplateDeleted = 18,
     InfluencerCatalogItemCreated = 19,
     InfluencerCatalogItemUpdated = 20,
     InfluencerCatalogItemDeleted = 21

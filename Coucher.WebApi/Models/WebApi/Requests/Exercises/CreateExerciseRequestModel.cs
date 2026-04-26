@@ -10,8 +10,8 @@ public sealed class CreateExerciseRequestModel
     public Guid TraineeUnitId { get; set; }
     public Guid TrainerUnitId { get; set; }
     public bool IsOperationalTerrainExercise { get; set; }
-    public required List<Guid> InfluencerClosedListItemIds { get; set; }
-    public required List<Guid> ThreatArenaClosedListItemIds { get; set; }
+    public required List<Guid> InfluencerIds { get; set; }
+    public required List<Guid> SectionIds { get; set; }
     public required ExerciseParticipantRequestModel Manager { get; set; }
     public ExerciseParticipantRequestModel? TraineeUnitContact { get; set; }
     public required List<ExerciseParticipantRequestModel> AdditionalParticipants { get; set; }

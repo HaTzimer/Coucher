@@ -19,6 +19,8 @@ public class Program
                     $"appsettings.{environment.EnvironmentName}.json",
                     optional: true,
                     reloadOnChange: true);
+                // Ensure container/env overrides take precedence over json defaults.
+                config.AddEnvironmentVariables();
             })
             .ConfigureWebHostDefaults(webBuilder =>
             {

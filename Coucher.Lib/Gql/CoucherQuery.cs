@@ -10,33 +10,33 @@ namespace Coucher.Lib.Gql;
 
 public sealed class CoucherQuery
 {
+    [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    [UseDbContext(typeof(CoucherDbContext))]
-    public IQueryable<Exercise> GetExercises([ScopedService] CoucherDbContext dbContext)
+    public IQueryable<Exercise> GetExercises(CoucherDbContext dbContext)
     {
         var query = dbContext.Exercises.AsNoTracking();
 
         return query;
     }
 
+    [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    [UseDbContext(typeof(CoucherDbContext))]
-    public IQueryable<ExerciseTask> GetExerciseTasks([ScopedService] CoucherDbContext dbContext)
+    public IQueryable<ExerciseTask> GetExerciseTasks(CoucherDbContext dbContext)
     {
         var query = dbContext.ExerciseTasks.AsNoTracking();
 
         return query;
     }
 
+    [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    [UseDbContext(typeof(CoucherDbContext))]
-    public IQueryable<UserProfile> GetUsers([ScopedService] CoucherDbContext dbContext)
+    public IQueryable<UserProfile> GetUsers(CoucherDbContext dbContext)
     {
         var query = dbContext.UserProfiles.AsNoTracking();
 
