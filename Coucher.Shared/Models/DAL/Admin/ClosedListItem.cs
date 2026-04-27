@@ -6,12 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Coucher.Shared.Models.DAL.Admin;
 
 [Table(ConstantValues.ClosedListItemTableName)]
-[Index(nameof(ListKey), nameof(DisplayOrder))]
+[Index(nameof(Key), nameof(DisplayOrder))]
 public sealed class ClosedListItem
 {
     public Guid Id { get; set; }
-    [MaxLength(100)]
-    public required string ListKey { get; set; }
+    [MaxLength(256)]
+    public required string Key { get; set; }
     [MaxLength(256)]
     public required string Value { get; set; }
     [MaxLength(1024)]

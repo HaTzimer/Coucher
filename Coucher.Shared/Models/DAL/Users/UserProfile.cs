@@ -16,28 +16,28 @@ namespace Coucher.Shared.Models.DAL.Users;
 public sealed class UserProfile
 {
     public Guid Id { get; set; }
-    [MaxLength(50)]
-    public required string IdentityNumber { get; set; }
-    [MaxLength(100)]
-    public required string FirstName { get; set; }
-    [MaxLength(100)]
-    public required string LastName { get; set; }
-    [MaxLength(50)]
-    public string? PersonalNumber { get; set; }
     [MaxLength(128)]
+    public required string IdentityNumber { get; set; }
+    [MaxLength(256)]
+    public required string FirstName { get; set; }
+    [MaxLength(256)]
+    public required string LastName { get; set; }
+    [MaxLength(128)]
+    public string? PersonalNumber { get; set; }
+    [MaxLength(512)]
     public string? ExternalId { get; set; }
     public Guid? UnitId { get; set; }
-    [MaxLength(100)]
+    [MaxLength(128)]
     public string? Rank { get; set; }
-    [MaxLength(150)]
+    [MaxLength(128)]
     public string? Position { get; set; }
-    [MaxLength(32)]
+    [MaxLength(128)]
     public string? PhoneNumber { get; set; }
     [MaxLength(256)]
     public string? CivilianEmail { get; set; }
     [MaxLength(256)]
     public string? MilitaryEmail { get; set; }
-    [MaxLength(2048)]
+    [MaxLength(512)]
     public string? ProfileImageUrl { get; set; }
     [MaxLength(512)]
     public string? PasswordHash { get; set; }

@@ -19,9 +19,9 @@ public sealed class UserNotification
     public Guid? UserId { get; set; }
     public NotificationType Type { get; set; }
     public NotificationSeverity Severity { get; set; }
-    [MaxLength(200)]
+    [MaxLength(256)]
     public required string Title { get; set; }
-    [MaxLength(4000)]
+    [MaxLength(1024)]
     public required string Message { get; set; }
     public DateTime CreationTime { get; set; }
     public bool IsRead { get; set; }

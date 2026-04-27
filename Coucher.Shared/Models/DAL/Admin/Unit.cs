@@ -12,7 +12,7 @@ public sealed class Unit
 {
     [Key]
     public Guid Id { get; set; }
-    [MaxLength(200)]
+    [MaxLength(256)]
     public required string Name { get; set; }
     public Guid? EchelonId { get; set; }
     public DateTime CreationTime { get; set; }

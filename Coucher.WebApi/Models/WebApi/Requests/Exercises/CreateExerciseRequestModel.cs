@@ -11,6 +11,7 @@ public sealed class CreateExerciseRequestModel
     public required List<Guid> InfluencerIds { get; set; }
     public required List<Guid> SectionIds { get; set; }
     public required ExerciseParticipantRequestModel Manager { get; set; }
-    public ExerciseParticipantRequestModel? TraineeUnitContact { get; set; }
+    public required List<ExerciseUnitContactRequestModel> TraineeUnitContacts { get; set; }
+    public required List<ExerciseUnitContactRequestModel> TrainerUnitContacts { get; set; }
     public required List<ExerciseParticipantRequestModel> AdditionalParticipants { get; set; }
 }

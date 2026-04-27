@@ -9,6 +9,7 @@ public static class ConstantValues
     public const string UserNotificationTableName = "UserNotifications";
     public const string ExerciseTableName = "Exercises";
     public const string ExerciseParticipantTableName = "ExerciseParticipants";
+    public const string ExerciseUnitContactTableName = "ExerciseUnitContacts";
     public const string ExerciseInfluencerTableName = "ExerciseInfluencers";
     public const string ExerciseSectionTableName = "ExerciseSections";
     public const string ExerciseTaskTableName = "ExerciseTasks";

@@ -19,9 +19,9 @@ public sealed class TaskTemplate
     [MaxLength(256)]
     public required string Name { get; set; }
     [MaxLength(1024)]
-    public required string Description { get; set; }
+    public string? Description { get; set; }
     [MaxLength(1024)]
-    public string? Notes { get; set; }//is needed
+    public string? Notes { get; set; }
     public int DefaultWeeksBeforeExerciseStart { get; set; }
     public DateTime CreationTime { get; set; }
     public DateTime LastUpdateTime { get; set; }

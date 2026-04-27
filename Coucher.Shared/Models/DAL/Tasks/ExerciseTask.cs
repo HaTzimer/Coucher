@@ -24,7 +24,7 @@ public sealed class ExerciseTask
     [MaxLength(256)]
     public required string Name { get; set; }
     [MaxLength(1024)]
-    public required string Description { get; set; }
+    public string? Description { get; set; }
     [MaxLength(1024)]
     public string? Notes { get; set; }
     public required DateTime DueDate { get; set; }
@@ -32,8 +32,8 @@ public sealed class ExerciseTask
     public required DateTime CreationTime { get; set; }
     public required DateTime LastUpdateTime { get; set; }
     public DateTime? LastStatusUpdateTime { get; set; } 
-    public DateTime? CompletionTime { get; set; } //last status update
-    // add has children
+    public DateTime? CompletionTime { get; set; }
+    public bool HasChildren { get; set; }
 
     [ForeignKey(nameof(ExerciseId))]
     [InverseProperty("Tasks")]

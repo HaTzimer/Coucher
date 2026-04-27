@@ -18,6 +18,7 @@ public sealed class CoucherDbContext : DbContext
 
     public DbSet<Exercise> Exercises => Set<Exercise>();
     public DbSet<ExerciseParticipant> ExerciseParticipants => Set<ExerciseParticipant>();
+    public DbSet<ExerciseUnitContact> ExerciseUnitContacts => Set<ExerciseUnitContact>();
     public DbSet<ExerciseInfluencer> ExerciseInfluencers => Set<ExerciseInfluencer>();
     public DbSet<ExerciseSection> ExerciseSections => Set<ExerciseSection>();
     public DbSet<ExerciseTask> ExerciseTasks => Set<ExerciseTask>();
