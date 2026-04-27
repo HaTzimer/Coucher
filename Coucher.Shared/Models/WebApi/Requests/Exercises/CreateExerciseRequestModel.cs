@@ -1,4 +1,4 @@
-namespace Coucher.WebApi.Models.WebApi.Requests.Exercises;
+namespace Coucher.Shared.Models.WebApi.Requests.Exercises;
 
 public sealed class CreateExerciseRequestModel
 {
@@ -15,3 +15,4 @@ public sealed class CreateExerciseRequestModel
     public required List<ExerciseUnitContactRequestModel> TrainerUnitContacts { get; set; }
     public required List<ExerciseParticipantRequestModel> AdditionalParticipants { get; set; }
 }
+

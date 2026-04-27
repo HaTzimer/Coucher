@@ -1,4 +1,4 @@
-namespace Coucher.WebApi.Models.WebApi.Requests.Exercises;
+namespace Coucher.Shared.Models.WebApi.Requests.Exercises;
 
 public sealed class ExerciseUnitContactRequestModel
 {

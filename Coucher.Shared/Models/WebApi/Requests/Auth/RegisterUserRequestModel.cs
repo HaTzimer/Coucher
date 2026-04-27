@@ -1,4 +1,4 @@
-namespace Coucher.WebApi.Models.WebApi.Requests.Auth;
+namespace Coucher.Shared.Models.WebApi.Requests.Auth;
 
 public sealed class RegisterUserRequestModel
 {
@@ -10,3 +10,4 @@ public sealed class RegisterUserRequestModel
     public required string CivilianEmail { get; set; }
     public string? MilitaryEmail { get; set; }
 }
+

@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Users;
 using Coucher.Shared.Models.Enums;
@@ -31,10 +31,10 @@ public sealed class UserNotification
 
     [ForeignKey(nameof(UserId))]
     [InverseProperty("Notifications")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public UserProfile? User { get; set; }
 
     [ForeignKey(nameof(ExerciseId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public Exercise? Exercise { get; set; }
 }

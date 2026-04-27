@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,10 +18,10 @@ public sealed class TaskTemplateInfluencer
 
     [ForeignKey(nameof(TemplateId))]
     [InverseProperty("Influencers")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public TaskTemplate? Template { get; set; }
 
     [ForeignKey(nameof(InfluencerId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ClosedListItem? Influencer { get; set; }
 }

@@ -2,7 +2,7 @@ using Coucher.Shared.Models.DAL.Admin;
 using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Notifications;
 using Coucher.Shared.Models.DAL.Tasks;
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -46,7 +46,7 @@ public sealed class UserProfile
     public DateTime LastUpdateTime { get; set; }
 
     [ForeignKey(nameof(UnitId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public Unit? Unit { get; set; }
 
     [InverseProperty("User")]

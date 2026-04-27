@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,11 +18,11 @@ public sealed class TaskDependency
 
     [ForeignKey(nameof(TaskId))]
     [InverseProperty("Dependencies")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ExerciseTask? Task { get; set; }
 
     [ForeignKey(nameof(DependsOnId))]
     [InverseProperty("DependedOnBy")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ExerciseTask? DependsOn { get; set; }
 }

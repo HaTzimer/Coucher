@@ -1,4 +1,4 @@
-namespace Coucher.WebApi.Models.WebApi.Requests.Auth;
+namespace Coucher.Shared.Models.WebApi.Requests.Auth;
 
 public sealed class ResetPasswordWithSecurityAnswersRequestModel
 {
@@ -7,3 +7,4 @@ public sealed class ResetPasswordWithSecurityAnswersRequestModel
     public required string NewPassword { get; set; }
     public required string ConfirmPassword { get; set; }
 }
+

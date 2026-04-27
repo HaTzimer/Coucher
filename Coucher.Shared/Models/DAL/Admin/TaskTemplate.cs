@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -27,15 +27,15 @@ public sealed class TaskTemplate
     public DateTime LastUpdateTime { get; set; }
 
     [ForeignKey(nameof(ParentId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public TaskTemplate? Parent { get; set; }
 
     [ForeignKey(nameof(SeriesId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ClosedListItem? Series { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ClosedListItem? Category { get; set; }
 
     [InverseProperty(nameof(Parent))]

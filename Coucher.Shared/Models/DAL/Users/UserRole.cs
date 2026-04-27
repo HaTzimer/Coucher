@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Coucher.Shared.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +19,6 @@ public sealed class UserRole
 
     [ForeignKey(nameof(UserId))]
     [InverseProperty("Roles")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public UserProfile? User { get; set; }
 }

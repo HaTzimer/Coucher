@@ -42,6 +42,9 @@ Put this in `Coucher.Lib`:
 - GraphQL types and registration.
 - Business orchestration and use-case logic.
 
+GraphQL rule:
+Keep `Coucher.Lib/Gql/CoucherQuery` in sync with `CoucherDbContext` and expose query fields for every table-backed `DbSet<>` (projection/filter/sort enabled by default). See `AGENTS.md` for the canonical requirement.
+
 ### `Coucher.Shared`
 
 Put this in `Coucher.Shared`:
@@ -55,7 +58,7 @@ Do not put API request DTOs here.
 
 ## DTO placement
 
-Web API request models belong in `Coucher.WebApi` only.
+Web API request models belong in `Coucher.Shared` so they can be reused and kept stable.
 
 Use the request folders already established in the repository:
 

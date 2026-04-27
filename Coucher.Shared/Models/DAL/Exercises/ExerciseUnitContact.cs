@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Coucher.Shared.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -33,6 +33,6 @@ public sealed class ExerciseUnitContact
 
     [ForeignKey(nameof(ExerciseId))]
     [InverseProperty("UnitContacts")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public Exercise? Exercise { get; set; }
 }

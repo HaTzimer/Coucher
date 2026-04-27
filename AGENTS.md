@@ -24,10 +24,14 @@ Dependency direction:
   - Use `List<T>` for collections (do not use `IReadOnlyCollection<T>` / `IEnumerable<T>` in entities)
   - For DAL DateTime field names, prefer `...Time` (for example `CreationTime`, `LastUpdateTime`, `CompletionTime`) and avoid ending with `At` or `AtUtc`
 
+## Constants Policy
+- Shared constant values must live in `Coucher.Shared/ConstantValues.cs`.
+- Do not introduce file-local `const` values for cross-cutting semantics (for example closed-list keys); add them to `ConstantValues` instead.
+
 `Coucher.WebApi`:
 
-- Contains request/transport DTOs only
-- DTO location:
+- WebApi request/transport models live in `Coucher.Shared` (so both WebApi and any external clients can share them).
+- DTO location (in `Coucher.Shared`):
   - `Models/WebApi/Requests/Auth`
   - `Models/WebApi/Requests/Exercises`
   - `Models/WebApi/Requests/Tasks`
@@ -36,7 +40,7 @@ Dependency direction:
 Mapping rule:
 
 - WebApi request DTOs are mapped to DAL/domain entities in WebApi/Lib layers.
-- Do not put API request DTOs in `Coucher.Shared`.
+- Do not put API request DTOs in `Coucher.WebApi`.
 
 ## Canonical Requirements Source
 Source of truth is the user-provided COACHER spec DOCX in `C:\Users\Tasht\Downloads\` (file name contains `COACHER`).
@@ -135,6 +139,11 @@ Planned request families:
 
 ## Provider/Repository/Service Plan (Skill-Aligned)
 Use the `provider-repository-service-pattern` skill as the architecture contract.
+
+## GraphQL Coverage Rule
+- `Coucher.Lib/Gql/CoucherQuery` must expose query fields for **every** table-backed `DbSet<>` in `CoucherDbContext`.
+- When a new table-backed entity is added (new `DbSet<>`), add the corresponding GraphQL query field in the same PR.
+- Queries must support projection/filter/sort (`UseProjection`, `UseFiltering`, `UseSorting`) unless there is an explicit reason not to.
 
 ### Provider Responsibilities (`Coucher.Lib/DAL/Providers`)
 - Own EF Core mechanics only: query shapes, includes, existence checks, persistence commands, transactional save boundaries.

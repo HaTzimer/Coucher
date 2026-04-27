@@ -45,6 +45,7 @@ public sealed class Startup
         services.AddScoped<IClosedListItemService, ClosedListItemService>();
         services.AddScoped<ITaskTemplateService, TaskTemplateService>();
         services.AddScoped<IUserNotificationService, UserNotificationService>();
+        services.AddScoped<IMockSeedService, MockSeedService>();
 
         var graphQlBuilder = services.AddGraphQLServer();
         graphQlBuilder
@@ -61,7 +62,7 @@ public sealed class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
     {
-        if (environment.IsDevelopment())
+        if (environment.IsDevelopment() || environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase))
         {
             app.UseSwagger();
             app.UseSwaggerUI();

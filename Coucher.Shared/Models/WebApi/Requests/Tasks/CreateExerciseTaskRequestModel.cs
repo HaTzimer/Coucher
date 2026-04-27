@@ -1,4 +1,4 @@
-namespace Coucher.WebApi.Models.WebApi.Requests.Tasks;
+namespace Coucher.Shared.Models.WebApi.Requests.Tasks;
 
 public sealed class CreateExerciseTaskRequestModel
 {
@@ -14,3 +14,4 @@ public sealed class CreateExerciseTaskRequestModel
     public required List<Guid> DependencyTaskIds { get; set; }
     public bool SaveAsFixedTemplate { get; set; }
 }
+

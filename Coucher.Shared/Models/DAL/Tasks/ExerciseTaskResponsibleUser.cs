@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Coucher.Shared.Models.DAL.Users;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -19,11 +19,11 @@ public sealed class ExerciseTaskResponsibleUser
 
     [ForeignKey(nameof(TaskId))]
     [InverseProperty("ResponsibleUsers")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ExerciseTask? Task { get; set; }
 
     [ForeignKey(nameof(UserId))]
     [InverseProperty("ResponsibleTaskLinks")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public UserProfile? User { get; set; }
 }

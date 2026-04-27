@@ -1,6 +1,6 @@
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Admin;
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -33,15 +33,15 @@ public sealed class Exercise
     public Guid? ArchivedByUserId { get; set; }
 
     [ForeignKey(nameof(TraineeUnitId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public Unit? TraineeUnit { get; set; }
 
     [ForeignKey(nameof(TrainerUnitId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public Unit? TrainerUnit { get; set; }
 
     [ForeignKey(nameof(StatusId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ClosedListItem? Status { get; set; }
 
     [InverseProperty("Exercise")]

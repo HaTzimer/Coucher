@@ -1,4 +1,4 @@
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Coucher.Shared.Models.Enums;
 using Coucher.Shared.Models.DAL.Users;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +19,11 @@ public sealed class ExerciseParticipant
 
     [ForeignKey(nameof(ExerciseId))]
     [InverseProperty("Participants")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public Exercise? Exercise { get; set; }
 
     [ForeignKey(nameof(UserId))]
     [InverseProperty("ExerciseParticipants")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public UserProfile? User { get; set; }
 }

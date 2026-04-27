@@ -1,4 +1,4 @@
-namespace Coucher.WebApi.Models.WebApi.Requests.Auth;
+namespace Coucher.Shared.Models.WebApi.Requests.Auth;
 
 public sealed class CompleteFirstLoginRequestModel
 {
@@ -7,3 +7,4 @@ public sealed class CompleteFirstLoginRequestModel
     public required string ConfirmPassword { get; set; }
     public required List<SecurityQuestionAnswerRequestModel> SecurityQuestionAnswers { get; set; }
 }
+

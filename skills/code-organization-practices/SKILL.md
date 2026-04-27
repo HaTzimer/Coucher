@@ -14,6 +14,7 @@ Read [references/rules.md](references/rules.md) before making structural or form
 ## Core Rules
 
 - Keep code in the correct layer and folder for its responsibility.
+- Shared constant values belong in `Coucher.Shared/ConstantValues.cs` (do not add file-local `const` values for shared semantics).
 - Prefer small, readable methods over condensed expressions.
 - Do not return expressions directly when a value can be assigned first.
 - Store returned values in a local `var` before returning them.

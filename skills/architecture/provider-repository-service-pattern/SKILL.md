@@ -62,7 +62,7 @@ Read [references/architecture.md](references/architecture.md) before implementin
 
 ## DTO And Model Rules
 
-- Put Web API request models under `Coucher.WebApi/Models/WebApi/Requests/...`.
+- Put Web API request models under `Coucher.Shared/Models/WebApi/Requests/...`.
 - Map Web API request DTOs to DAL/domain entities in `WebApi` or `Lib`.
 - Keep EF-ready DAL/domain entities in `Coucher.Shared`.
 - Keep shared enums in `Coucher.Shared/Models/Enums`.

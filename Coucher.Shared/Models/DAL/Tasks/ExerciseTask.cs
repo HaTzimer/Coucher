@@ -1,6 +1,6 @@
 using Coucher.Shared.Models.DAL.Admin;
 using Coucher.Shared.Models.DAL.Exercises;
-using Coucher.Shared.Constants;
+using Coucher.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -37,28 +37,28 @@ public sealed class ExerciseTask
 
     [ForeignKey(nameof(ExerciseId))]
     [InverseProperty("Tasks")]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public Exercise? Exercise { get; set; }
 
     [ForeignKey(nameof(ParentId))]
     [InverseProperty(nameof(Children))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ExerciseTask? Parent { get; set; }
 
     [ForeignKey(nameof(SourceId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public TaskTemplate? Source { get; set; }
 
     [ForeignKey(nameof(SeriesId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ClosedListItem? Series { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ClosedListItem? Category { get; set; }
 
     [ForeignKey(nameof(StatusId))]
-    [DeleteBehavior(CommonConstantValues.DeleteBehaviorType)]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     public ClosedListItem? Status { get; set; }
 
     [InverseProperty(nameof(Parent))]

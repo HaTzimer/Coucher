@@ -1,4 +1,4 @@
-namespace Coucher.Shared.Constants;
+namespace Coucher.Shared;
 
 public static class ConfigurationKeys
 {

@@ -1,6 +1,6 @@
-using Coucher.WebApi.Models.WebApi.Requests.Common;
+using Coucher.Shared.Models.WebApi.Requests.Common;
 
-namespace Coucher.WebApi.Models.WebApi.Requests.Tasks;
+namespace Coucher.Shared.Models.WebApi.Requests.Tasks;
 
 public sealed class TaskFilterRequestModel
 {
@@ -10,3 +10,4 @@ public sealed class TaskFilterRequestModel
     public string? SearchTerm { get; set; }
     public required PagedQueryRequestModel Paging { get; set; }
 }
+

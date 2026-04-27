@@ -8,6 +8,11 @@
 - Keep shared models, enums, interfaces, and extensions in the Shared layer when they truly belong there.
 - Keep extensions in an `Extensions` folder.
 
+## Constants
+
+- Shared constant values must be defined in `Coucher.Shared/ConstantValues.cs`.
+- Do not introduce file-local `const` values for shared semantics (for example closed-list keys); add them to `ConstantValues` instead.
+
 ## Return formatting
 
 Always use a local variable before returning a computed value or awaited result.
