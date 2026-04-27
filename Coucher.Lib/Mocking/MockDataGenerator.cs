@@ -33,7 +33,14 @@ internal sealed class MockDataGenerator
         var users = BuildUsers(now, userCount, units, rng);
         var userRoles = BuildUserRoles(now, users);
 
-        var exercises = BuildExercises(now, exerciseCount, units, byKey[ConstantValues.ExerciseStatusClosedListKey], rng);
+        var exercises = BuildExercises(
+            now,
+            exerciseCount,
+            units,
+            users,
+            byKey[ConstantValues.ExerciseStatusClosedListKey],
+            rng
+        );
         var exerciseParticipants = BuildExerciseParticipants(
             now,
             exercises,
@@ -264,6 +271,7 @@ internal sealed class MockDataGenerator
         DateTime now,
         int count,
         List<Unit> units,
+        List<UserProfile> users,
         List<ClosedListItem> exerciseStatuses,
         Random rng
     )
@@ -285,6 +293,7 @@ internal sealed class MockDataGenerator
             var end = DateOnly.FromDateTime(now.Date.AddDays(14 + (i * 10)));
             var traineeUnit = units[rng.Next(units.Count)];
             var trainerUnit = units[rng.Next(units.Count)];
+            var creator = users[rng.Next(users.Count)];
 
             exercises.Add(new Exercise
             {
@@ -297,6 +306,7 @@ internal sealed class MockDataGenerator
                 TrainerUnitId = trainerUnit.Id,
                 StatusId = activeStatus.Id,
                 CompressionFactor = 1.0,
+                CreatedByUserId = creator.Id,
                 CreationTime = now,
                 LastUpdateTime = now,
                 CompletionTime = null,
@@ -325,7 +335,11 @@ internal sealed class MockDataGenerator
 
         foreach (var exercise in exercises)
         {
-            var manager = users[rng.Next(users.Count)];
+            var creatorUserId = exercise.CreatedByUserId ?? users.First().Id;
+            var creatorIsManager = rng.NextDouble() < 0.5;
+            var manager = creatorIsManager
+                ? users.First(user => user.Id == creatorUserId)
+                : users[rng.Next(users.Count)];
             participants.Add(new ExerciseParticipant
             {
                 Id = Guid.NewGuid(),
@@ -334,6 +348,18 @@ internal sealed class MockDataGenerator
                 Role = ExerciseRole.ExerciseManager,
                 CreationTime = now
             });
+
+            if (!creatorIsManager)
+            {
+                participants.Add(new ExerciseParticipant
+                {
+                    Id = Guid.NewGuid(),
+                    ExerciseId = exercise.Id,
+                    UserId = creatorUserId,
+                    Role = ExerciseRole.ExerciseParticipant,
+                    CreationTime = now
+                });
+            }
 
             for (var i = 0; i < additionalParticipantsPerExercise; i++)
             {

@@ -39,6 +39,13 @@ public sealed class UserRoleRepository : IUserRoleRepository
         return entity;
     }
 
+    public async Task<List<UserRole>> ListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var items = await _provider.ListByUserIdAsync(userId, cancellationToken);
+
+        return items;
+    }
+
     public async Task<UserRole?> GetByUserIdAndRoleAsync(
         Guid userId,
         GlobalRole role,

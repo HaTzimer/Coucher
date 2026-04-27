@@ -41,6 +41,15 @@ public sealed class UserRoleProvider : IUserRoleProvider
         return entity;
     }
 
+    public async Task<List<UserRole>> ListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<UserRole>();
+        var items = await entities.Where(item => item.UserId == userId).ToListAsync(cancellationToken);
+
+        return items;
+    }
+
     public async Task<UserRole?> GetByUserIdAndRoleAsync(
         Guid userId,
         GlobalRole role,

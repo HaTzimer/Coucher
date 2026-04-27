@@ -38,6 +38,48 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
         return entity;
     }
 
+    public async Task<Guid> GetRequiredExerciseIdByTaskIdAsync(Guid taskId, CancellationToken cancellationToken = default)
+    {
+        var task = await GetRequiredByIdAsync(taskId, cancellationToken);
+
+        return task.ExerciseId;
+    }
+
+    public async Task<Guid> GetRequiredExerciseIdByDependencyIdAsync(
+        Guid dependencyId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var dependency = await _provider.GetTaskDependencyByIdAsync(dependencyId, cancellationToken);
+        if (dependency is null || !dependency.TaskId.HasValue)
+        {
+            throw new KeyNotFoundException($"{nameof(TaskDependency)} '{dependencyId}' was not found.");
+        }
+
+        var exerciseId = await GetRequiredExerciseIdByTaskIdAsync(dependency.TaskId.Value, cancellationToken);
+
+        return exerciseId;
+    }
+
+    public async Task<Guid> GetRequiredExerciseIdByResponsibilityIdAsync(
+        Guid responsibilityId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var responsibility = await _provider.GetExerciseTaskResponsibleUserByIdAsync(
+            responsibilityId,
+            cancellationToken
+        );
+        if (responsibility is null || !responsibility.TaskId.HasValue)
+        {
+            throw new KeyNotFoundException($"{nameof(ExerciseTaskResponsibleUser)} '{responsibilityId}' was not found.");
+        }
+
+        var exerciseId = await GetRequiredExerciseIdByTaskIdAsync(responsibility.TaskId.Value, cancellationToken);
+
+        return exerciseId;
+    }
+
     public async Task<int> GetNextSerialNumberAsync(Guid exerciseId, CancellationToken cancellationToken = default)
     {
         var nextSerialNumber = await _provider.GetNextSerialNumberAsync(exerciseId, cancellationToken);

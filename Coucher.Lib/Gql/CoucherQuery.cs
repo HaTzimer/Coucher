@@ -1,10 +1,11 @@
 using Coucher.Lib.DAL;
+using Coucher.Shared.Interfaces.Services;
 using Coucher.Shared.Models.DAL.Admin;
 using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Notifications;
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Users;
-using Coucher.Shared.Interfaces.Services;
+using Coucher.Shared.Models.Internal.Authorization;
 using HotChocolate;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,11 +20,11 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ClosedListItem>> GetClosedListItems(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
+        _ = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
         var query = dbContext.ClosedListItems.AsNoTracking();
 
         return query;
@@ -36,11 +37,11 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<Unit>> GetUnits(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
+        _ = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
         var query = dbContext.Units.AsNoTracking();
 
         return query;
@@ -53,12 +54,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<Exercise>> GetExercises(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.Exercises.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleExerciseIds = GetVisibleExerciseIdsQuery(dbContext, snapshot);
+        var query = dbContext.Exercises
+            .AsNoTracking()
+            .Where(item => visibleExerciseIds.Contains(item.Id));
 
         return query;
     }
@@ -70,12 +74,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseParticipant>> GetExerciseParticipants(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.ExerciseParticipants.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleExerciseIds = GetVisibleExerciseIdsQuery(dbContext, snapshot);
+        var query = dbContext.ExerciseParticipants
+            .AsNoTracking()
+            .Where(item => item.ExerciseId.HasValue && visibleExerciseIds.Contains(item.ExerciseId.Value));
 
         return query;
     }
@@ -87,12 +94,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseUnitContact>> GetExerciseUnitContacts(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.ExerciseUnitContacts.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleExerciseIds = GetVisibleExerciseIdsQuery(dbContext, snapshot);
+        var query = dbContext.ExerciseUnitContacts
+            .AsNoTracking()
+            .Where(item => item.ExerciseId.HasValue && visibleExerciseIds.Contains(item.ExerciseId.Value));
 
         return query;
     }
@@ -104,12 +114,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseInfluencer>> GetExerciseInfluencers(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.ExerciseInfluencers.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleExerciseIds = GetVisibleExerciseIdsQuery(dbContext, snapshot);
+        var query = dbContext.ExerciseInfluencers
+            .AsNoTracking()
+            .Where(item => item.ExerciseId.HasValue && visibleExerciseIds.Contains(item.ExerciseId.Value));
 
         return query;
     }
@@ -121,12 +134,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseSection>> GetExerciseSections(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.ExerciseSections.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleExerciseIds = GetVisibleExerciseIdsQuery(dbContext, snapshot);
+        var query = dbContext.ExerciseSections
+            .AsNoTracking()
+            .Where(item => item.ExerciseId.HasValue && visibleExerciseIds.Contains(item.ExerciseId.Value));
 
         return query;
     }
@@ -138,12 +154,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseTask>> GetExerciseTasks(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.ExerciseTasks.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleExerciseIds = GetVisibleExerciseIdsQuery(dbContext, snapshot);
+        var query = dbContext.ExerciseTasks
+            .AsNoTracking()
+            .Where(item => visibleExerciseIds.Contains(item.ExerciseId));
 
         return query;
     }
@@ -155,12 +174,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseTaskResponsibleUser>> GetExerciseTaskResponsibleUsers(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.ExerciseTaskResponsibleUsers.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleTaskIds = GetVisibleTaskIdsQuery(dbContext, snapshot);
+        var query = dbContext.ExerciseTaskResponsibleUsers
+            .AsNoTracking()
+            .Where(item => item.TaskId.HasValue && visibleTaskIds.Contains(item.TaskId.Value));
 
         return query;
     }
@@ -172,12 +194,15 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskDependency>> GetTaskDependencies(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.TaskDependencies.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var visibleTaskIds = GetVisibleTaskIdsQuery(dbContext, snapshot);
+        var query = dbContext.TaskDependencies
+            .AsNoTracking()
+            .Where(item => item.TaskId.HasValue && visibleTaskIds.Contains(item.TaskId.Value));
 
         return query;
     }
@@ -189,11 +214,11 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskTemplate>> GetTaskTemplates(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
+        await EnsureAdminAccessAsync(authorizationService, cancellationToken);
         var query = dbContext.TaskTemplates.AsNoTracking();
 
         return query;
@@ -206,11 +231,11 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskTemplateDependency>> GetTaskTemplateDependencies(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
+        await EnsureAdminAccessAsync(authorizationService, cancellationToken);
         var query = dbContext.TaskTemplateDependencies.AsNoTracking();
 
         return query;
@@ -223,11 +248,11 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskTemplateInfluencer>> GetTaskTemplateInfluencers(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
+        await EnsureAdminAccessAsync(authorizationService, cancellationToken);
         var query = dbContext.TaskTemplateInfluencers.AsNoTracking();
 
         return query;
@@ -240,11 +265,11 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<UserProfile>> GetUsers(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
+        await EnsureAdminAccessAsync(authorizationService, cancellationToken);
         var query = dbContext.UserProfiles.AsNoTracking();
 
         return query;
@@ -257,11 +282,11 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<UserRole>> GetUserRoles(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
+        await EnsureAdminAccessAsync(authorizationService, cancellationToken);
         var query = dbContext.UserRoles.AsNoTracking();
 
         return query;
@@ -274,21 +299,60 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<UserNotification>> GetUserNotifications(
         CoucherDbContext dbContext,
-        [Service] ICurrentUserService currentUserService,
+        [Service] ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
-        var query = dbContext.UserNotifications.AsNoTracking();
+        var snapshot = await authorizationService.GetCurrentAuthorizationSnapshotAsync(cancellationToken);
+        var query = dbContext.UserNotifications
+            .AsNoTracking()
+            .Where(item => item.UserId == snapshot.UserId);
 
         return query;
     }
 
-    private static async Task EnsureAuthenticatedAsync(
-        ICurrentUserService currentUserService,
+    private static IQueryable<Guid> GetVisibleExerciseIdsQuery(
+        CoucherDbContext dbContext,
+        CurrentAuthorizationSnapshot snapshot
+    )
+    {
+        var exercises = dbContext.Exercises.AsNoTracking();
+        if (snapshot.IsAdmin || snapshot.IsAuditor)
+        {
+            var allExerciseIds = exercises.Select(item => item.Id);
+
+            return allExerciseIds;
+        }
+
+        var visibleExerciseIds = exercises
+            .Where(item =>
+                item.CreatedByUserId == snapshot.UserId
+                || item.Participants.Any(participant => participant.UserId == snapshot.UserId)
+            )
+            .Select(item => item.Id);
+
+        return visibleExerciseIds;
+    }
+
+    private static IQueryable<Guid> GetVisibleTaskIdsQuery(
+        CoucherDbContext dbContext,
+        CurrentAuthorizationSnapshot snapshot
+    )
+    {
+        var visibleExerciseIds = GetVisibleExerciseIdsQuery(dbContext, snapshot);
+        var visibleTaskIds = dbContext.ExerciseTasks
+            .AsNoTracking()
+            .Where(item => visibleExerciseIds.Contains(item.ExerciseId))
+            .Select(item => item.Id);
+
+        return visibleTaskIds;
+    }
+
+    private static async Task EnsureAdminAccessAsync(
+        ICoucherAuthorizationService authorizationService,
         CancellationToken cancellationToken
     )
     {
-        _ = await currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
     }
 }

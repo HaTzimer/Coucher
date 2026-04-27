@@ -8,12 +8,15 @@ namespace Coucher.Lib.Services;
 public sealed class ClosedListItemService : IClosedListItemService
 {
     private readonly IClosedListItemRepository _repository;
-    private readonly ICurrentUserService _currentUserService;
+    private readonly ICoucherAuthorizationService _authorizationService;
 
-    public ClosedListItemService(IClosedListItemRepository repository, ICurrentUserService currentUserService)
+    public ClosedListItemService(
+        IClosedListItemRepository repository,
+        ICoucherAuthorizationService authorizationService
+    )
     {
         _repository = repository;
-        _currentUserService = currentUserService;
+        _authorizationService = authorizationService;
     }
 
     public async Task<List<ClosedListItem>> ListAsync(CancellationToken cancellationToken = default)
@@ -42,7 +45,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var now = DateTime.UtcNow;
         var entity = new ClosedListItem
         {
@@ -65,7 +68,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var now = DateTime.UtcNow;
         var entities = requests.Select(request => new ClosedListItem
         {
@@ -89,7 +92,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
         entity.Value = request.Value;
         entity.Description = request.Description;
@@ -106,7 +109,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
         entity.Value = value;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -121,7 +124,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
         entity.Description = description;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -136,7 +139,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
         entity.DisplayOrder = displayOrder;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -150,7 +153,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         if (request.Items.Count == 0)
         {
             return new List<ClosedListItem>();
@@ -181,7 +184,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var archivedEntity = await _repository.ArchiveClosedListItemAsync(closedListItemId, cancellationToken);
 
         return archivedEntity;
@@ -192,7 +195,7 @@ public sealed class ClosedListItemService : IClosedListItemService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var unarchivedEntity = await _repository.UnarchiveClosedListItemAsync(closedListItemId, cancellationToken);
 
         return unarchivedEntity;

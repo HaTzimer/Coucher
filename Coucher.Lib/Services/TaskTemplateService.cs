@@ -9,11 +9,17 @@ public sealed class TaskTemplateService : ITaskTemplateService
 {
     private readonly ITaskTemplateRepository _repository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICoucherAuthorizationService _authorizationService;
 
-    public TaskTemplateService(ITaskTemplateRepository repository, ICurrentUserService currentUserService)
+    public TaskTemplateService(
+        ITaskTemplateRepository repository,
+        ICurrentUserService currentUserService,
+        ICoucherAuthorizationService authorizationService
+    )
     {
         _repository = repository;
         _currentUserService = currentUserService;
+        _authorizationService = authorizationService;
     }
 
     public async Task<List<TaskTemplate>> ListAsync(CancellationToken cancellationToken = default)
@@ -42,6 +48,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
@@ -59,6 +66,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         if (requests.Count == 0)
         {
@@ -88,6 +96,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.SeriesId = request.SeriesId;
@@ -115,6 +124,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.SeriesId = seriesId;
@@ -130,6 +140,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.CategoryId = categoryId;
@@ -145,6 +156,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.DefaultWeeksBeforeExerciseStart = defaultWeeksBeforeExerciseStart;
@@ -160,6 +172,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.Name = request.Name;
@@ -177,6 +190,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var parentTemplate = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         if (parentTemplate.ParentId.HasValue)
@@ -203,6 +217,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
@@ -230,6 +245,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var createdEntities = await _repository.CreateTaskTemplateInfluencersAsync(
             taskTemplateId,
@@ -246,6 +262,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         await _repository.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
     }
@@ -255,6 +272,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         await _repository.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
     }
@@ -264,6 +282,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var archivedEntity = await _repository.ArchiveTaskTemplateAsync(taskTemplateId, cancellationToken);
 
@@ -275,6 +294,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var unarchivedEntity = await _repository.UnarchiveTaskTemplateAsync(taskTemplateId, cancellationToken);
 

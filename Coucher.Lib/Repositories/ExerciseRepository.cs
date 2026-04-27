@@ -134,6 +134,39 @@ public sealed class ExerciseRepository : IExerciseRepository
         return items;
     }
 
+    public async Task<bool> IsExerciseCreatedByUserAsync(
+        Guid exerciseId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var exists = await _provider.IsExerciseCreatedByUserAsync(exerciseId, userId, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task<bool> IsExerciseParticipantAsync(
+        Guid exerciseId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var exists = await _provider.IsExerciseParticipantAsync(exerciseId, userId, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task<bool> IsExerciseManagerAsync(
+        Guid exerciseId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var exists = await _provider.IsExerciseManagerAsync(exerciseId, userId, cancellationToken);
+
+        return exists;
+    }
+
     public async Task<ExerciseParticipant> UpdateExerciseParticipantAsync(
         ExerciseParticipant entity,
         CancellationToken cancellationToken = default
@@ -142,6 +175,34 @@ public sealed class ExerciseRepository : IExerciseRepository
         var updatedEntity = await _provider.UpdateExerciseParticipantAsync(entity, cancellationToken);
 
         return updatedEntity;
+    }
+
+    public async Task<ExerciseSection> GetRequiredExerciseSectionByIdAsync(
+        Guid sectionLinkId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entity = await _provider.GetExerciseSectionByIdAsync(sectionLinkId, cancellationToken);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"{nameof(ExerciseSection)} '{sectionLinkId}' was not found.");
+        }
+
+        return entity;
+    }
+
+    public async Task<ExerciseInfluencer> GetRequiredExerciseInfluencerByIdAsync(
+        Guid influencerLinkId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entity = await _provider.GetExerciseInfluencerByIdAsync(influencerLinkId, cancellationToken);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"{nameof(ExerciseInfluencer)} '{influencerLinkId}' was not found.");
+        }
+
+        return entity;
     }
 
     public async Task<ExerciseUnitContact> GetRequiredExerciseUnitContactByIdAsync(

@@ -4,6 +4,12 @@ namespace Coucher.Shared.Interfaces.Repositories;
 
 public interface IExerciseTaskRepository : IRepositoryBase<ExerciseTask, Guid>
 {
+    Task<Guid> GetRequiredExerciseIdByTaskIdAsync(Guid taskId, CancellationToken cancellationToken = default);
+    Task<Guid> GetRequiredExerciseIdByDependencyIdAsync(Guid dependencyId, CancellationToken cancellationToken = default);
+    Task<Guid> GetRequiredExerciseIdByResponsibilityIdAsync(
+        Guid responsibilityId,
+        CancellationToken cancellationToken = default
+    );
     Task<int> GetNextSerialNumberAsync(Guid exerciseId, CancellationToken cancellationToken = default);
     Task<ExerciseTask> CreateExerciseTaskAsync(ExerciseTask entity, CancellationToken cancellationToken = default);
     Task<List<ExerciseTask>> CreateExerciseTasksAsync(

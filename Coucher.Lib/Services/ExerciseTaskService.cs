@@ -12,18 +12,21 @@ public sealed class ExerciseTaskService : IExerciseTaskService
     private readonly IExerciseTaskRepository _repository;
     private readonly IClosedListItemRepository _closedListItemRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICoucherAuthorizationService _authorizationService;
     private readonly Guid _defaultExerciseTaskStatusId;
 
     public ExerciseTaskService(
         IExerciseTaskRepository repository,
         IClosedListItemRepository closedListItemRepository,
         ICurrentUserService currentUserService,
+        ICoucherAuthorizationService authorizationService,
         IAugustusConfiguration config
     )
     {
         _repository = repository;
         _closedListItemRepository = closedListItemRepository;
         _currentUserService = currentUserService;
+        _authorizationService = authorizationService;
         _defaultExerciseTaskStatusId = config.GetOrThrow<Guid>(
             ConfigurationKeys.TaskDefaultsSection,
             ConfigurationKeys.DefaultExerciseTaskStatusId
@@ -56,7 +59,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanCreateExerciseTaskAsync(request.ExerciseId, cancellationToken);
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(request.ExerciseId, cancellationToken);
         var isCompletedStatus = await IsCompletedStatusAsync(_defaultExerciseTaskStatusId, cancellationToken);
@@ -79,7 +82,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(parentTaskId, cancellationToken);
         var parentTask = await _repository.GetRequiredByIdAsync(parentTaskId, cancellationToken);
         if (parentTask.ParentId.HasValue)
         {
@@ -131,10 +134,14 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         if (requests.Count == 0)
         {
             return new List<ExerciseTask>();
+        }
+
+        foreach (var exerciseId in requests.Select(item => item.ExerciseId).Distinct())
+        {
+            await _authorizationService.EnsureCanCreateExerciseTaskAsync(exerciseId, cancellationToken);
         }
 
         var groupedRequests = requests.GroupBy(request => request.ExerciseId).ToList();
@@ -178,6 +185,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         var now = DateTime.UtcNow;
@@ -206,7 +214,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         entity.DueDate = dueDate;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -221,7 +229,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         entity.SeriesId = seriesId;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -236,7 +244,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         entity.CategoryId = categoryId;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -251,6 +259,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         var now = DateTime.UtcNow;
@@ -273,7 +282,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         entity.Name = request.Name;
         entity.Description = request.Description;
@@ -291,7 +300,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
         var parsedDependsOnIds = dependsOnIds.Select(item => ParseGuidString(item, "DependsOnId")).Distinct().ToList();
         if (parsedDependsOnIds.Count == 0)
         {
@@ -330,7 +339,10 @@ public sealed class ExerciseTaskService : IExerciseTaskService
 
     public async Task DeleteExerciseTaskDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default)
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanFullyEditExerciseTaskDependencyAsync(
+            dependencyId,
+            cancellationToken
+        );
         await _repository.DeleteTaskDependencyAsync(dependencyId, cancellationToken);
     }
 
@@ -340,7 +352,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         var entity = new ExerciseTaskResponsibleUser
         {
@@ -360,7 +372,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
         var parsedUserIds = userIds.Select(item => ParseGuidString(item, "UserId")).Distinct().ToList();
         var updatedEntities = await _repository.ReplaceExerciseTaskResponsibleUsersAsync(
             taskId,
@@ -377,7 +389,10 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanPartiallyEditExerciseTaskResponsibleUserAsync(
+            responsibilityId,
+            cancellationToken
+        );
         await _repository.DeleteExerciseTaskResponsibleUserAsync(responsibilityId, cancellationToken);
     }
 
@@ -387,7 +402,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
         await _repository.DeleteExerciseTaskResponsibleUsersAsync(
             taskId,
             request.ResponsibilityIds.Distinct().ToList(),
@@ -416,7 +431,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
 
     public async Task DeleteExerciseTaskDeepAsync(Guid taskId, CancellationToken cancellationToken = default)
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
         await _repository.DeleteExerciseTaskDeepAsync(taskId, cancellationToken);
     }
 

@@ -13,18 +13,21 @@ public sealed class ExerciseService : IExerciseService
     private readonly IExerciseRepository _repository;
     private readonly IClosedListItemRepository _closedListItemRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICoucherAuthorizationService _authorizationService;
     private readonly Guid _defaultExerciseStatusId;
 
     public ExerciseService(
         IExerciseRepository repository,
         IClosedListItemRepository closedListItemRepository,
         ICurrentUserService currentUserService,
+        ICoucherAuthorizationService authorizationService,
         IAugustusConfiguration config
     )
     {
         _repository = repository;
         _closedListItemRepository = closedListItemRepository;
         _currentUserService = currentUserService;
+        _authorizationService = authorizationService;
         _defaultExerciseStatusId = config.GetOrThrow<Guid>(
             ConfigurationKeys.ExerciseDefaultsSection,
             ConfigurationKeys.DefaultExerciseStatusId
@@ -57,7 +60,8 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanCreateExerciseAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var now = DateTime.UtcNow;
         var exerciseId = Guid.NewGuid();
         var entity = new Exercise
@@ -71,6 +75,7 @@ public sealed class ExerciseService : IExerciseService
             TrainerUnitId = request.TrainerUnitId,
             StatusId = _defaultExerciseStatusId,
             CompressionFactor = request.CompressionFactor,
+            CreatedByUserId = currentUserId,
             CreationTime = now,
             LastUpdateTime = now,
             CompletionTime = null,
@@ -93,7 +98,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         entity.Name = request.Name;
         entity.Description = request.Description;
@@ -113,7 +118,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         entity.Name = request.Name;
         entity.Description = request.Description;
@@ -129,7 +134,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         entity.EndDate = endDate;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -144,7 +149,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         entity.StatusId = statusId;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -159,7 +164,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         entity.TraineeUnitId = traineeUnitId;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -174,7 +179,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         entity.TrainerUnitId = trainerUnitId;
         entity.LastUpdateTime = DateTime.UtcNow;
@@ -189,7 +194,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = new ExerciseParticipant
         {
             Id = Guid.NewGuid(),
@@ -209,7 +214,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseByParticipantIdAsync(participantId, cancellationToken);
         if (role == ExerciseRole.ExerciseManager)
         {
             throw new InvalidOperationException("Use the exercise manager endpoint to assign the manager role.");
@@ -233,7 +238,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         var parsedManagerUserId = ParseManagerUserId(managerUserId);
         var participants = await _repository.ListExerciseParticipantsByExerciseIdAsync(exerciseId, cancellationToken);
@@ -273,7 +278,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = new ExerciseSection
         {
             Id = Guid.NewGuid(),
@@ -291,7 +296,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = new ExerciseInfluencer
         {
             Id = Guid.NewGuid(),
@@ -309,7 +314,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = new ExerciseUnitContact
         {
             Id = Guid.NewGuid(),
@@ -332,7 +337,7 @@ public sealed class ExerciseService : IExerciseService
         CancellationToken cancellationToken = default
     )
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseByContactIdAsync(contactId, cancellationToken);
         var entity = await _repository.GetRequiredExerciseUnitContactByIdAsync(contactId, cancellationToken);
         entity.ContactType = request.ContactType;
         entity.FirstName = request.FirstName;
@@ -346,6 +351,7 @@ public sealed class ExerciseService : IExerciseService
 
     public async Task<Exercise> ArchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default)
     {
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         var archivedStatusId = await _closedListItemRepository.GetHighestDisplayOrderItemIdByKeyAsync(
@@ -368,7 +374,7 @@ public sealed class ExerciseService : IExerciseService
 
     public async Task<Exercise> UnarchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default)
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         var archivedStatusId = await _closedListItemRepository.GetHighestDisplayOrderItemIdByKeyAsync(
             ConstantValues.ExerciseStatusClosedListKey,
@@ -394,7 +400,7 @@ public sealed class ExerciseService : IExerciseService
 
     public async Task RemoveExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default)
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseByParticipantIdAsync(participantId, cancellationToken);
         var participant = await _repository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
         if (participant.ExerciseId is null)
         {
@@ -423,19 +429,22 @@ public sealed class ExerciseService : IExerciseService
 
     public async Task RemoveExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default)
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseBySectionLinkIdAsync(sectionLinkId, cancellationToken);
         await _repository.DeleteExerciseSectionAsync(sectionLinkId, cancellationToken);
     }
 
     public async Task RemoveExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseByInfluencerLinkIdAsync(
+            influencerLinkId,
+            cancellationToken
+        );
         await _repository.DeleteExerciseInfluencerAsync(influencerLinkId, cancellationToken);
     }
 
     public async Task RemoveExerciseUnitContactAsync(Guid contactId, CancellationToken cancellationToken = default)
     {
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseByContactIdAsync(contactId, cancellationToken);
         await _repository.DeleteExerciseUnitContactAsync(contactId, cancellationToken);
     }
 

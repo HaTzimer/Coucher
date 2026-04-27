@@ -29,8 +29,19 @@ public interface IExerciseRepository : IRepositoryBase<Exercise, Guid>
         Guid exerciseId,
         CancellationToken cancellationToken = default
     );
+    Task<bool> IsExerciseCreatedByUserAsync(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default);
+    Task<bool> IsExerciseParticipantAsync(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default);
+    Task<bool> IsExerciseManagerAsync(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default);
     Task<ExerciseParticipant> UpdateExerciseParticipantAsync(
         ExerciseParticipant entity,
+        CancellationToken cancellationToken = default
+    );
+    Task<ExerciseSection> GetRequiredExerciseSectionByIdAsync(
+        Guid sectionLinkId,
+        CancellationToken cancellationToken = default
+    );
+    Task<ExerciseInfluencer> GetRequiredExerciseInfluencerByIdAsync(
+        Guid influencerLinkId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseUnitContact> GetRequiredExerciseUnitContactByIdAsync(

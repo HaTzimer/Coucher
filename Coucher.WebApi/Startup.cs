@@ -14,6 +14,7 @@ using Coucher.WebApi.Swagger;
 using Coucher.WebApi.Filters;
 using HotChocolate.Data;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 namespace Coucher.WebApi;
 
@@ -55,6 +56,7 @@ public sealed class Startup
         services.AddScoped<ITaskTemplateService, TaskTemplateService>();
         services.AddScoped<IUserNotificationService, UserNotificationService>();
         services.AddScoped<IUserRoleService, UserRoleService>();
+        services.AddScoped<ICoucherAuthorizationService, CoucherAuthorizationService>();
         services.AddScoped<IMockSeedService, MockSeedService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -71,7 +73,14 @@ public sealed class Startup
             .AddFiltering()
             .AddSorting();
 
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.Filters.Add<CoucherAuthorizationExceptionFilter>();
+        })
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {

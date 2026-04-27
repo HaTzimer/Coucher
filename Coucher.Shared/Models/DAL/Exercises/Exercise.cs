@@ -1,5 +1,6 @@
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Admin;
+using Coucher.Shared.Models.DAL.Users;
 using Coucher.Shared;
 using HotChocolate;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace Coucher.Shared.Models.DAL.Exercises;
 [Index(nameof(StatusId))]
 [Index(nameof(TraineeUnitId))]
 [Index(nameof(TrainerUnitId))]
+[Index(nameof(CreatedByUserId))]
 [Index(nameof(StartDate))]
 [Index(nameof(EndDate))]
 [GraphQLDescription("An exercise that groups participants, contacts, sections, influencers, and tasks.")]
@@ -46,6 +48,9 @@ public sealed class Exercise
     [GraphQLDescription("An optional factor used to compress or stretch the exercise timeline.")]
     public double? CompressionFactor { get; set; }
 
+    [GraphQLDescription("The id of the user who created the exercise.")]
+    public Guid? CreatedByUserId { get; set; }
+
     [GraphQLDescription("When the exercise record was created.")]
     public required DateTime CreationTime { get; set; }
 
@@ -75,6 +80,11 @@ public sealed class Exercise
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The closed-list entry that represents the exercise status.")]
     public ClosedListItem? Status { get; set; }
+
+    [ForeignKey(nameof(CreatedByUserId))]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
+    [GraphQLDescription("The user who created the exercise.")]
+    public UserProfile? CreatedByUser { get; set; }
 
     [InverseProperty("Exercise")]
     [GraphQLDescription("Users participating in the exercise.")]

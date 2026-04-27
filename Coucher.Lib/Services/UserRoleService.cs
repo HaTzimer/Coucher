@@ -9,11 +9,17 @@ public sealed class UserRoleService : IUserRoleService
 {
     private readonly IUserRoleRepository _repository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICoucherAuthorizationService _authorizationService;
 
-    public UserRoleService(IUserRoleRepository repository, ICurrentUserService currentUserService)
+    public UserRoleService(
+        IUserRoleRepository repository,
+        ICurrentUserService currentUserService,
+        ICoucherAuthorizationService authorizationService
+    )
     {
         _repository = repository;
         _currentUserService = currentUserService;
+        _authorizationService = authorizationService;
     }
 
     public async Task<List<UserRole>> ListAsync(CancellationToken cancellationToken = default)
@@ -43,6 +49,7 @@ public sealed class UserRoleService : IUserRoleService
         CancellationToken cancellationToken = default
     )
     {
+        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(userRoleId, cancellationToken);
         entity.UserId = request.UserId;
