@@ -8,6 +8,7 @@ Keep it responsible for:
 
 - Accepting `DbContextOptions<TContext>` in the constructor.
 - Exposing `DbSet<T>` properties for persisted DAL entities.
+- Do not add `DbSet<T>` for projection/read models (for example `Models/Internal/Projections/...`). These must never generate tables in migrations.
 - Nothing more unless there is an exceptional case that cannot be expressed with attributes.
 
 Preferred shape:

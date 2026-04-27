@@ -4,13 +4,14 @@ using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Notifications;
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Users;
-using Coucher.Shared.Models.Internal.Projections.Exercises;
+using HotChocolate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Coucher.Lib.Gql;
 
 public sealed class CoucherQuery
 {
+    [GraphQLDescription("Returns configurable closed-list entries used by dropdowns, statuses, and catalogs.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -22,6 +23,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns organizational units that can be assigned to users and exercises.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -33,6 +35,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns exercises with their core planning and execution data.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -44,6 +47,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns user-to-exercise participation records.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -55,6 +59,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns exercise unit contacts that are stored outside the participant list.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -66,6 +71,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns influencer links selected for each exercise.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -77,6 +83,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns section links selected for each exercise.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -88,6 +95,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns tasks that belong to exercises.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -99,6 +107,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns links between exercise tasks and their responsible users.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -110,6 +119,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns dependency links between exercise tasks.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -121,6 +131,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns reusable task templates that can be imported into exercises.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -132,6 +143,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns dependency links between task templates.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -143,6 +155,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns influencer links attached to task templates.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -154,6 +167,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns user profiles.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -165,6 +179,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns global role assignments for users.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -176,6 +191,7 @@ public sealed class CoucherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns notifications shown to users.")]
     [UseDbContext(typeof(CoucherDbContext))]
     [UseProjection]
     [UseFiltering]
@@ -183,17 +199,6 @@ public sealed class CoucherQuery
     public IQueryable<UserNotification> GetUserNotifications(CoucherDbContext dbContext)
     {
         var query = dbContext.UserNotifications.AsNoTracking();
-
-        return query;
-    }
-
-    [UseDbContext(typeof(CoucherDbContext))]
-    [UseProjection]
-    [UseFiltering]
-    [UseSorting]
-    public IQueryable<ExerciseSummary> GetExerciseSummaries(CoucherDbContext dbContext)
-    {
-        var query = dbContext.ExerciseSummaries.AsNoTracking();
 
         return query;
     }

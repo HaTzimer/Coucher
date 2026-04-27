@@ -16,6 +16,7 @@ Read [references/dbcontext-rules.md](references/dbcontext-rules.md) before chang
 - Keep the `DbContext` in the Lib layer.
 - Keep DAL entities in the Shared layer.
 - Expose one `DbSet<T>` per persisted DAL entity.
+- Do not add `DbSet<T>` for projection/read-model classes (for example `Models/Internal/Projections/...`). Projection models must never generate tables in migrations.
 - Do not configure entity mapping, relationships, keys, delete behavior, or seed data in `OnModelCreating`.
 - Rely on entity attributes for EF mapping instead of fluent configuration.
 - Treat `OnModelCreating` as disallowed for normal entity mapping in this repository.

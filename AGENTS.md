@@ -69,6 +69,10 @@ Keep canonical entities under:
 - `Models/DAL/Notifications`
 - `Models/Internal/Projections` (read models only; do not place projections under `Models/DAL`)
 
+Projection rule:
+- Projection/read models (for example `Models/Internal/Projections/...`) are **not persisted** and must not be registered as `DbSet<>` in `CoucherDbContext`.
+- Use `Select(...)` into projection models when querying, instead of mapping them as tables/views.
+
 ### Users + Access Models
 - `UserProfile`: identity and profile fields, password/first-login state, forgot-password lock state, contact details.
 - `UserRole`: global roles (`User`, `Auditor`, `Admin`).

@@ -3,7 +3,6 @@ using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Notifications;
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Users;
-using Coucher.Shared.Models.Internal.Projections.Exercises;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -32,7 +31,6 @@ public sealed class CoucherDbContext : DbContext
     public DbSet<TaskTemplate> TaskTemplates => Set<TaskTemplate>();
     public DbSet<TaskTemplateDependency> TaskTemplateDependencies => Set<TaskTemplateDependency>();
     public DbSet<TaskTemplateInfluencer> TaskTemplateInfluencers => Set<TaskTemplateInfluencer>();
-    public DbSet<ExerciseSummary> ExerciseSummaries => Set<ExerciseSummary>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -48,16 +46,6 @@ public sealed class CoucherDbContext : DbContext
             .HasColumnType("date");
 
         modelBuilder.Entity<Exercise>()
-            .Property(e => e.EndDate)
-            .HasConversion(dateOnlyConverter)
-            .HasColumnType("date");
-
-        modelBuilder.Entity<ExerciseSummary>()
-            .Property(e => e.StartDate)
-            .HasConversion(dateOnlyConverter)
-            .HasColumnType("date");
-
-        modelBuilder.Entity<ExerciseSummary>()
             .Property(e => e.EndDate)
             .HasConversion(dateOnlyConverter)
             .HasColumnType("date");

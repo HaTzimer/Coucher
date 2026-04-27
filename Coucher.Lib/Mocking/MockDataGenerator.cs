@@ -710,13 +710,10 @@ internal sealed class MockDataGenerator
                 {
                     Id = Guid.NewGuid(),
                     UserId = user.Id,
-                    Type = (NotificationType)rng.Next(0, 6),
-                    Severity = (NotificationSeverity)rng.Next(0, 3),
                     Title = titles[rng.Next(titles.Length)],
                     Message = messages[rng.Next(messages.Length)],
                     CreationTime = now.AddMinutes(-rng.Next(0, 60 * 24 * 7)),
                     IsRead = rng.NextDouble() < 0.4,
-                    ReadTime = null,
                     ExerciseId = exercise.Id,
                     TaskId = task.Id
                 });
