@@ -40,6 +40,35 @@ public sealed class UserProfileProvider : IUserProfileProvider
         return entity;
     }
 
+    public async Task<UserProfile?> GetByIdentityNumberAsync(string identityNumber, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<UserProfile>();
+        var entity = await entities.FirstOrDefaultAsync(
+            item => item.IdentityNumber == identityNumber,
+            cancellationToken
+        );
+
+        return entity;
+    }
+
+    public async Task UpdateLastLoginTimeAsync(
+        Guid userId,
+        DateTime lastLoginTime,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<UserProfile>();
+        await entities
+            .Where(item => item.Id == userId)
+            .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(item => item.LastLoginTime, lastLoginTime)
+                    .SetProperty(item => item.LastUpdateTime, lastLoginTime),
+                cancellationToken
+            );
+    }
+
     public async Task<UserProfile> AddAsync(UserProfile entity, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);

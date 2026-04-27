@@ -4,6 +4,7 @@ using Coucher.Shared.Models.DAL.Exercises;
 using Coucher.Shared.Models.DAL.Notifications;
 using Coucher.Shared.Models.DAL.Tasks;
 using Coucher.Shared.Models.DAL.Users;
+using Coucher.Shared.Interfaces.Services;
 using HotChocolate;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,8 +17,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<ClosedListItem> GetClosedListItems(CoucherDbContext dbContext)
+    public async Task<IQueryable<ClosedListItem>> GetClosedListItems(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.ClosedListItems.AsNoTracking();
 
         return query;
@@ -28,8 +34,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<Unit> GetUnits(CoucherDbContext dbContext)
+    public async Task<IQueryable<Unit>> GetUnits(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.Units.AsNoTracking();
 
         return query;
@@ -40,8 +51,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<Exercise> GetExercises(CoucherDbContext dbContext)
+    public async Task<IQueryable<Exercise>> GetExercises(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.Exercises.AsNoTracking();
 
         return query;
@@ -52,8 +68,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<ExerciseParticipant> GetExerciseParticipants(CoucherDbContext dbContext)
+    public async Task<IQueryable<ExerciseParticipant>> GetExerciseParticipants(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.ExerciseParticipants.AsNoTracking();
 
         return query;
@@ -64,8 +85,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<ExerciseUnitContact> GetExerciseUnitContacts(CoucherDbContext dbContext)
+    public async Task<IQueryable<ExerciseUnitContact>> GetExerciseUnitContacts(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.ExerciseUnitContacts.AsNoTracking();
 
         return query;
@@ -76,8 +102,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<ExerciseInfluencer> GetExerciseInfluencers(CoucherDbContext dbContext)
+    public async Task<IQueryable<ExerciseInfluencer>> GetExerciseInfluencers(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.ExerciseInfluencers.AsNoTracking();
 
         return query;
@@ -88,8 +119,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<ExerciseSection> GetExerciseSections(CoucherDbContext dbContext)
+    public async Task<IQueryable<ExerciseSection>> GetExerciseSections(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.ExerciseSections.AsNoTracking();
 
         return query;
@@ -100,8 +136,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<ExerciseTask> GetExerciseTasks(CoucherDbContext dbContext)
+    public async Task<IQueryable<ExerciseTask>> GetExerciseTasks(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.ExerciseTasks.AsNoTracking();
 
         return query;
@@ -112,8 +153,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<ExerciseTaskResponsibleUser> GetExerciseTaskResponsibleUsers(CoucherDbContext dbContext)
+    public async Task<IQueryable<ExerciseTaskResponsibleUser>> GetExerciseTaskResponsibleUsers(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.ExerciseTaskResponsibleUsers.AsNoTracking();
 
         return query;
@@ -124,8 +170,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<TaskDependency> GetTaskDependencies(CoucherDbContext dbContext)
+    public async Task<IQueryable<TaskDependency>> GetTaskDependencies(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.TaskDependencies.AsNoTracking();
 
         return query;
@@ -136,8 +187,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<TaskTemplate> GetTaskTemplates(CoucherDbContext dbContext)
+    public async Task<IQueryable<TaskTemplate>> GetTaskTemplates(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.TaskTemplates.AsNoTracking();
 
         return query;
@@ -148,8 +204,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<TaskTemplateDependency> GetTaskTemplateDependencies(CoucherDbContext dbContext)
+    public async Task<IQueryable<TaskTemplateDependency>> GetTaskTemplateDependencies(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.TaskTemplateDependencies.AsNoTracking();
 
         return query;
@@ -160,8 +221,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<TaskTemplateInfluencer> GetTaskTemplateInfluencers(CoucherDbContext dbContext)
+    public async Task<IQueryable<TaskTemplateInfluencer>> GetTaskTemplateInfluencers(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.TaskTemplateInfluencers.AsNoTracking();
 
         return query;
@@ -172,8 +238,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<UserProfile> GetUsers(CoucherDbContext dbContext)
+    public async Task<IQueryable<UserProfile>> GetUsers(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.UserProfiles.AsNoTracking();
 
         return query;
@@ -184,8 +255,13 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<UserRole> GetUserRoles(CoucherDbContext dbContext)
+    public async Task<IQueryable<UserRole>> GetUserRoles(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.UserRoles.AsNoTracking();
 
         return query;
@@ -196,10 +272,23 @@ public sealed class CoucherQuery
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<UserNotification> GetUserNotifications(CoucherDbContext dbContext)
+    public async Task<IQueryable<UserNotification>> GetUserNotifications(
+        CoucherDbContext dbContext,
+        [Service] IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
     {
+        await EnsureAuthenticatedAsync(currentUserService, cancellationToken);
         var query = dbContext.UserNotifications.AsNoTracking();
 
         return query;
+    }
+
+    private static async Task EnsureAuthenticatedAsync(
+        IGraphQlCurrentUserService currentUserService,
+        CancellationToken cancellationToken
+    )
+    {
+        _ = await currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
     }
 }

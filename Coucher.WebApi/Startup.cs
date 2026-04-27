@@ -1,4 +1,6 @@
 using Augustus.Infra.Core.Shared.Extensions;
+using Augustus.Infra.Core.Shared.Interfaces;
+using Augustus.Infra.Core.DAL.Redis;
 using Coucher.Lib.DAL;
 using Coucher.Lib.DAL.Providers;
 using Coucher.Lib.Gql;
@@ -7,7 +9,9 @@ using Coucher.Lib.Services;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
+using Coucher.WebApi.Filters;
 using HotChocolate.Data;
+using Microsoft.OpenApi.Models;
 
 namespace Coucher.WebApi;
 
@@ -24,6 +28,7 @@ public sealed class Startup
     {
         services.AddGenericAugustusServices();
         services.AddPooledDbContextFactory<CoucherDbContext>(Configuration);
+        services.AddHttpContextAccessor();
 
         services.AddScoped<IExerciseProvider, ExerciseProvider>();
         services.AddScoped<IExerciseTaskProvider, ExerciseTaskProvider>();
@@ -46,6 +51,12 @@ public sealed class Startup
         services.AddScoped<ITaskTemplateService, TaskTemplateService>();
         services.AddScoped<IUserNotificationService, UserNotificationService>();
         services.AddScoped<IMockSeedService, MockSeedService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IGraphQlCurrentUserService, GraphQlCurrentUserService>();
+        services.AddSingleton<IAuthorizationCacheProvider, AuthorizationCacheRedisProvider>();
+        services.AddScoped<WebApiSessionAuthenticationFilter>();
+        services.AddSingleton<RedisCommunicationFactory>();
+        services.AddTransient<IRedisConnection, RedisConnection>();
 
         var graphQlBuilder = services.AddGraphQLServer();
         graphQlBuilder
@@ -57,7 +68,30 @@ public sealed class Startup
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("SessionId", new OpenApiSecurityScheme
+            {
+                Name = "session-id",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "SessionId"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)

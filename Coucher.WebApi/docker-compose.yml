@@ -1,4 +1,16 @@
 services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: coucher-redis
+    command: ["redis-server", "--requirepass", "CoucherRedis123!"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "CoucherRedis123!", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: coucher-mssql
@@ -104,6 +116,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Local
       SqlDb__uri: mssql

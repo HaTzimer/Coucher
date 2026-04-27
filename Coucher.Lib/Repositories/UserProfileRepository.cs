@@ -27,6 +27,25 @@ public sealed class UserProfileRepository : IUserProfileRepository
         return entity;
     }
 
+    public async Task<UserProfile?> GetByIdentityNumberAsync(
+        string identityNumber,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entity = await _provider.GetByIdentityNumberAsync(identityNumber, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task UpdateLastLoginTimeAsync(
+        Guid userId,
+        DateTime lastLoginTime,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await _provider.UpdateLastLoginTimeAsync(userId, lastLoginTime, cancellationToken);
+    }
+
     public async Task<UserProfile> GetRequiredByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);

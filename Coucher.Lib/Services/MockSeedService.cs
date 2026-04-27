@@ -106,9 +106,9 @@ public sealed class MockSeedService : IMockSeedService
             "DELETE FROM [TaskTemplateDependencies]",
             "DELETE FROM [TaskTemplateInfluencers]",
             "DELETE FROM [TaskTemplates]",
-            "DELETE FROM [Units]",
             "DELETE FROM [UserRoles]",
             "DELETE FROM [UserProfiles]",
+            "DELETE FROM [Units]",
             "DELETE FROM [ClosedListItems]"
         };
 
@@ -118,4 +118,3 @@ public sealed class MockSeedService : IMockSeedService
         }
     }
 }
-

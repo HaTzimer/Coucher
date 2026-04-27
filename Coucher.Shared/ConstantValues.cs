@@ -4,6 +4,8 @@ namespace Coucher.Shared;
 
 public static class ConstantValues
 {
+    public const char RedisKeySeparator = ':';
+
     // EF mapping/table names
     public const string ClosedListItemTableName = "ClosedListItems";
     public const string UnitTableName = "Units";
@@ -35,4 +37,3 @@ public static class ConstantValues
     // We default to NO ACTION and handle any delete semantics explicitly in workflows.
     public const DeleteBehavior DeleteBehaviorType = DeleteBehavior.NoAction;
 }
-
