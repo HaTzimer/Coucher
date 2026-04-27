@@ -1,4 +1,5 @@
 using Augustus.Infra.Core.Shared.Interfaces;
+using Coucher.Shared;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
@@ -11,17 +12,26 @@ public sealed class AuthenticationService : IAuthenticationService
 {
     private readonly ICacheProvider _cacheProvider;
     private readonly IUserProfileRepository _userProfileRepository;
+    private readonly IUserRoleRepository _userRoleRepository;
     private readonly IHashGenerator _hashGenerator;
+    private readonly GlobalRole _starterGlobalRole;
 
     public AuthenticationService(
         ICacheProvider cacheProvider,
         IUserProfileRepository userProfileRepository,
-        IHashGenerator hashGenerator
+        IUserRoleRepository userRoleRepository,
+        IHashGenerator hashGenerator,
+        IAugustusConfiguration config
     )
     {
         _cacheProvider = cacheProvider;
         _userProfileRepository = userProfileRepository;
+        _userRoleRepository = userRoleRepository;
         _hashGenerator = hashGenerator;
+        _starterGlobalRole = config.GetOrThrow<GlobalRole>(
+            ConfigurationKeys.UserDefaultsSection,
+            ConfigurationKeys.StarterGlobalRole
+        );
     }
 
     public async Task<AuthenticatedSession?> LoginAsync(
@@ -37,6 +47,7 @@ public sealed class AuthenticationService : IAuthenticationService
         }
 
         await _cacheProvider.RemoveUserSessionByUserIdAsync(user.Id);
+        await EnsureStarterRoleAsync(user.Id, cancellationToken);
         await _userProfileRepository.UpdateLastLoginTimeAsync(user.Id, DateTime.UtcNow, cancellationToken);
 
         var sessionId = await _cacheProvider.CreateUserSessionAsync(user.Id);
@@ -90,6 +101,31 @@ public sealed class AuthenticationService : IAuthenticationService
             SessionId = sessionId,
             UserId = authenticationResult.UserId.Value
         };
+    }
+
+    private async Task EnsureStarterRoleAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var existingRole = await _userRoleRepository.GetByUserIdAndRoleAsync(
+            userId,
+            _starterGlobalRole,
+            cancellationToken
+        );
+        if (existingRole is not null)
+        {
+            return;
+        }
+
+        await _userRoleRepository.CreateUserRoleAsync(
+            new Shared.Models.DAL.Users.UserRole
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Role = _starterGlobalRole,
+                AssignedTime = DateTime.UtcNow,
+                AssignedByUserId = userId
+            },
+            cancellationToken
+        );
     }
 
     private bool IsValidCredential(Coucher.Shared.Models.DAL.Users.UserProfile user, string passwordOrPersonalNumber)

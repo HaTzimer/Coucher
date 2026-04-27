@@ -1,3 +1,4 @@
+using Coucher.Shared.Models.Enums;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Models.DAL.Users;
@@ -34,6 +35,17 @@ public sealed class UserRoleRepository : IUserRoleRepository
         {
             throw new KeyNotFoundException($"{nameof(UserRole)} '{id}' was not found.");
         }
+
+        return entity;
+    }
+
+    public async Task<UserRole?> GetByUserIdAndRoleAsync(
+        Guid userId,
+        GlobalRole role,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entity = await _provider.GetByUserIdAndRoleAsync(userId, role, cancellationToken);
 
         return entity;
     }

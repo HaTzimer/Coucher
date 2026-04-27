@@ -75,6 +75,30 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
         return updatedEntity;
     }
 
+    public async Task<TaskTemplateDependency> CreateTaskTemplateDependencyAsync(
+        TaskTemplateDependency entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var createdEntity = await _provider.CreateTaskTemplateDependencyAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var archivedEntity = await _provider.ArchiveTaskTemplateAsync(id, cancellationToken);
+
+        return archivedEntity;
+    }
+
+    public async Task<TaskTemplate> UnarchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var unarchivedEntity = await _provider.UnarchiveTaskTemplateAsync(id, cancellationToken);
+
+        return unarchivedEntity;
+    }
+
     public async Task<TaskTemplate> AddAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
     {
         var createdEntity = await CreateTaskTemplateAsync(entity, cancellationToken);

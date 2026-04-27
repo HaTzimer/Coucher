@@ -24,6 +24,8 @@ public sealed class ClosedListItem
     public string? Description { get; set; }
     [GraphQLDescription("The display order within the same closed-list key.")]
     public int? DisplayOrder { get; set; }
+    [GraphQLDescription("Whether the entry is archived and hidden from normal active management flows.")]
+    public bool IsArchive { get; set; }
     [GraphQLDescription("When the entry was created.")]
     public required DateTime CreationTime { get; set; }
     [GraphQLDescription("When the entry was last updated.")]

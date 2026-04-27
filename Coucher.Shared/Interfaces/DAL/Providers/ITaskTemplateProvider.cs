@@ -11,4 +11,10 @@ public interface ITaskTemplateProvider : IProviderBase<TaskTemplate, Guid>
         CancellationToken cancellationToken = default
     );
     Task<TaskTemplate> UpdateTaskTemplateAsync(TaskTemplate entity, CancellationToken cancellationToken = default);
+    Task<TaskTemplateDependency> CreateTaskTemplateDependencyAsync(
+        TaskTemplateDependency entity,
+        CancellationToken cancellationToken = default
+    );
+    Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<TaskTemplate> UnarchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default);
 }

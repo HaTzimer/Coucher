@@ -31,7 +31,7 @@ public sealed class AuthenticationController : ControllerBase
 
     [HttpPost("login")]
     public async Task<ActionResult<AuthenticatedSession>> LoginAsync(
-        [FromBody] LoginRequestModel request,
+        [FromBody] LoginRequest request,
         CancellationToken cancellationToken
     )
     {

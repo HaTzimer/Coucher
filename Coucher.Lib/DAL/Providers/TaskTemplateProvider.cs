@@ -88,6 +88,44 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         return entity;
     }
 
+    public async Task<TaskTemplateDependency> CreateTaskTemplateDependencyAsync(
+        TaskTemplateDependency entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await dbContext.Set<TaskTemplateDependency>().AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<TaskTemplate>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"{nameof(TaskTemplate)} '{id}' was not found.");
+        entity.IsArchive = true;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<TaskTemplate> UnarchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<TaskTemplate>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"{nameof(TaskTemplate)} '{id}' was not found.");
+        entity.IsArchive = false;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
     public async Task<TaskTemplate> AddAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
     {
         var createdEntity = await CreateTaskTemplateAsync(entity, cancellationToken);

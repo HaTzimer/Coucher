@@ -90,6 +90,204 @@ public sealed class ExerciseTaskProvider : IExerciseTaskProvider
         return entity;
     }
 
+    public async Task<TaskDependency> CreateTaskDependencyAsync(
+        TaskDependency entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<TaskDependency>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<TaskDependency?> GetTaskDependencyByIdAsync(
+        Guid dependencyId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<TaskDependency>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == dependencyId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task DeleteTaskDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await dbContext.Set<TaskDependency>()
+            .Where(item => item.Id == dependencyId)
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<ExerciseTaskResponsibleUser> CreateExerciseTaskResponsibleUserAsync(
+        ExerciseTaskResponsibleUser entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTaskResponsibleUser>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseTaskResponsibleUser?> GetExerciseTaskResponsibleUserByIdAsync(
+        Guid responsibilityId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTaskResponsibleUser>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == responsibilityId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<List<ExerciseTaskResponsibleUser>> ReplaceExerciseTaskResponsibleUsersAsync(
+        Guid taskId,
+        List<Guid> userIds,
+        DateTime creationTime,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+        var entities = dbContext.Set<ExerciseTaskResponsibleUser>();
+        var normalizedUserIds = userIds.Distinct().ToList();
+        var existingEntities = await entities
+            .Where(item => item.TaskId == taskId)
+            .ToListAsync(cancellationToken);
+
+        var existingUserIds = existingEntities
+            .Where(item => item.UserId.HasValue)
+            .Select(item => item.UserId!.Value)
+            .ToHashSet();
+        var responsibilityIdsToDelete = existingEntities
+            .Where(item => !item.UserId.HasValue || !normalizedUserIds.Contains(item.UserId.Value))
+            .Select(item => item.Id)
+            .ToList();
+
+        if (responsibilityIdsToDelete.Count > 0)
+        {
+            await entities
+                .Where(item => responsibilityIdsToDelete.Contains(item.Id))
+                .ExecuteDeleteAsync(cancellationToken);
+        }
+
+        var newEntities = normalizedUserIds
+            .Where(userId => !existingUserIds.Contains(userId))
+            .Select(userId => new ExerciseTaskResponsibleUser
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskId,
+                UserId = userId,
+                CreationTime = creationTime
+            })
+            .ToList();
+
+        if (newEntities.Count > 0)
+        {
+            await entities.AddRangeAsync(newEntities, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+
+        var updatedEntities = await entities
+            .Where(item => item.TaskId == taskId)
+            .ToListAsync(cancellationToken);
+
+        return updatedEntities;
+    }
+
+    public async Task DeleteExerciseTaskResponsibleUserAsync(
+        Guid responsibilityId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await dbContext.Set<ExerciseTaskResponsibleUser>()
+            .Where(item => item.Id == responsibilityId)
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task DeleteExerciseTaskResponsibleUsersAsync(
+        Guid taskId,
+        List<Guid> responsibilityIds,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await dbContext.Set<ExerciseTaskResponsibleUser>()
+            .Where(item => item.TaskId == taskId && responsibilityIds.Contains(item.Id))
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task DeleteExerciseTaskDeepAsync(Guid taskId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+        var taskEntities = dbContext.Set<ExerciseTask>();
+        var rootTask = await taskEntities
+            .Where(item => item.Id == taskId)
+            .Select(item => new { item.Id, item.ParentId })
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new KeyNotFoundException($"{nameof(ExerciseTask)} '{taskId}' was not found.");
+
+        var levels = new List<List<Guid>>();
+        var frontier = new List<Guid> { rootTask.Id };
+
+        while (frontier.Count > 0)
+        {
+            levels.Add(frontier);
+            frontier = await taskEntities
+                .Where(item => item.ParentId.HasValue && frontier.Contains(item.ParentId.Value))
+                .Select(item => item.Id)
+                .ToListAsync(cancellationToken);
+        }
+
+        var taskIds = levels.SelectMany(item => item).ToList();
+
+        await dbContext.Set<TaskDependency>()
+            .Where(item =>
+                (item.TaskId.HasValue && taskIds.Contains(item.TaskId.Value))
+                || (item.DependsOnId.HasValue && taskIds.Contains(item.DependsOnId.Value))
+            )
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.Set<ExerciseTaskResponsibleUser>()
+            .Where(item => item.TaskId.HasValue && taskIds.Contains(item.TaskId.Value))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        foreach (var level in levels.AsEnumerable().Reverse())
+        {
+            await taskEntities
+                .Where(item => level.Contains(item.Id))
+                .ExecuteDeleteAsync(cancellationToken);
+        }
+
+        if (rootTask.ParentId.HasValue)
+        {
+            var parentId = rootTask.ParentId.Value;
+            var hasChildren = await taskEntities.AnyAsync(item => item.ParentId == parentId, cancellationToken);
+            await taskEntities
+                .Where(item => item.Id == parentId)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(item => item.HasChildren, hasChildren),
+                    cancellationToken
+                );
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+    }
+
     public async Task<ExerciseTask> AddAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
     {
         var createdEntity = await CreateExerciseTaskAsync(entity, cancellationToken);

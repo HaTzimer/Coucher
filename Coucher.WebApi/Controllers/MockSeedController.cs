@@ -20,7 +20,7 @@ public sealed class MockSeedController : ControllerBase
 
     [HttpPost("seed")]
     public async Task<ActionResult<MockSeedSummary>> SeedAsync(
-        [FromBody] SeedMocksRequestModel request,
+        [FromBody] SeedMocksRequest request,
         CancellationToken cancellationToken
     )
     {

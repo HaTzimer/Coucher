@@ -5,13 +5,9 @@ namespace Coucher.Shared.Interfaces.Services;
 
 public interface IUserRoleService : IServiceBase<UserRole, Guid>
 {
-    Task<UserRole> CreateUserRoleAsync(
-        CreateUserRoleRequestModel request,
-        CancellationToken cancellationToken = default
-    );
     Task<UserRole> UpdateUserRoleAsync(
         Guid userRoleId,
-        UpdateUserRoleRequestModel request,
+        UpdateUserRoleRequest request,
         CancellationToken cancellationToken = default
     );
 }

@@ -6,16 +6,30 @@ namespace Coucher.Shared.Interfaces.Services;
 public interface IClosedListItemService : IServiceBase<ClosedListItem, Guid>
 {
     Task<ClosedListItem> CreateClosedListItemAsync(
-        CreateClosedListItemRequestModel request,
+        CreateClosedListItemRequest request,
         CancellationToken cancellationToken = default
     );
     Task<List<ClosedListItem>> CreateClosedListItemsAsync(
-        List<CreateClosedListItemRequestModel> requests,
+        List<CreateClosedListItemRequest> requests,
         CancellationToken cancellationToken = default
     );
-    Task<ClosedListItem> UpdateClosedListItemAsync(
+    Task<ClosedListItem> UpdateClosedListItemValueAsync(
         Guid closedListItemId,
-        UpdateClosedListItemRequestModel request,
+        UpdateClosedListItemValueRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<ClosedListItem> UpdateClosedListItemDisplayOrderAsync(
+        Guid closedListItemId,
+        UpdateClosedListItemDisplayOrderRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<List<ClosedListItem>> BulkUpdateClosedListItemDisplayOrdersAsync(
+        BulkUpdateClosedListItemDisplayOrdersRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<ClosedListItem> ArchiveClosedListItemAsync(Guid closedListItemId, CancellationToken cancellationToken = default);
+    Task<ClosedListItem> UnarchiveClosedListItemAsync(
+        Guid closedListItemId,
         CancellationToken cancellationToken = default
     );
 }

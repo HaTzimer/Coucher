@@ -127,6 +127,7 @@ internal sealed class MockDataGenerator
                 Value = value,
                 Description = null,
                 DisplayOrder = i++,
+                IsArchive = false,
                 CreationTime = now,
                 LastUpdateTime = now
             });
@@ -235,7 +236,6 @@ internal sealed class MockDataGenerator
             Id = Guid.NewGuid(),
             UserId = adminUser.Id,
             Role = GlobalRole.Admin,
-            IsActive = true,
             AssignedTime = now,
             AssignedByUserId = adminUser.Id
         });
@@ -247,7 +247,6 @@ internal sealed class MockDataGenerator
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 Role = GlobalRole.User,
-                IsActive = true,
                 AssignedTime = now,
                 AssignedByUserId = adminUser.Id
             });
@@ -479,6 +478,7 @@ internal sealed class MockDataGenerator
                 Description = "משימת תבנית לדוגמה.",
                 Notes = null,
                 DefaultWeeksBeforeExerciseStart = rng.Next(1, 12),
+                IsArchive = false,
                 CreationTime = now,
                 LastUpdateTime = now,
                 Parent = null,

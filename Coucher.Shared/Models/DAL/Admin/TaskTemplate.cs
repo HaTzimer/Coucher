@@ -34,6 +34,8 @@ public sealed class TaskTemplate
     public string? Notes { get; set; }
     [GraphQLDescription("The default lead time, in weeks before exercise start, for planning this template.")]
     public int DefaultWeeksBeforeExerciseStart { get; set; }
+    [GraphQLDescription("Whether the template is archived and hidden from normal active management flows.")]
+    public bool IsArchive { get; set; }
     [GraphQLDescription("When the template was created.")]
     public DateTime CreationTime { get; set; }
     [GraphQLDescription("When the template was last updated.")]

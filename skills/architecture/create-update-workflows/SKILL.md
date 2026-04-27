@@ -15,7 +15,7 @@ Use this skill when adding or reviewing write flows for Coucher.
 - Keep create/update request models limited to client-owned business fields. Never accept server-owned fields from clients.
 - Stamp existing time/audit fields in services with `DateTime.UtcNow`.
 - Use the authenticated session user for write orchestration. Persist that user only when the existing DAL entity already has a matching field.
-- Keep bulk create all-or-nothing and use `List<CreateXRequestModel>` directly as the request body for bulk endpoints in this repository.
+- Keep bulk create all-or-nothing and use `List<CreateXRequest>` directly as the request body for bulk endpoints in this repository.
 
 ## Layer Split
 
@@ -41,7 +41,7 @@ Use this skill when adding or reviewing write flows for Coucher.
 - Create models may include only client-owned fields needed to create the aggregate.
 - Update models should be full mutable payloads for root fields, not patch payloads.
 - Update models should not replace related child collections or link sets unless the feature explicitly calls for aggregate replacement.
-- For bulk create, reuse the single-create request model and accept `List<CreateXRequestModel>`.
+- For bulk create, reuse the single-create request type and accept `List<CreateXRequest>`.
 
 ## Review Checklist
 

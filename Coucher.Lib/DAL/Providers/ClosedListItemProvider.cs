@@ -40,6 +40,28 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
         return entity;
     }
 
+    public async Task<Guid?> GetHighestDisplayOrderItemIdByKeyAsync(
+        string key,
+        Guid? excludedId = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ClosedListItem>().Where(item => item.Key == key);
+        if (excludedId.HasValue)
+        {
+            entities = entities.Where(item => item.Id != excludedId.Value);
+        }
+
+        var entityId = await entities
+            .OrderByDescending(item => item.DisplayOrder ?? int.MinValue)
+            .ThenByDescending(item => item.Id)
+            .Select(item => (Guid?)item.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return entityId;
+    }
+
     public async Task<bool> IsHighestDisplayOrderItemForKeyAsync(
         Guid id,
         string key,
@@ -99,6 +121,45 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<ClosedListItem>();
         entities.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<List<ClosedListItem>> UpdateClosedListItemsAsync(
+        List<ClosedListItem> entitiesToUpdate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ClosedListItem>();
+        entities.UpdateRange(entitiesToUpdate);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entitiesToUpdate;
+    }
+
+    public async Task<ClosedListItem> ArchiveClosedListItemAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ClosedListItem>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"{nameof(ClosedListItem)} '{id}' was not found.");
+        entity.IsArchive = true;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ClosedListItem> UnarchiveClosedListItemAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ClosedListItem>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"{nameof(ClosedListItem)} '{id}' was not found.");
+        entity.IsArchive = false;
+        entity.LastUpdateTime = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;

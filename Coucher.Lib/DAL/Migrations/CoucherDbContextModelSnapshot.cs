@@ -38,6 +38,9 @@ namespace Coucher.Lib.DAL.Migrations
                     b.Property<int?>("DisplayOrder")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsArchive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -76,6 +79,9 @@ namespace Coucher.Lib.DAL.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
+
+                    b.Property<bool>("IsArchive")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("LastUpdateTime")
                         .HasColumnType("datetime2");
@@ -634,9 +640,6 @@ namespace Coucher.Lib.DAL.Migrations
 
                     b.Property<DateTime>("AssignedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");

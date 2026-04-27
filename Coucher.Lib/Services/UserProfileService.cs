@@ -1,3 +1,6 @@
+using Augustus.Infra.Core.Shared.Interfaces;
+using Coucher.Shared;
+using Coucher.Shared.Models.Enums;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
 using Coucher.Shared.Models.DAL.Users;
@@ -7,10 +10,21 @@ namespace Coucher.Lib.Services;
 public sealed class UserProfileService : IUserProfileService
 {
     private readonly IUserProfileRepository _repository;
+    private readonly IUserRoleRepository _userRoleRepository;
+    private readonly GlobalRole _starterGlobalRole;
 
-    public UserProfileService(IUserProfileRepository repository)
+    public UserProfileService(
+        IUserProfileRepository repository,
+        IUserRoleRepository userRoleRepository,
+        IAugustusConfiguration config
+    )
     {
         _repository = repository;
+        _userRoleRepository = userRoleRepository;
+        _starterGlobalRole = config.GetOrThrow<GlobalRole>(
+            ConfigurationKeys.UserDefaultsSection,
+            ConfigurationKeys.StarterGlobalRole
+        );
     }
 
     public async Task<List<UserProfile>> ListAsync(CancellationToken cancellationToken = default)
@@ -37,6 +51,25 @@ public sealed class UserProfileService : IUserProfileService
     public async Task<UserProfile> AddAsync(UserProfile entity, CancellationToken cancellationToken = default)
     {
         var createdEntity = await _repository.AddAsync(entity, cancellationToken);
+        var existingRole = await _userRoleRepository.GetByUserIdAndRoleAsync(
+            createdEntity.Id,
+            _starterGlobalRole,
+            cancellationToken
+        );
+        if (existingRole is null)
+        {
+            await _userRoleRepository.CreateUserRoleAsync(
+                new UserRole
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = createdEntity.Id,
+                    Role = _starterGlobalRole,
+                    AssignedTime = DateTime.UtcNow,
+                    AssignedByUserId = createdEntity.Id
+                },
+                cancellationToken
+            );
+        }
 
         return createdEntity;
     }

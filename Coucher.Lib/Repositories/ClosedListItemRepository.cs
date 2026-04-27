@@ -27,6 +27,17 @@ public sealed class ClosedListItemRepository : IClosedListItemRepository
         return entity;
     }
 
+    public async Task<Guid?> GetHighestDisplayOrderItemIdByKeyAsync(
+        string key,
+        Guid? excludedId = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entityId = await _provider.GetHighestDisplayOrderItemIdByKeyAsync(key, excludedId, cancellationToken);
+
+        return entityId;
+    }
+
     public async Task<ClosedListItem> GetRequiredByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
@@ -81,6 +92,30 @@ public sealed class ClosedListItemRepository : IClosedListItemRepository
         var updatedEntity = await _provider.UpdateClosedListItemAsync(entity, cancellationToken);
 
         return updatedEntity;
+    }
+
+    public async Task<List<ClosedListItem>> UpdateClosedListItemsAsync(
+        List<ClosedListItem> entities,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var updatedEntities = await _provider.UpdateClosedListItemsAsync(entities, cancellationToken);
+
+        return updatedEntities;
+    }
+
+    public async Task<ClosedListItem> ArchiveClosedListItemAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var archivedEntity = await _provider.ArchiveClosedListItemAsync(id, cancellationToken);
+
+        return archivedEntity;
+    }
+
+    public async Task<ClosedListItem> UnarchiveClosedListItemAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var unarchivedEntity = await _provider.UnarchiveClosedListItemAsync(id, cancellationToken);
+
+        return unarchivedEntity;
     }
 
     public async Task<ClosedListItem> AddAsync(ClosedListItem entity, CancellationToken cancellationToken = default)

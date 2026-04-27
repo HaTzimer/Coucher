@@ -37,30 +37,9 @@ public sealed class UserRoleService : IUserRoleService
         return entity;
     }
 
-    public async Task<UserRole> CreateUserRoleAsync(
-        CreateUserRoleRequestModel request,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var now = DateTime.UtcNow;
-        var entity = new UserRole
-        {
-            Id = Guid.NewGuid(),
-            UserId = request.UserId,
-            Role = request.Role,
-            IsActive = request.IsActive,
-            AssignedTime = now,
-            AssignedByUserId = currentUserId
-        };
-        var createdEntity = await _repository.CreateUserRoleAsync(entity, cancellationToken);
-
-        return createdEntity;
-    }
-
     public async Task<UserRole> UpdateUserRoleAsync(
         Guid userRoleId,
-        UpdateUserRoleRequestModel request,
+        UpdateUserRoleRequest request,
         CancellationToken cancellationToken = default
     )
     {
@@ -68,7 +47,6 @@ public sealed class UserRoleService : IUserRoleService
         var entity = await _repository.GetRequiredByIdAsync(userRoleId, cancellationToken);
         entity.UserId = request.UserId;
         entity.Role = request.Role;
-        entity.IsActive = request.IsActive;
         entity.AssignedTime = DateTime.UtcNow;
         entity.AssignedByUserId = currentUserId;
         var updatedEntity = await _repository.UpdateUserRoleAsync(entity, cancellationToken);

@@ -18,8 +18,6 @@ public sealed class UserRole
     public Guid? UserId { get; set; }
     [GraphQLDescription("The global role assigned to the user.")]
     public GlobalRole Role { get; set; }
-    [GraphQLDescription("Whether the role assignment is currently active.")]
-    public bool IsActive { get; set; }
     [GraphQLDescription("When the role was assigned.")]
     public DateTime AssignedTime { get; set; }
     [GraphQLDescription("The id of the user who assigned the role, if tracked.")]

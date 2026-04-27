@@ -5,6 +5,9 @@ public static class ConfigurationKeys
     public const string ConnectionStringsSectionName = "ConnectionStrings";
     public const string RedisSection = "Redis";
     public const string AuthenticationSection = "Authentication";
+    public const string UserDefaultsSection = "UserDefaults";
+    public const string ExerciseDefaultsSection = "ExerciseDefaults";
+    public const string TaskDefaultsSection = "TaskDefaults";
     public const string SessionIdHeader = "sessionIdHeader";
     public const string ItemsUserIdKey = "itemsUserIdKey";
     public const string ServicePrefix = "servicePrefix";
@@ -16,4 +19,7 @@ public static class ConfigurationKeys
     public const string DefaultDatabase = "defaultDatabase";
     public const string Password = "password";
     public const string TimeoutInSeconds = "timeoutInSeconds";
+    public const string StarterGlobalRole = "starterGlobalRole";
+    public const string DefaultExerciseStatusId = "defaultExerciseStatusId";
+    public const string DefaultExerciseTaskStatusId = "defaultExerciseTaskStatusId";
 }

@@ -38,7 +38,7 @@ public sealed class ClosedListItemService : IClosedListItemService
     }
 
     public async Task<ClosedListItem> CreateClosedListItemAsync(
-        CreateClosedListItemRequestModel request,
+        CreateClosedListItemRequest request,
         CancellationToken cancellationToken = default
     )
     {
@@ -51,6 +51,7 @@ public sealed class ClosedListItemService : IClosedListItemService
             Value = request.Value,
             Description = request.Description,
             DisplayOrder = request.DisplayOrder,
+            IsArchive = false,
             CreationTime = now,
             LastUpdateTime = now
         };
@@ -60,7 +61,7 @@ public sealed class ClosedListItemService : IClosedListItemService
     }
 
     public async Task<List<ClosedListItem>> CreateClosedListItemsAsync(
-        List<CreateClosedListItemRequestModel> requests,
+        List<CreateClosedListItemRequest> requests,
         CancellationToken cancellationToken = default
     )
     {
@@ -73,6 +74,7 @@ public sealed class ClosedListItemService : IClosedListItemService
             Value = request.Value,
             Description = request.Description,
             DisplayOrder = request.DisplayOrder,
+            IsArchive = false,
             CreationTime = now,
             LastUpdateTime = now
         }).ToList();
@@ -81,22 +83,87 @@ public sealed class ClosedListItemService : IClosedListItemService
         return createdEntities;
     }
 
-    public async Task<ClosedListItem> UpdateClosedListItemAsync(
+    public async Task<ClosedListItem> UpdateClosedListItemValueAsync(
         Guid closedListItemId,
-        UpdateClosedListItemRequestModel request,
+        UpdateClosedListItemValueRequest request,
         CancellationToken cancellationToken = default
     )
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
-        entity.Key = request.Key;
         entity.Value = request.Value;
-        entity.Description = request.Description;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<ClosedListItem> UpdateClosedListItemDisplayOrderAsync(
+        Guid closedListItemId,
+        UpdateClosedListItemDisplayOrderRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
         entity.DisplayOrder = request.DisplayOrder;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
 
         return updatedEntity;
+    }
+
+    public async Task<List<ClosedListItem>> BulkUpdateClosedListItemDisplayOrdersAsync(
+        BulkUpdateClosedListItemDisplayOrdersRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        if (request.Items.Count == 0)
+        {
+            return new List<ClosedListItem>();
+        }
+
+        var updatesById = request.Items
+            .GroupBy(item => item.Id)
+            .Select(group => group.Last())
+            .ToList();
+        var now = DateTime.UtcNow;
+        var entities = new List<ClosedListItem>(updatesById.Count);
+
+        foreach (var item in updatesById)
+        {
+            var entity = await _repository.GetRequiredByIdAsync(item.Id, cancellationToken);
+            entity.DisplayOrder = item.DisplayOrder;
+            entity.LastUpdateTime = now;
+            entities.Add(entity);
+        }
+
+        var updatedEntities = await _repository.UpdateClosedListItemsAsync(entities, cancellationToken);
+
+        return updatedEntities;
+    }
+
+    public async Task<ClosedListItem> ArchiveClosedListItemAsync(
+        Guid closedListItemId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var archivedEntity = await _repository.ArchiveClosedListItemAsync(closedListItemId, cancellationToken);
+
+        return archivedEntity;
+    }
+
+    public async Task<ClosedListItem> UnarchiveClosedListItemAsync(
+        Guid closedListItemId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var unarchivedEntity = await _repository.UnarchiveClosedListItemAsync(closedListItemId, cancellationToken);
+
+        return unarchivedEntity;
     }
 
     public async Task<ClosedListItem> AddAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
@@ -113,8 +180,8 @@ public sealed class ClosedListItemService : IClosedListItemService
         return updatedEntity;
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        await _repository.DeleteAsync(id, cancellationToken);
+        throw new NotSupportedException("Closed-list items use archive and unarchive operations instead of physical delete.");
     }
 }

@@ -1,3 +1,5 @@
+using Augustus.Infra.Core.Shared.Interfaces;
+using Coucher.Shared;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
 using Coucher.Shared.Models.DAL.Exercises;
@@ -9,12 +11,24 @@ namespace Coucher.Lib.Services;
 public sealed class ExerciseService : IExerciseService
 {
     private readonly IExerciseRepository _repository;
+    private readonly IClosedListItemRepository _closedListItemRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly Guid _defaultExerciseStatusId;
 
-    public ExerciseService(IExerciseRepository repository, ICurrentUserService currentUserService)
+    public ExerciseService(
+        IExerciseRepository repository,
+        IClosedListItemRepository closedListItemRepository,
+        ICurrentUserService currentUserService,
+        IAugustusConfiguration config
+    )
     {
         _repository = repository;
+        _closedListItemRepository = closedListItemRepository;
         _currentUserService = currentUserService;
+        _defaultExerciseStatusId = config.GetOrThrow<Guid>(
+            ConfigurationKeys.ExerciseDefaultsSection,
+            ConfigurationKeys.DefaultExerciseStatusId
+        );
     }
 
     public async Task<List<Exercise>> ListAsync(CancellationToken cancellationToken = default)
@@ -39,7 +53,7 @@ public sealed class ExerciseService : IExerciseService
     }
 
     public async Task<Exercise> CreateExerciseAsync(
-        CreateExerciseRequestModel request,
+        CreateExerciseRequest request,
         CancellationToken cancellationToken = default
     )
     {
@@ -55,7 +69,7 @@ public sealed class ExerciseService : IExerciseService
             EndDate = request.EndDate,
             TraineeUnitId = request.TraineeUnitId,
             TrainerUnitId = request.TrainerUnitId,
-            StatusId = request.StatusId,
+            StatusId = _defaultExerciseStatusId,
             CompressionFactor = request.CompressionFactor,
             CreationTime = now,
             LastUpdateTime = now,
@@ -73,9 +87,9 @@ public sealed class ExerciseService : IExerciseService
         return createdEntity;
     }
 
-    public async Task<Exercise> UpdateExerciseAsync(
+    public async Task<Exercise> UpdateExerciseDetailsAsync(
         Guid exerciseId,
-        UpdateExerciseRequestModel request,
+        UpdateExerciseDetailsRequest request,
         CancellationToken cancellationToken = default
     )
     {
@@ -83,16 +97,244 @@ public sealed class ExerciseService : IExerciseService
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         entity.Name = request.Name;
         entity.Description = request.Description;
-        entity.StartDate = request.StartDate;
-        entity.EndDate = request.EndDate;
-        entity.StatusId = request.StatusId;
-        entity.TraineeUnitId = request.TraineeUnitId;
-        entity.TrainerUnitId = request.TrainerUnitId;
-        entity.CompressionFactor = request.CompressionFactor;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
 
         return updatedEntity;
+    }
+
+    public async Task<Exercise> UpdateExerciseEndDateAsync(
+        Guid exerciseId,
+        UpdateExerciseEndDateRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
+        entity.EndDate = request.EndDate;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<Exercise> UpdateExerciseStatusAsync(
+        Guid exerciseId,
+        UpdateExerciseStatusRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
+        entity.StatusId = request.StatusId;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<Exercise> UpdateExerciseTraineeUnitAsync(
+        Guid exerciseId,
+        UpdateExerciseTraineeUnitRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
+        entity.TraineeUnitId = request.TraineeUnitId;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<Exercise> UpdateExerciseTrainerUnitAsync(
+        Guid exerciseId,
+        UpdateExerciseTrainerUnitRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
+        entity.TrainerUnitId = request.TrainerUnitId;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<ExerciseParticipant> AddExerciseParticipantAsync(
+        Guid exerciseId,
+        AddExerciseParticipantRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = new ExerciseParticipant
+        {
+            Id = Guid.NewGuid(),
+            ExerciseId = exerciseId,
+            UserId = ParseManagerUserId(request.UserId),
+            Role = ExerciseRole.ExerciseParticipant,
+            CreationTime = DateTime.UtcNow
+        };
+        var createdEntity = await _repository.CreateExerciseParticipantAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<ExerciseSection> AddExerciseSectionAsync(
+        Guid exerciseId,
+        AddExerciseSectionRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = new ExerciseSection
+        {
+            Id = Guid.NewGuid(),
+            ExerciseId = exerciseId,
+            SectionId = request.SectionId
+        };
+        var createdEntity = await _repository.CreateExerciseSectionAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<ExerciseInfluencer> AddExerciseInfluencerAsync(
+        Guid exerciseId,
+        AddExerciseInfluencerRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = new ExerciseInfluencer
+        {
+            Id = Guid.NewGuid(),
+            ExerciseId = exerciseId,
+            InfluencerId = request.InfluencerId
+        };
+        var createdEntity = await _repository.CreateExerciseInfluencerAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<ExerciseUnitContact> AddExerciseUnitContactAsync(
+        Guid exerciseId,
+        AddExerciseUnitContactRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = new ExerciseUnitContact
+        {
+            Id = Guid.NewGuid(),
+            ExerciseId = exerciseId,
+            ContactType = request.ContactType,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            PhoneNumber = request.PhoneNumber,
+            ProfileImageUrl = request.ProfileImageUrl,
+            CreationTime = DateTime.UtcNow
+        };
+        var createdEntity = await _repository.CreateExerciseUnitContactAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<Exercise> ArchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
+        var archivedStatusId = await _closedListItemRepository.GetHighestDisplayOrderItemIdByKeyAsync(
+            ConstantValues.ExerciseStatusClosedListKey,
+            cancellationToken: cancellationToken
+        );
+        var now = DateTime.UtcNow;
+        entity.ArchiveTime = now;
+        entity.ArchivedByUserId = currentUserId;
+        entity.LastUpdateTime = now;
+        if (archivedStatusId.HasValue)
+        {
+            entity.StatusId = archivedStatusId.Value;
+        }
+
+        var archivedEntity = await _repository.ArchiveExerciseAsync(entity, cancellationToken);
+
+        return archivedEntity;
+    }
+
+    public async Task<Exercise> UnarchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default)
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
+        var archivedStatusId = await _closedListItemRepository.GetHighestDisplayOrderItemIdByKeyAsync(
+            ConstantValues.ExerciseStatusClosedListKey,
+            cancellationToken: cancellationToken
+        );
+        var fallbackStatusId = await _closedListItemRepository.GetHighestDisplayOrderItemIdByKeyAsync(
+            ConstantValues.ExerciseStatusClosedListKey,
+            archivedStatusId,
+            cancellationToken
+        );
+        entity.ArchiveTime = null;
+        entity.ArchivedByUserId = null;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        if (archivedStatusId.HasValue && entity.StatusId == archivedStatusId.Value && fallbackStatusId.HasValue)
+        {
+            entity.StatusId = fallbackStatusId.Value;
+        }
+
+        var unarchivedEntity = await _repository.UnarchiveExerciseAsync(entity, cancellationToken);
+
+        return unarchivedEntity;
+    }
+
+    public async Task RemoveExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default)
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var participant = await _repository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
+        if (participant.ExerciseId is null)
+        {
+            throw new InvalidOperationException("Exercise participant is not linked to an exercise.");
+        }
+
+        if (participant.Role == ExerciseRole.ExerciseManager)
+        {
+            var replacementParticipant = (await _repository
+                    .ListExerciseParticipantsByExerciseIdAsync(participant.ExerciseId.Value, cancellationToken))
+                .Where(item => item.Id != participantId)
+                .OrderBy(item => item.CreationTime)
+                .ThenBy(item => item.Id)
+                .FirstOrDefault();
+            if (replacementParticipant is null)
+            {
+                throw new InvalidOperationException("Cannot remove the exercise manager when no replacement participant exists.");
+            }
+
+            replacementParticipant.Role = ExerciseRole.ExerciseManager;
+            _ = await _repository.UpdateExerciseParticipantAsync(replacementParticipant, cancellationToken);
+        }
+
+        await _repository.DeleteExerciseParticipantAsync(participantId, cancellationToken);
+    }
+
+    public async Task RemoveExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default)
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _repository.DeleteExerciseSectionAsync(sectionLinkId, cancellationToken);
+    }
+
+    public async Task RemoveExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _repository.DeleteExerciseInfluencerAsync(influencerLinkId, cancellationToken);
+    }
+
+    public async Task RemoveExerciseUnitContactAsync(Guid contactId, CancellationToken cancellationToken = default)
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _repository.DeleteExerciseUnitContactAsync(contactId, cancellationToken);
     }
 
     public async Task<Exercise> AddAsync(Exercise entity, CancellationToken cancellationToken = default)
@@ -109,14 +351,14 @@ public sealed class ExerciseService : IExerciseService
         return updatedEntity;
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        await _repository.DeleteAsync(id, cancellationToken);
+        throw new NotSupportedException("Exercises use archive and unarchive operations instead of physical delete.");
     }
 
     private static List<ExerciseParticipant> BuildParticipants(
         Guid exerciseId,
-        CreateExerciseRequestModel request,
+        CreateExerciseRequest request,
         DateTime creationTime
     )
     {
@@ -126,7 +368,7 @@ public sealed class ExerciseService : IExerciseService
             {
                 Id = Guid.NewGuid(),
                 ExerciseId = exerciseId,
-                UserId = request.Manager.UserId,
+                UserId = ParseManagerUserId(request.ManagerUserId),
                 Role = ExerciseRole.ExerciseManager,
                 CreationTime = creationTime
             }
@@ -146,7 +388,7 @@ public sealed class ExerciseService : IExerciseService
 
     private static List<ExerciseUnitContact> BuildUnitContacts(
         Guid exerciseId,
-        CreateExerciseRequestModel request,
+        CreateExerciseRequest request,
         DateTime creationTime
     )
     {
@@ -199,5 +441,15 @@ public sealed class ExerciseService : IExerciseService
         }).ToList();
 
         return sectionLinks;
+    }
+
+    private static Guid ParseManagerUserId(string managerUserId)
+    {
+        if (!Guid.TryParse(managerUserId, out var parsedManagerUserId))
+        {
+            throw new InvalidOperationException("ManagerUserId must be a valid GUID string.");
+        }
+
+        return parsedManagerUserId;
     }
 }

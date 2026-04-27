@@ -1,3 +1,4 @@
+using Coucher.Shared.Models.Enums;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Models.DAL.Users;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,22 @@ public sealed class UserRoleProvider : IUserRoleProvider
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<UserRole>();
         var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<UserRole?> GetByUserIdAndRoleAsync(
+        Guid userId,
+        GlobalRole role,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<UserRole>();
+        var entity = await entities.FirstOrDefaultAsync(
+            item => item.UserId == userId && item.Role == role,
+            cancellationToken
+        );
 
         return entity;
     }

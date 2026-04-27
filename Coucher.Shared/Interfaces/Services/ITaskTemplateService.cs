@@ -6,16 +6,41 @@ namespace Coucher.Shared.Interfaces.Services;
 public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
 {
     Task<TaskTemplate> CreateTaskTemplateAsync(
-        CreateTaskTemplateRequestModel request,
+        CreateTaskTemplateRequest request,
         CancellationToken cancellationToken = default
     );
     Task<List<TaskTemplate>> CreateTaskTemplatesAsync(
-        List<CreateTaskTemplateRequestModel> requests,
+        List<CreateTaskTemplateRequest> requests,
         CancellationToken cancellationToken = default
     );
-    Task<TaskTemplate> UpdateTaskTemplateAsync(
+    Task<TaskTemplate> UpdateTaskTemplateSeriesAsync(
         Guid taskTemplateId,
-        UpdateTaskTemplateRequestModel request,
+        UpdateTaskTemplateSeriesRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<TaskTemplate> UpdateTaskTemplateCategoryAsync(
+        Guid taskTemplateId,
+        UpdateTaskTemplateCategoryRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<TaskTemplate> UpdateTaskTemplateDetailsAsync(
+        Guid taskTemplateId,
+        UpdateTaskTemplateDetailsRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<TaskTemplate> AddTaskTemplateChildAsync(
+        Guid taskTemplateId,
+        CreateTaskTemplateRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<TaskTemplateDependency> AddTaskTemplateDependencyAsync(
+        Guid taskTemplateId,
+        AddTaskTemplateDependencyRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid taskTemplateId, CancellationToken cancellationToken = default);
+    Task<TaskTemplate> UnarchiveTaskTemplateAsync(
+        Guid taskTemplateId,
         CancellationToken cancellationToken = default
     );
 }
