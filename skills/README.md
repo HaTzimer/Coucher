@@ -14,6 +14,7 @@ Source of truth for repo conventions is `AGENTS.md`. Skills should reference it 
 
 - `skills/operations/configuration-use-practices`: configuration key usage and environment overrides.
 - `skills/operations/augustus-logger-practices`: logging rules and Augustus logger expectations.
+- `skills/operations/redis-session-authentication`: Redis-backed session storage and request authentication for REST and GraphQL.
 
 ## Tooling
 
@@ -22,4 +23,3 @@ Source of truth for repo conventions is `AGENTS.md`. Skills should reference it 
 ## Backward Compatibility
 
 The original skill folder names still exist as junctions under `skills/` (for example `skills/provider-repository-service-pattern`) and point to the categorized locations above.
-
