@@ -16,10 +16,13 @@ public sealed class ExerciseTaskResponsibleUser
     [Key]
     [GraphQLDescription("The unique identifier of the responsibility link.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The task id linked to the responsible user.")]
     public Guid? TaskId { get; set; }
+
     [GraphQLDescription("The user id linked to the task.")]
     public Guid? UserId { get; set; }
+
     [GraphQLDescription("When the responsibility link was created.")]
     public DateTime CreationTime { get; set; }
 
@@ -34,4 +37,5 @@ public sealed class ExerciseTaskResponsibleUser
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The user linked to the task.")]
     public UserProfile? User { get; set; }
+
 }

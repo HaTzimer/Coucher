@@ -72,6 +72,38 @@ var entities = dbContext.Set<UserNotification>();
 - Keep control flow explicit.
 - Make formatting decisions that optimize scanability, not terseness.
 
+## Model property spacing
+
+For model files, if at least one property in the model has one or more attributes directly above it, every property in that model must be followed by an empty line.
+
+Preferred:
+
+```csharp
+[GraphQLDescription("When the entry was created.")]
+public required DateTime CreationTime { get; set; }
+
+[GraphQLDescription("When the entry was last updated.")]
+public required DateTime LastUpdateTime { get; set; }
+```
+
+Also prefer:
+
+```csharp
+[GraphQLDescription("The unique identifier of the unit.")]
+public Guid Id { get; set; }
+
+public required string Name { get; set; }
+```
+
+Avoid:
+
+```csharp
+[GraphQLDescription("When the entry was created.")]
+public required DateTime CreationTime { get; set; }
+[GraphQLDescription("When the entry was last updated.")]
+public required DateTime LastUpdateTime { get; set; }
+```
+
 ## Fluent chains
 
 For method chains split across lines, keep each chained call aligned directly under the receiver line without extra indentation.

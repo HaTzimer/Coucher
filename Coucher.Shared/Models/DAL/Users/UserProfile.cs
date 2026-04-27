@@ -19,48 +19,64 @@ public sealed class UserProfile
 {
     [GraphQLDescription("The unique identifier of the user profile.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The identity number used to identify the user.")]
     [MaxLength(128)]
     public required string IdentityNumber { get; set; }
+
     [GraphQLDescription("The user's first name.")]
     [MaxLength(256)]
     public required string FirstName { get; set; }
+
     [GraphQLDescription("The user's last name.")]
     [MaxLength(256)]
     public required string LastName { get; set; }
+
     [GraphQLDescription("An optional personal number for the user.")]
     [MaxLength(128)]
     public string? PersonalNumber { get; set; }
+
     [GraphQLDescription("An optional external id from another source system.")]
     [MaxLength(512)]
     public string? ExternalId { get; set; }
+
     [GraphQLDescription("The unit id assigned to the user.")]
     public Guid? UnitId { get; set; }
+
     [GraphQLDescription("The user's rank.")]
     [MaxLength(128)]
     public string? Rank { get; set; }
+
     [GraphQLDescription("The user's position or role title.")]
     [MaxLength(128)]
     public string? Position { get; set; }
+
     [GraphQLDescription("The user's phone number.")]
     [MaxLength(128)]
     public string? PhoneNumber { get; set; }
+
     [GraphQLDescription("The user's civilian email address.")]
     [MaxLength(256)]
     public string? CivilianEmail { get; set; }
+
     [GraphQLDescription("The user's military email address.")]
     [MaxLength(256)]
     public string? MilitaryEmail { get; set; }
+
     [GraphQLDescription("An optional profile image URL for the user.")]
     [MaxLength(512)]
     public string? ProfileImageUrl { get; set; }
+
     [GraphQLDescription("The stored password hash, when authentication data exists.")]
     [MaxLength(512)]
     public string? PasswordHash { get; set; }
+
     [GraphQLDescription("When the user last logged in.")]
     public DateTime? LastLoginTime { get; set; }
+
     [GraphQLDescription("When the user profile was created.")]
     public DateTime CreationTime { get; set; }
+
     [GraphQLDescription("When the user profile was last updated.")]
     public DateTime LastUpdateTime { get; set; }
 
@@ -84,4 +100,5 @@ public sealed class UserProfile
     [InverseProperty("User")]
     [GraphQLDescription("Notifications shown to the user.")]
     public required List<UserNotification> Notifications { get; set; }
+
 }

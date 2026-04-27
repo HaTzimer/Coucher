@@ -15,8 +15,10 @@ public sealed class ExerciseInfluencer
     [Key]
     [GraphQLDescription("The unique identifier of the exercise-to-influencer link.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The exercise id linked to the influencer.")]
     public Guid? ExerciseId { get; set; }
+
     [GraphQLDescription("The closed-list influencer id linked to the exercise.")]
     public Guid? InfluencerId { get; set; }
 
@@ -30,4 +32,5 @@ public sealed class ExerciseInfluencer
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The closed-list entry that represents the influencer.")]
     public ClosedListItem? Influencer { get; set; }
+
 }

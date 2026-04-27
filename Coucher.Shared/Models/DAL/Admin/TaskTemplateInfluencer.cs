@@ -15,10 +15,13 @@ public sealed class TaskTemplateInfluencer
     [Key]
     [GraphQLDescription("The unique identifier of the template-to-influencer link.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The task template linked to the influencer.")]
     public Guid? TemplateId { get; set; }
+
     [GraphQLDescription("The closed-list influencer id linked to the template.")]
     public Guid? InfluencerId { get; set; }
+
     [GraphQLDescription("When the link was created.")]
     public DateTime CreationTime { get; set; }
 
@@ -32,4 +35,5 @@ public sealed class TaskTemplateInfluencer
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The closed-list entry that represents the influencer.")]
     public ClosedListItem? Influencer { get; set; }
+
 }

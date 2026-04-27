@@ -13,21 +13,29 @@ public sealed class ClosedListItem
 {
     [GraphQLDescription("The unique identifier of the closed-list entry.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The logical list key that groups related closed-list entries.")]
     [MaxLength(256)]
     public required string Key { get; set; }
+
     [GraphQLDescription("The display value shown to users for this entry.")]
     [MaxLength(256)]
     public required string Value { get; set; }
+
     [GraphQLDescription("An optional explanation or note for this entry.")]
     [MaxLength(1024)]
     public string? Description { get; set; }
+
     [GraphQLDescription("The display order within the same closed-list key.")]
     public int? DisplayOrder { get; set; }
+
     [GraphQLDescription("Whether the entry is archived and hidden from normal active management flows.")]
     public bool IsArchive { get; set; }
+
     [GraphQLDescription("When the entry was created.")]
     public required DateTime CreationTime { get; set; }
+
     [GraphQLDescription("When the entry was last updated.")]
     public required DateTime LastUpdateTime { get; set; }
+
 }

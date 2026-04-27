@@ -15,8 +15,10 @@ public sealed class ExerciseSection
     [Key]
     [GraphQLDescription("The unique identifier of the exercise-to-section link.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The exercise id linked to the section.")]
     public Guid? ExerciseId { get; set; }
+
     [GraphQLDescription("The closed-list section id linked to the exercise.")]
     public Guid? SectionId { get; set; }
 
@@ -30,4 +32,5 @@ public sealed class ExerciseSection
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The closed-list entry that represents the section.")]
     public ClosedListItem? Section { get; set; }
+
 }

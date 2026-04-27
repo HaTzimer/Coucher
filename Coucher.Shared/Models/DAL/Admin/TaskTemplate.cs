@@ -15,29 +15,40 @@ public sealed class TaskTemplate
 {
     [GraphQLDescription("The unique identifier of the task template.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The optional parent template id when this template is nested under another template.")]
     public Guid? ParentId { get; set; }
+
     [GraphQLDescription("The closed-list id that groups the template into a series.")]
     public Guid? SeriesId { get; set; }
+
     [GraphQLDescription("The closed-list id that categorizes the template.")]
     public Guid? CategoryId { get; set; }
+
     [GraphQLDescription("The serial number used to order the template.")]
     public int SerialNumber { get; set; }
+
     [GraphQLDescription("The template name.")]
     [MaxLength(256)]
     public required string Name { get; set; }
+
     [GraphQLDescription("An optional detailed description of the template.")]
     [MaxLength(1024)]
     public string? Description { get; set; }
+
     [GraphQLDescription("Optional internal notes for the template.")]
     [MaxLength(1024)]
     public string? Notes { get; set; }
+
     [GraphQLDescription("The default lead time, in weeks before exercise start, for planning this template.")]
     public int DefaultWeeksBeforeExerciseStart { get; set; }
+
     [GraphQLDescription("Whether the template is archived and hidden from normal active management flows.")]
     public bool IsArchive { get; set; }
+
     [GraphQLDescription("When the template was created.")]
     public DateTime CreationTime { get; set; }
+
     [GraphQLDescription("When the template was last updated.")]
     public DateTime LastUpdateTime { get; set; }
 
@@ -71,4 +82,5 @@ public sealed class TaskTemplate
     [InverseProperty(nameof(TaskTemplateInfluencer.Template))]
     [GraphQLDescription("Influencer links attached to this template.")]
     public required List<TaskTemplateInfluencer> Influencers { get; set; }
+
 }

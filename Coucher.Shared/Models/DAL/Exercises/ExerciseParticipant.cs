@@ -15,12 +15,16 @@ public sealed class ExerciseParticipant
     [Key]
     [GraphQLDescription("The unique identifier of the participation record.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The exercise id linked to the participant.")]
     public Guid? ExerciseId { get; set; }
+
     [GraphQLDescription("The user id of the participant.")]
     public Guid? UserId { get; set; }
+
     [GraphQLDescription("The user's role inside the exercise.")]
     public ExerciseRole Role { get; set; }
+
     [GraphQLDescription("When the participation record was created.")]
     public DateTime CreationTime { get; set; }
 
@@ -35,4 +39,5 @@ public sealed class ExerciseParticipant
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The user linked to the exercise.")]
     public UserProfile? User { get; set; }
+
 }

@@ -19,6 +19,7 @@ public sealed class ExerciseUnitContact
 
     [GraphQLDescription("The exercise id linked to this contact.")]
     public Guid? ExerciseId { get; set; }
+
     [GraphQLDescription("Which unit side this contact belongs to in the exercise.")]
     public ExerciseUnitContactType ContactType { get; set; }
 
@@ -46,4 +47,5 @@ public sealed class ExerciseUnitContact
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The exercise linked to this contact.")]
     public Exercise? Exercise { get; set; }
+
 }

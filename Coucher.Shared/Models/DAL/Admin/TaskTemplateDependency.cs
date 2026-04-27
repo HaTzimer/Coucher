@@ -15,10 +15,13 @@ public sealed class TaskTemplateDependency
     [Key]
     [GraphQLDescription("The unique identifier of the dependency link.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The template that depends on another template.")]
     public Guid? TemplateId { get; set; }
+
     [GraphQLDescription("The template that should be completed first.")]
     public Guid? DependsOnId { get; set; }
+
     [GraphQLDescription("When the dependency link was created.")]
     public DateTime CreationTime { get; set; }
 
@@ -33,4 +36,5 @@ public sealed class TaskTemplateDependency
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The template that must be completed first.")]
     public TaskTemplate? DependsOn { get; set; }
+
 }

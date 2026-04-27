@@ -14,12 +14,16 @@ public sealed class UserRole
     [Key]
     [GraphQLDescription("The unique identifier of the user role assignment.")]
     public Guid Id { get; set; }
+
     [GraphQLDescription("The user id that owns the role assignment.")]
     public Guid? UserId { get; set; }
+
     [GraphQLDescription("The global role assigned to the user.")]
     public GlobalRole Role { get; set; }
+
     [GraphQLDescription("When the role was assigned.")]
     public DateTime AssignedTime { get; set; }
+
     [GraphQLDescription("The id of the user who assigned the role, if tracked.")]
     public Guid? AssignedByUserId { get; set; }
 
@@ -28,4 +32,5 @@ public sealed class UserRole
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The user who owns the role assignment.")]
     public UserProfile? User { get; set; }
+
 }
