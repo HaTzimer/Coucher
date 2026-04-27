@@ -72,6 +72,41 @@ var entities = dbContext.Set<UserNotification>();
 - Keep control flow explicit.
 - Make formatting decisions that optimize scanability, not terseness.
 
+## Single-scalar request bodies
+
+For Web API request bodies, if the payload contains only one scalar value, do not wrap it in a one-property request model. Use the scalar body directly.
+
+Preferred:
+
+```csharp
+[HttpPut("{id:guid}/status")]
+public async Task<ActionResult<Exercise>> UpdateStatusAsync(
+    Guid id,
+    [FromBody] Guid statusId,
+    CancellationToken cancellationToken
+)
+```
+
+Also prefer:
+
+```csharp
+[HttpPost("{id:guid}/participants")]
+public async Task<ActionResult<ExerciseParticipant>> AddParticipantAsync(
+    Guid id,
+    [FromBody] string userId,
+    CancellationToken cancellationToken
+)
+```
+
+Avoid:
+
+```csharp
+public sealed class SingleValueRequest
+{
+    public required string Value { get; set; }
+}
+```
+
 ## Model property spacing
 
 For model files, if at least one property in the model has one or more attributes directly above it, every property in that model must be followed by an empty line.

@@ -39,7 +39,7 @@ public interface IExerciseService : IServiceBase<Exercise, Guid>
     );
     Task<ExerciseParticipant> AddExerciseParticipantAsync(
         Guid exerciseId,
-        AddExerciseParticipantRequest request,
+        string userId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseParticipant> UpdateExerciseParticipantRoleAsync(
@@ -54,12 +54,12 @@ public interface IExerciseService : IServiceBase<Exercise, Guid>
     );
     Task<ExerciseSection> AddExerciseSectionAsync(
         Guid exerciseId,
-        AddExerciseSectionRequest request,
+        Guid sectionId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseInfluencer> AddExerciseInfluencerAsync(
         Guid exerciseId,
-        AddExerciseInfluencerRequest request,
+        Guid influencerId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseUnitContact> AddExerciseUnitContactAsync(

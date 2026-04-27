@@ -17,6 +17,7 @@ Read [references/rules.md](references/rules.md) before making structural or form
 - Shared constant values belong in `Coucher.Shared/ConstantValues.cs` (do not add file-local `const` values for shared semantics).
 - Prefer small, readable methods over condensed expressions.
 - In model files, if at least one property uses attributes, add an empty line after every property in that model, including properties without attributes.
+- For Web API request bodies, if the payload is a single scalar value, do not create a one-property request model; accept the raw scalar body instead.
 - Do not return expressions directly when a value can be assigned first.
 - Store returned values in a local `var` before returning them.
 - Always put an empty line before a `return` statement.
@@ -95,6 +96,7 @@ var entities = dbContext.Set<UserNotification>();
 
 - Reject direct-expression returns when a local variable should be used instead.
 - Reject model files that mix attributed properties with tightly packed property declarations; once one property in a model uses attributes, every property in that model must be separated by an empty line.
+- Reject one-property request DTOs whose only purpose is to wrap a single scalar request body.
 - Reject `return` statements that are not separated by an empty line.
 - Reject fluent chains that use extra indentation before chained calls.
 - Reject missing empty lines after async DbContext factory creation statements.

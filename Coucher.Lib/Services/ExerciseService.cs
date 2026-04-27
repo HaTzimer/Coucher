@@ -185,7 +185,7 @@ public sealed class ExerciseService : IExerciseService
 
     public async Task<ExerciseParticipant> AddExerciseParticipantAsync(
         Guid exerciseId,
-        AddExerciseParticipantRequest request,
+        string userId,
         CancellationToken cancellationToken = default
     )
     {
@@ -194,7 +194,7 @@ public sealed class ExerciseService : IExerciseService
         {
             Id = Guid.NewGuid(),
             ExerciseId = exerciseId,
-            UserId = ParseManagerUserId(request.UserId),
+            UserId = ParseManagerUserId(userId),
             Role = ExerciseRole.ExerciseParticipant,
             CreationTime = DateTime.UtcNow
         };
@@ -269,7 +269,7 @@ public sealed class ExerciseService : IExerciseService
 
     public async Task<ExerciseSection> AddExerciseSectionAsync(
         Guid exerciseId,
-        AddExerciseSectionRequest request,
+        Guid sectionId,
         CancellationToken cancellationToken = default
     )
     {
@@ -278,7 +278,7 @@ public sealed class ExerciseService : IExerciseService
         {
             Id = Guid.NewGuid(),
             ExerciseId = exerciseId,
-            SectionId = request.SectionId
+            SectionId = sectionId
         };
         var createdEntity = await _repository.CreateExerciseSectionAsync(entity, cancellationToken);
 
@@ -287,7 +287,7 @@ public sealed class ExerciseService : IExerciseService
 
     public async Task<ExerciseInfluencer> AddExerciseInfluencerAsync(
         Guid exerciseId,
-        AddExerciseInfluencerRequest request,
+        Guid influencerId,
         CancellationToken cancellationToken = default
     )
     {
@@ -296,7 +296,7 @@ public sealed class ExerciseService : IExerciseService
         {
             Id = Guid.NewGuid(),
             ExerciseId = exerciseId,
-            InfluencerId = request.InfluencerId
+            InfluencerId = influencerId
         };
         var createdEntity = await _repository.CreateExerciseInfluencerAsync(entity, cancellationToken);
 

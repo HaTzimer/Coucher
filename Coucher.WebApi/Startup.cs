@@ -10,6 +10,7 @@ using Coucher.Lib.Services;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
+using Coucher.WebApi.Swagger;
 using Coucher.WebApi.Filters;
 using HotChocolate.Data;
 using Microsoft.OpenApi.Models;
@@ -74,6 +75,8 @@ public sealed class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
+            options.SchemaFilter<TaskTemplateCreateRequestSchemaFilter>();
+            options.OperationFilter<TaskTemplateCreateRequestOperationFilter>();
             options.AddSecurityDefinition("SessionId", new OpenApiSecurityScheme
             {
                 Name = "session-id",

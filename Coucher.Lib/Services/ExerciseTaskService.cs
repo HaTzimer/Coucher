@@ -81,6 +81,11 @@ public sealed class ExerciseTaskService : IExerciseTaskService
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var parentTask = await _repository.GetRequiredByIdAsync(parentTaskId, cancellationToken);
+        if (parentTask.ParentId.HasValue)
+        {
+            throw new InvalidOperationException("Exercise tasks support children only one level deep.");
+        }
+
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(parentTask.ExerciseId, cancellationToken);
         var isCompletedStatus = await IsCompletedStatusAsync(_defaultExerciseTaskStatusId, cancellationToken);
@@ -331,7 +336,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
 
     public async Task<ExerciseTaskResponsibleUser> AddExerciseTaskResponsibleUserAsync(
         Guid taskId,
-        AddExerciseTaskResponsibleUserRequest request,
+        string userId,
         CancellationToken cancellationToken = default
     )
     {
@@ -341,7 +346,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
-            UserId = ParseGuidString(request.UserId, "UserId"),
+            UserId = ParseGuidString(userId, "UserId"),
             CreationTime = DateTime.UtcNow
         };
         var createdEntity = await _repository.CreateExerciseTaskResponsibleUserAsync(entity, cancellationToken);

@@ -111,7 +111,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
     [HttpPost("{id:guid}/children")]
     public async Task<ActionResult<TaskTemplate>> AddChildAsync(
         Guid id,
-        [FromBody] CreateTaskTemplateRequest request,
+        [FromBody] CreateTaskTemplateChildRequest request,
         CancellationToken cancellationToken
     )
     {
@@ -123,11 +123,11 @@ public sealed class AdminTaskTemplatesController : ControllerBase
     [HttpPost("{id:guid}/dependencies")]
     public async Task<ActionResult<TaskTemplateDependency>> AddDependencyAsync(
         Guid id,
-        [FromBody] AddTaskTemplateDependencyRequest request,
+        [FromBody] Guid dependsOnId,
         CancellationToken cancellationToken
     )
     {
-        var dependency = await _taskTemplateService.AddTaskTemplateDependencyAsync(id, request, cancellationToken);
+        var dependency = await _taskTemplateService.AddTaskTemplateDependencyAsync(id, dependsOnId, cancellationToken);
 
         return Ok(dependency);
     }

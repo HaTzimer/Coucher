@@ -155,13 +155,13 @@ public sealed class ExerciseTasksController : ControllerBase
     [HttpPost("{id:guid}/responsible-users")]
     public async Task<ActionResult<ExerciseTaskResponsibleUser>> AddResponsibleUserAsync(
         Guid id,
-        [FromBody] AddExerciseTaskResponsibleUserRequest request,
+        [FromBody] string userId,
         CancellationToken cancellationToken
     )
     {
         var responsibleUser = await _exerciseTaskService.AddExerciseTaskResponsibleUserAsync(
             id,
-            request,
+            userId,
             cancellationToken
         );
 

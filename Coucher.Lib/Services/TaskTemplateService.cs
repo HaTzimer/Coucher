@@ -46,15 +46,8 @@ public sealed class TaskTemplateService : ITaskTemplateService
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
         var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
-        var createdNodes = new List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)>();
-        var entity = BuildTaskTemplateTree(
-            request,
-            parentId: null,
-            now,
-            ref nextSerialNumber,
-            nodesByKey,
-            createdNodes
-        );
+        var createdNodes = new List<(TaskTemplate Entity, TaskTemplateNodeRequestBase Request)>();
+        var entity = BuildTaskTemplateTree(request, now, ref nextSerialNumber, nodesByKey, createdNodes);
         WireDependencies(nodesByKey, createdNodes, now);
         var createdEntity = await _repository.CreateTaskTemplateAsync(entity, cancellationToken);
 
@@ -78,15 +71,8 @@ public sealed class TaskTemplateService : ITaskTemplateService
         foreach (var request in requests)
         {
             var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
-            var createdNodes = new List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)>();
-            var entity = BuildTaskTemplateTree(
-                request,
-                parentId: null,
-                now,
-                ref nextSerialNumber,
-                nodesByKey,
-                createdNodes
-            );
+            var createdNodes = new List<(TaskTemplate Entity, TaskTemplateNodeRequestBase Request)>();
+            var entity = BuildTaskTemplateTree(request, now, ref nextSerialNumber, nodesByKey, createdNodes);
             WireDependencies(nodesByKey, createdNodes, now);
             entities.Add(entity);
         }
@@ -187,25 +173,24 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
     public async Task<TaskTemplate> AddTaskTemplateChildAsync(
         Guid taskTemplateId,
-        CreateTaskTemplateRequest request,
+        CreateTaskTemplateChildRequest request,
         CancellationToken cancellationToken = default
     )
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        _ = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        var parentTemplate = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        if (parentTemplate.ParentId.HasValue)
+        {
+            throw new InvalidOperationException("Task templates support children only one level deep.");
+        }
 
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
         var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
-        var createdNodes = new List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)>();
-        var entity = BuildTaskTemplateTree(
-            request,
-            taskTemplateId,
-            now,
-            ref nextSerialNumber,
-            nodesByKey,
-            createdNodes
-        );
+        var createdNodes = new List<(TaskTemplate Entity, TaskTemplateNodeRequestBase Request)>();
+        var entity = CreateTaskTemplateEntity(request, taskTemplateId, now, ref nextSerialNumber);
+        RegisterTemplateKey(request.TemplateKey, entity, nodesByKey);
+        createdNodes.Add((entity, request));
         WireDependencies(nodesByKey, createdNodes, now);
         var createdEntity = await _repository.CreateTaskTemplateAsync(entity, cancellationToken);
 
@@ -214,15 +199,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
     public async Task<TaskTemplateDependency> AddTaskTemplateDependencyAsync(
         Guid taskTemplateId,
-        AddTaskTemplateDependencyRequest request,
+        Guid dependsOnId,
         CancellationToken cancellationToken = default
     )
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        _ = await _repository.GetRequiredByIdAsync(request.DependsOnId, cancellationToken);
+        _ = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
 
-        if (taskTemplateId == request.DependsOnId)
+        if (taskTemplateId == dependsOnId)
         {
             throw new InvalidOperationException("A task template cannot depend on itself.");
         }
@@ -231,7 +216,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         {
             Id = Guid.NewGuid(),
             TemplateId = taskTemplateId,
-            DependsOnId = request.DependsOnId,
+            DependsOnId = dependsOnId,
             CreationTime = DateTime.UtcNow
         };
         var createdEntity = await _repository.CreateTaskTemplateDependencyAsync(entity, cancellationToken);
@@ -317,11 +302,32 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
     private static TaskTemplate BuildTaskTemplateTree(
         CreateTaskTemplateRequest request,
-        Guid? parentId,
         DateTime now,
         ref int nextSerialNumber,
         Dictionary<string, TaskTemplate> nodesByKey,
-        List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)> createdNodes
+        List<(TaskTemplate Entity, TaskTemplateNodeRequestBase Request)> createdNodes
+    )
+    {
+        var entity = CreateTaskTemplateEntity(request, parentId: null, now, ref nextSerialNumber);
+        RegisterTemplateKey(request.TemplateKey, entity, nodesByKey);
+        createdNodes.Add((entity, request));
+
+        foreach (var childRequest in request.Children ?? new List<CreateTaskTemplateChildRequest>())
+        {
+            var childEntity = CreateTaskTemplateEntity(childRequest, entity.Id, now, ref nextSerialNumber);
+            RegisterTemplateKey(childRequest.TemplateKey, childEntity, nodesByKey);
+            createdNodes.Add((childEntity, childRequest));
+            entity.Children.Add(childEntity);
+        }
+
+        return entity;
+    }
+
+    private static TaskTemplate CreateTaskTemplateEntity(
+        TaskTemplateNodeRequestBase request,
+        Guid? parentId,
+        DateTime now,
+        ref int nextSerialNumber
     )
     {
         var entity = new TaskTemplate
@@ -345,28 +351,13 @@ public sealed class TaskTemplateService : ITaskTemplateService
         };
 
         nextSerialNumber++;
-        RegisterTemplateKey(request.TemplateKey, entity, nodesByKey);
-        createdNodes.Add((entity, request));
-
-        foreach (var childRequest in request.Children ?? Enumerable.Empty<CreateTaskTemplateRequest>())
-        {
-            var childEntity = BuildTaskTemplateTree(
-                childRequest,
-                entity.Id,
-                now,
-                ref nextSerialNumber,
-                nodesByKey,
-                createdNodes
-            );
-            entity.Children.Add(childEntity);
-        }
 
         return entity;
     }
 
     private static void WireDependencies(
         Dictionary<string, TaskTemplate> nodesByKey,
-        List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)> createdNodes,
+        List<(TaskTemplate Entity, TaskTemplateNodeRequestBase Request)> createdNodes,
         DateTime now
     )
     {

@@ -40,12 +40,12 @@ public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
     );
     Task<TaskTemplate> AddTaskTemplateChildAsync(
         Guid taskTemplateId,
-        CreateTaskTemplateRequest request,
+        CreateTaskTemplateChildRequest request,
         CancellationToken cancellationToken = default
     );
     Task<TaskTemplateDependency> AddTaskTemplateDependencyAsync(
         Guid taskTemplateId,
-        AddTaskTemplateDependencyRequest request,
+        Guid dependsOnId,
         CancellationToken cancellationToken = default
     );
     Task<List<TaskTemplateInfluencer>> AddTaskTemplateInfluencersAsync(

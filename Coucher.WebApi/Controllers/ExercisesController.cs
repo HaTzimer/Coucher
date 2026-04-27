@@ -113,11 +113,11 @@ public sealed class ExercisesController : ControllerBase
     [HttpPost("{id:guid}/participants")]
     public async Task<ActionResult<ExerciseParticipant>> AddParticipantAsync(
         Guid id,
-        [FromBody] AddExerciseParticipantRequest request,
+        [FromBody] string userId,
         CancellationToken cancellationToken
     )
     {
-        var participant = await _exerciseService.AddExerciseParticipantAsync(id, request, cancellationToken);
+        var participant = await _exerciseService.AddExerciseParticipantAsync(id, userId, cancellationToken);
 
         return Ok(participant);
     }
@@ -153,11 +153,11 @@ public sealed class ExercisesController : ControllerBase
     [HttpPost("{id:guid}/sections")]
     public async Task<ActionResult<ExerciseSection>> AddSectionAsync(
         Guid id,
-        [FromBody] AddExerciseSectionRequest request,
+        [FromBody] Guid sectionId,
         CancellationToken cancellationToken
     )
     {
-        var section = await _exerciseService.AddExerciseSectionAsync(id, request, cancellationToken);
+        var section = await _exerciseService.AddExerciseSectionAsync(id, sectionId, cancellationToken);
 
         return Ok(section);
     }
@@ -165,11 +165,11 @@ public sealed class ExercisesController : ControllerBase
     [HttpPost("{id:guid}/influencers")]
     public async Task<ActionResult<ExerciseInfluencer>> AddInfluencerAsync(
         Guid id,
-        [FromBody] AddExerciseInfluencerRequest request,
+        [FromBody] Guid influencerId,
         CancellationToken cancellationToken
     )
     {
-        var influencer = await _exerciseService.AddExerciseInfluencerAsync(id, request, cancellationToken);
+        var influencer = await _exerciseService.AddExerciseInfluencerAsync(id, influencerId, cancellationToken);
 
         return Ok(influencer);
     }
