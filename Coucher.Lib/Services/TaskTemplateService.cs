@@ -46,16 +46,16 @@ public sealed class TaskTemplateService : ITaskTemplateService
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
         var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
-        var requestsByKey = new Dictionary<string, CreateTaskTemplateRequest>(StringComparer.Ordinal);
+        var createdNodes = new List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)>();
         var entity = BuildTaskTemplateTree(
             request,
             parentId: null,
             now,
             ref nextSerialNumber,
             nodesByKey,
-            requestsByKey
+            createdNodes
         );
-        WireDependencies(nodesByKey, requestsByKey, now);
+        WireDependencies(nodesByKey, createdNodes, now);
         var createdEntity = await _repository.CreateTaskTemplateAsync(entity, cancellationToken);
 
         return createdEntity;
@@ -78,16 +78,16 @@ public sealed class TaskTemplateService : ITaskTemplateService
         foreach (var request in requests)
         {
             var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
-            var requestsByKey = new Dictionary<string, CreateTaskTemplateRequest>(StringComparer.Ordinal);
+            var createdNodes = new List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)>();
             var entity = BuildTaskTemplateTree(
                 request,
                 parentId: null,
                 now,
                 ref nextSerialNumber,
                 nodesByKey,
-                requestsByKey
+                createdNodes
             );
-            WireDependencies(nodesByKey, requestsByKey, now);
+            WireDependencies(nodesByKey, createdNodes, now);
             entities.Add(entity);
         }
 
@@ -96,15 +96,42 @@ public sealed class TaskTemplateService : ITaskTemplateService
         return createdEntities;
     }
 
-    public async Task<TaskTemplate> UpdateTaskTemplateSeriesAsync(
+    public async Task<TaskTemplate> UpdateTaskTemplateAsync(
         Guid taskTemplateId,
-        UpdateTaskTemplateSeriesRequest request,
+        UpdateTaskTemplateRequest request,
         CancellationToken cancellationToken = default
     )
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.SeriesId = request.SeriesId;
+        entity.CategoryId = request.CategoryId;
+        entity.Name = request.Name;
+        entity.Description = request.Description;
+        entity.Notes = request.Notes;
+        entity.DefaultWeeksBeforeExerciseStart = request.DefaultWeeksBeforeExerciseStart;
+        var now = DateTime.UtcNow;
+        entity.LastUpdateTime = now;
+        var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
+        _ = await _repository.ReplaceTaskTemplateInfluencersAsync(
+            taskTemplateId,
+            request.InfluencerIds ?? new List<Guid>(),
+            now,
+            cancellationToken
+        );
+
+        return updatedEntity;
+    }
+
+    public async Task<TaskTemplate> UpdateTaskTemplateSeriesAsync(
+        Guid taskTemplateId,
+        Guid? seriesId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        entity.SeriesId = seriesId;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
 
@@ -113,13 +140,28 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
     public async Task<TaskTemplate> UpdateTaskTemplateCategoryAsync(
         Guid taskTemplateId,
-        UpdateTaskTemplateCategoryRequest request,
+        Guid? categoryId,
         CancellationToken cancellationToken = default
     )
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        entity.CategoryId = request.CategoryId;
+        entity.CategoryId = categoryId;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<TaskTemplate> UpdateTaskTemplateDefaultWeeksBeforeExerciseStartAsync(
+        Guid taskTemplateId,
+        int defaultWeeksBeforeExerciseStart,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        entity.DefaultWeeksBeforeExerciseStart = defaultWeeksBeforeExerciseStart;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
 
@@ -155,16 +197,16 @@ public sealed class TaskTemplateService : ITaskTemplateService
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
         var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
-        var requestsByKey = new Dictionary<string, CreateTaskTemplateRequest>(StringComparer.Ordinal);
+        var createdNodes = new List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)>();
         var entity = BuildTaskTemplateTree(
             request,
             taskTemplateId,
             now,
             ref nextSerialNumber,
             nodesByKey,
-            requestsByKey
+            createdNodes
         );
-        WireDependencies(nodesByKey, requestsByKey, now);
+        WireDependencies(nodesByKey, createdNodes, now);
         var createdEntity = await _repository.CreateTaskTemplateAsync(entity, cancellationToken);
 
         return createdEntity;
@@ -195,6 +237,41 @@ public sealed class TaskTemplateService : ITaskTemplateService
         var createdEntity = await _repository.CreateTaskTemplateDependencyAsync(entity, cancellationToken);
 
         return createdEntity;
+    }
+
+    public async Task<List<TaskTemplateInfluencer>> AddTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerIds,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var createdEntities = await _repository.CreateTaskTemplateInfluencersAsync(
+            taskTemplateId,
+            influencerIds,
+            DateTime.UtcNow,
+            cancellationToken
+        );
+
+        return createdEntities;
+    }
+
+    public async Task DeleteTaskTemplateDependencyAsync(
+        Guid dependencyId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _repository.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
+    }
+
+    public async Task DeleteTaskTemplateInfluencerAsync(
+        Guid influencerLinkId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        await _repository.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
     }
 
     public async Task<TaskTemplate> ArchiveTaskTemplateAsync(
@@ -244,11 +321,9 @@ public sealed class TaskTemplateService : ITaskTemplateService
         DateTime now,
         ref int nextSerialNumber,
         Dictionary<string, TaskTemplate> nodesByKey,
-        Dictionary<string, CreateTaskTemplateRequest> requestsByKey
+        List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)> createdNodes
     )
     {
-        ValidateTemplateKey(request.TemplateKey, nodesByKey);
-
         var entity = new TaskTemplate
         {
             Id = Guid.NewGuid(),
@@ -266,12 +341,12 @@ public sealed class TaskTemplateService : ITaskTemplateService
             Children = new List<TaskTemplate>(),
             Dependencies = new List<TaskTemplateDependency>(),
             DependedOnBy = new List<TaskTemplateDependency>(),
-            Influencers = new List<TaskTemplateInfluencer>()
+            Influencers = BuildTaskTemplateInfluencers(request.InfluencerIds, now)
         };
 
         nextSerialNumber++;
-        nodesByKey.Add(request.TemplateKey, entity);
-        requestsByKey.Add(request.TemplateKey, request);
+        RegisterTemplateKey(request.TemplateKey, entity, nodesByKey);
+        createdNodes.Add((entity, request));
 
         foreach (var childRequest in request.Children ?? Enumerable.Empty<CreateTaskTemplateRequest>())
         {
@@ -281,7 +356,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
                 now,
                 ref nextSerialNumber,
                 nodesByKey,
-                requestsByKey
+                createdNodes
             );
             entity.Children.Add(childEntity);
         }
@@ -291,13 +366,12 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
     private static void WireDependencies(
         Dictionary<string, TaskTemplate> nodesByKey,
-        Dictionary<string, CreateTaskTemplateRequest> requestsByKey,
+        List<(TaskTemplate Entity, CreateTaskTemplateRequest Request)> createdNodes,
         DateTime now
     )
     {
-        foreach (var (templateKey, request) in requestsByKey)
+        foreach (var (entity, request) in createdNodes)
         {
-            var entity = nodesByKey[templateKey];
             foreach (var dependsOnTemplateKey in request.DependsOnTemplateKeys?.Distinct() ?? Enumerable.Empty<string>())
             {
                 if (!nodesByKey.TryGetValue(dependsOnTemplateKey, out var dependsOnEntity))
@@ -323,19 +397,38 @@ public sealed class TaskTemplateService : ITaskTemplateService
         }
     }
 
-    private static void ValidateTemplateKey(
-        string templateKey,
+    private static void RegisterTemplateKey(
+        string? templateKey,
+        TaskTemplate entity,
         Dictionary<string, TaskTemplate> nodesByKey
     )
     {
         if (string.IsNullOrWhiteSpace(templateKey))
         {
-            throw new InvalidOperationException("TemplateKey is required for each created task template node.");
+            return;
         }
 
         if (nodesByKey.ContainsKey(templateKey))
         {
             throw new InvalidOperationException($"Duplicate task template key '{templateKey}' was found in the create payload.");
         }
+
+        nodesByKey.Add(templateKey, entity);
+    }
+
+    private static List<TaskTemplateInfluencer> BuildTaskTemplateInfluencers(List<Guid>? influencerIds, DateTime now)
+    {
+        var entities = (influencerIds ?? new List<Guid>())
+            .Distinct()
+            .Select(influencerId => new TaskTemplateInfluencer
+            {
+                Id = Guid.NewGuid(),
+                TemplateId = null,
+                InfluencerId = influencerId,
+                CreationTime = now
+            })
+            .ToList();
+
+        return entities;
     }
 }

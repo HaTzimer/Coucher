@@ -13,14 +13,24 @@ public interface IClosedListItemService : IServiceBase<ClosedListItem, Guid>
         List<CreateClosedListItemRequest> requests,
         CancellationToken cancellationToken = default
     );
+    Task<ClosedListItem> UpdateClosedListItemAsync(
+        Guid closedListItemId,
+        UpdateClosedListItemRequest request,
+        CancellationToken cancellationToken = default
+    );
     Task<ClosedListItem> UpdateClosedListItemValueAsync(
         Guid closedListItemId,
-        UpdateClosedListItemValueRequest request,
+        string value,
+        CancellationToken cancellationToken = default
+    );
+    Task<ClosedListItem> UpdateClosedListItemDescriptionAsync(
+        Guid closedListItemId,
+        string? description,
         CancellationToken cancellationToken = default
     );
     Task<ClosedListItem> UpdateClosedListItemDisplayOrderAsync(
         Guid closedListItemId,
-        UpdateClosedListItemDisplayOrderRequest request,
+        int? displayOrder,
         CancellationToken cancellationToken = default
     );
     Task<List<ClosedListItem>> BulkUpdateClosedListItemDisplayOrdersAsync(

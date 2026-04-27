@@ -144,6 +144,30 @@ public sealed class ExerciseRepository : IExerciseRepository
         return updatedEntity;
     }
 
+    public async Task<ExerciseUnitContact> GetRequiredExerciseUnitContactByIdAsync(
+        Guid contactId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entity = await _provider.GetExerciseUnitContactByIdAsync(contactId, cancellationToken);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"{nameof(ExerciseUnitContact)} '{contactId}' was not found.");
+        }
+
+        return entity;
+    }
+
+    public async Task<ExerciseUnitContact> UpdateExerciseUnitContactAsync(
+        ExerciseUnitContact entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var updatedEntity = await _provider.UpdateExerciseUnitContactAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
     public async Task DeleteExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default)
     {
         _ = await GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);

@@ -1,11 +1,17 @@
 using Coucher.Shared.Models.WebApi.Requests.Exercises;
 using Coucher.Shared.Models.DAL.Exercises;
+using Coucher.Shared.Models.Enums;
 
 namespace Coucher.Shared.Interfaces.Services;
 
 public interface IExerciseService : IServiceBase<Exercise, Guid>
 {
     Task<Exercise> CreateExerciseAsync(CreateExerciseRequest request, CancellationToken cancellationToken = default);
+    Task<Exercise> UpdateExerciseAsync(
+        Guid exerciseId,
+        UpdateExerciseRequest request,
+        CancellationToken cancellationToken = default
+    );
     Task<Exercise> UpdateExerciseDetailsAsync(
         Guid exerciseId,
         UpdateExerciseDetailsRequest request,
@@ -13,27 +19,37 @@ public interface IExerciseService : IServiceBase<Exercise, Guid>
     );
     Task<Exercise> UpdateExerciseEndDateAsync(
         Guid exerciseId,
-        UpdateExerciseEndDateRequest request,
+        DateOnly endDate,
         CancellationToken cancellationToken = default
     );
     Task<Exercise> UpdateExerciseStatusAsync(
         Guid exerciseId,
-        UpdateExerciseStatusRequest request,
+        Guid statusId,
         CancellationToken cancellationToken = default
     );
     Task<Exercise> UpdateExerciseTraineeUnitAsync(
         Guid exerciseId,
-        UpdateExerciseTraineeUnitRequest request,
+        Guid traineeUnitId,
         CancellationToken cancellationToken = default
     );
     Task<Exercise> UpdateExerciseTrainerUnitAsync(
         Guid exerciseId,
-        UpdateExerciseTrainerUnitRequest request,
+        Guid trainerUnitId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseParticipant> AddExerciseParticipantAsync(
         Guid exerciseId,
         AddExerciseParticipantRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<ExerciseParticipant> UpdateExerciseParticipantRoleAsync(
+        Guid participantId,
+        ExerciseRole role,
+        CancellationToken cancellationToken = default
+    );
+    Task<ExerciseParticipant> ReassignExerciseManagerAsync(
+        Guid exerciseId,
+        string managerUserId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseSection> AddExerciseSectionAsync(
@@ -49,6 +65,11 @@ public interface IExerciseService : IServiceBase<Exercise, Guid>
     Task<ExerciseUnitContact> AddExerciseUnitContactAsync(
         Guid exerciseId,
         AddExerciseUnitContactRequest request,
+        CancellationToken cancellationToken = default
+    );
+    Task<ExerciseUnitContact> UpdateExerciseUnitContactAsync(
+        Guid contactId,
+        UpdateExerciseUnitContactRequest request,
         CancellationToken cancellationToken = default
     );
     Task<Exercise> ArchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default);

@@ -90,6 +90,21 @@ public sealed class ExerciseTaskProvider : IExerciseTaskProvider
         return entity;
     }
 
+    public async Task SetExerciseTaskHasChildrenAsync(
+        Guid taskId,
+        bool hasChildren,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await dbContext.Set<ExerciseTask>()
+            .Where(item => item.Id == taskId)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(item => item.HasChildren, hasChildren),
+                cancellationToken
+            );
+    }
+
     public async Task<TaskDependency> CreateTaskDependencyAsync(
         TaskDependency entity,
         CancellationToken cancellationToken = default

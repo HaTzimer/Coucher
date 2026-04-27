@@ -11,6 +11,7 @@ public interface IExerciseTaskProvider : IProviderBase<ExerciseTask, Guid>
         CancellationToken cancellationToken = default
     );
     Task<ExerciseTask> UpdateExerciseTaskAsync(ExerciseTask entity, CancellationToken cancellationToken = default);
+    Task SetExerciseTaskHasChildrenAsync(Guid taskId, bool hasChildren, CancellationToken cancellationToken = default);
     Task<TaskDependency> CreateTaskDependencyAsync(TaskDependency entity, CancellationToken cancellationToken = default);
     Task<TaskDependency?> GetTaskDependencyByIdAsync(Guid dependencyId, CancellationToken cancellationToken = default);
     Task DeleteTaskDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default);

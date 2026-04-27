@@ -13,14 +13,24 @@ public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
         List<CreateTaskTemplateRequest> requests,
         CancellationToken cancellationToken = default
     );
+    Task<TaskTemplate> UpdateTaskTemplateAsync(
+        Guid taskTemplateId,
+        UpdateTaskTemplateRequest request,
+        CancellationToken cancellationToken = default
+    );
     Task<TaskTemplate> UpdateTaskTemplateSeriesAsync(
         Guid taskTemplateId,
-        UpdateTaskTemplateSeriesRequest request,
+        Guid? seriesId,
         CancellationToken cancellationToken = default
     );
     Task<TaskTemplate> UpdateTaskTemplateCategoryAsync(
         Guid taskTemplateId,
-        UpdateTaskTemplateCategoryRequest request,
+        Guid? categoryId,
+        CancellationToken cancellationToken = default
+    );
+    Task<TaskTemplate> UpdateTaskTemplateDefaultWeeksBeforeExerciseStartAsync(
+        Guid taskTemplateId,
+        int defaultWeeksBeforeExerciseStart,
         CancellationToken cancellationToken = default
     );
     Task<TaskTemplate> UpdateTaskTemplateDetailsAsync(
@@ -38,6 +48,13 @@ public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
         AddTaskTemplateDependencyRequest request,
         CancellationToken cancellationToken = default
     );
+    Task<List<TaskTemplateInfluencer>> AddTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerIds,
+        CancellationToken cancellationToken = default
+    );
+    Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default);
+    Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);
     Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid taskTemplateId, CancellationToken cancellationToken = default);
     Task<TaskTemplate> UnarchiveTaskTemplateAsync(
         Guid taskTemplateId,

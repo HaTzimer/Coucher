@@ -33,6 +33,14 @@ public interface IExerciseRepository : IRepositoryBase<Exercise, Guid>
         ExerciseParticipant entity,
         CancellationToken cancellationToken = default
     );
+    Task<ExerciseUnitContact> GetRequiredExerciseUnitContactByIdAsync(
+        Guid contactId,
+        CancellationToken cancellationToken = default
+    );
+    Task<ExerciseUnitContact> UpdateExerciseUnitContactAsync(
+        ExerciseUnitContact entity,
+        CancellationToken cancellationToken = default
+    );
     Task DeleteExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default);
     Task DeleteExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default);
     Task DeleteExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);

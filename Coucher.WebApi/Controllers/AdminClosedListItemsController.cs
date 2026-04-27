@@ -40,16 +40,44 @@ public sealed class AdminClosedListItemsController : ControllerBase
         return Ok(closedListItems);
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<ClosedListItem>> UpdateAsync(
+        Guid id,
+        [FromBody] UpdateClosedListItemRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var closedListItem = await _closedListItemService.UpdateClosedListItemAsync(id, request, cancellationToken);
+
+        return Ok(closedListItem);
+    }
+
     [HttpPut("{id:guid}/value")]
     public async Task<ActionResult<ClosedListItem>> UpdateValueAsync(
         Guid id,
-        [FromBody] UpdateClosedListItemValueRequest request,
+        [FromBody] string value,
         CancellationToken cancellationToken
     )
     {
         var closedListItem = await _closedListItemService.UpdateClosedListItemValueAsync(
             id,
-            request,
+            value,
+            cancellationToken
+        );
+
+        return Ok(closedListItem);
+    }
+
+    [HttpPut("{id:guid}/description")]
+    public async Task<ActionResult<ClosedListItem>> UpdateDescriptionAsync(
+        Guid id,
+        [FromBody] string? description,
+        CancellationToken cancellationToken
+    )
+    {
+        var closedListItem = await _closedListItemService.UpdateClosedListItemDescriptionAsync(
+            id,
+            description,
             cancellationToken
         );
 
@@ -59,13 +87,13 @@ public sealed class AdminClosedListItemsController : ControllerBase
     [HttpPut("{id:guid}/display-order")]
     public async Task<ActionResult<ClosedListItem>> UpdateDisplayOrderAsync(
         Guid id,
-        [FromBody] UpdateClosedListItemDisplayOrderRequest request,
+        [FromBody] int? displayOrder,
         CancellationToken cancellationToken
     )
     {
         var closedListItem = await _closedListItemService.UpdateClosedListItemDisplayOrderAsync(
             id,
-            request,
+            displayOrder,
             cancellationToken
         );
 

@@ -9,23 +9,38 @@ public interface IExerciseTaskService : IServiceBase<ExerciseTask, Guid>
         CreateExerciseTaskRequest request,
         CancellationToken cancellationToken = default
     );
+    Task<ExerciseTask> CreateExerciseTaskChildAsync(
+        Guid parentTaskId,
+        CreateExerciseTaskChildRequest request,
+        CancellationToken cancellationToken = default
+    );
     Task<List<ExerciseTask>> CreateExerciseTasksAsync(
         List<CreateExerciseTaskRequest> requests,
         CancellationToken cancellationToken = default
     );
+    Task<ExerciseTask> UpdateExerciseTaskAsync(
+        Guid taskId,
+        UpdateExerciseTaskRequest request,
+        CancellationToken cancellationToken = default
+    );
     Task<ExerciseTask> UpdateExerciseTaskSeriesAsync(
         Guid taskId,
-        UpdateExerciseTaskSeriesRequest request,
+        Guid seriesId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseTask> UpdateExerciseTaskCategoryAsync(
         Guid taskId,
-        UpdateExerciseTaskCategoryRequest request,
+        Guid categoryId,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseTask> UpdateExerciseTaskStatusAsync(
         Guid taskId,
-        UpdateExerciseTaskStatusRequest request,
+        Guid statusId,
+        CancellationToken cancellationToken = default
+    );
+    Task<ExerciseTask> UpdateExerciseTaskDueDateAsync(
+        Guid taskId,
+        DateTime dueDate,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseTask> UpdateExerciseTaskDetailsAsync(
@@ -33,9 +48,9 @@ public interface IExerciseTaskService : IServiceBase<ExerciseTask, Guid>
         UpdateExerciseTaskDetailsRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<TaskDependency> AddExerciseTaskDependencyAsync(
+    Task<List<TaskDependency>> AddExerciseTaskDependenciesAsync(
         Guid taskId,
-        AddExerciseTaskDependencyRequest request,
+        List<string> dependsOnIds,
         CancellationToken cancellationToken = default
     );
     Task DeleteExerciseTaskDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default);
@@ -46,7 +61,7 @@ public interface IExerciseTaskService : IServiceBase<ExerciseTask, Guid>
     );
     Task<List<ExerciseTaskResponsibleUser>> BulkUpdateExerciseTaskResponsibleUsersAsync(
         Guid taskId,
-        BulkUpdateExerciseTaskResponsibleUsersRequest request,
+        List<string> userIds,
         CancellationToken cancellationToken = default
     );
     Task DeleteExerciseTaskResponsibleUserAsync(Guid responsibilityId, CancellationToken cancellationToken = default);

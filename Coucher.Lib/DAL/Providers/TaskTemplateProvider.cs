@@ -100,6 +100,135 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         return entity;
     }
 
+    public async Task<List<TaskTemplateInfluencer>> CreateTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerIds,
+        DateTime creationTime,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<TaskTemplateInfluencer>();
+        var normalizedInfluencerIds = influencerIds.Distinct().ToList();
+        if (normalizedInfluencerIds.Count == 0)
+        {
+            return new List<TaskTemplateInfluencer>();
+        }
+
+        var existingInfluencerIds = await entities
+            .Where(item => item.TemplateId == taskTemplateId && item.InfluencerId.HasValue)
+            .Select(item => item.InfluencerId!.Value)
+            .ToListAsync(cancellationToken);
+        var newEntities = normalizedInfluencerIds.Select(influencerId => new TaskTemplateInfluencer
+        {
+            Id = Guid.NewGuid(),
+            TemplateId = taskTemplateId,
+            InfluencerId = influencerId,
+            CreationTime = creationTime
+        })
+            .Where(item => !existingInfluencerIds.Contains(item.InfluencerId!.Value))
+            .ToList();
+        if (newEntities.Count == 0)
+        {
+            return new List<TaskTemplateInfluencer>();
+        }
+
+        await entities.AddRangeAsync(newEntities, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return newEntities;
+    }
+
+    public async Task<List<TaskTemplateInfluencer>> ReplaceTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerIds,
+        DateTime creationTime,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+        var entities = dbContext.Set<TaskTemplateInfluencer>();
+        var normalizedInfluencerIds = influencerIds.Distinct().ToList();
+        var existingEntities = await entities
+            .Where(item => item.TemplateId == taskTemplateId)
+            .ToListAsync(cancellationToken);
+
+        var existingInfluencerIds = existingEntities
+            .Where(item => item.InfluencerId.HasValue)
+            .Select(item => item.InfluencerId!.Value)
+            .ToHashSet();
+        var influencerLinkIdsToDelete = existingEntities
+            .Where(item => !item.InfluencerId.HasValue || !normalizedInfluencerIds.Contains(item.InfluencerId.Value))
+            .Select(item => item.Id)
+            .ToList();
+
+        if (influencerLinkIdsToDelete.Count > 0)
+        {
+            await entities
+                .Where(item => influencerLinkIdsToDelete.Contains(item.Id))
+                .ExecuteDeleteAsync(cancellationToken);
+        }
+
+        var newEntities = normalizedInfluencerIds
+            .Where(influencerId => !existingInfluencerIds.Contains(influencerId))
+            .Select(influencerId => new TaskTemplateInfluencer
+            {
+                Id = Guid.NewGuid(),
+                TemplateId = taskTemplateId,
+                InfluencerId = influencerId,
+                CreationTime = creationTime
+            })
+            .ToList();
+
+        if (newEntities.Count > 0)
+        {
+            await entities.AddRangeAsync(newEntities, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+
+        var updatedEntities = await entities
+            .Where(item => item.TemplateId == taskTemplateId)
+            .ToListAsync(cancellationToken);
+
+        return updatedEntities;
+    }
+
+    public async Task<TaskTemplateInfluencer?> GetTaskTemplateInfluencerByIdAsync(
+        Guid influencerLinkId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entity = await dbContext.Set<TaskTemplateInfluencer>()
+            .FirstOrDefaultAsync(item => item.Id == influencerLinkId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entity = await dbContext.Set<TaskTemplateDependency>()
+            .FirstOrDefaultAsync(item => item.Id == dependencyId, cancellationToken)
+            ?? throw new KeyNotFoundException($"{nameof(TaskTemplateDependency)} '{dependencyId}' was not found.");
+        dbContext.Set<TaskTemplateDependency>().Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entity = await dbContext.Set<TaskTemplateInfluencer>()
+            .FirstOrDefaultAsync(item => item.Id == influencerLinkId, cancellationToken)
+            ?? throw new KeyNotFoundException($"{nameof(TaskTemplateInfluencer)} '{influencerLinkId}' was not found.");
+        dbContext.Set<TaskTemplateInfluencer>().Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);

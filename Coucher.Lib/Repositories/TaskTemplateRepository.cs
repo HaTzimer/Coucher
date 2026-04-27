@@ -85,6 +85,58 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
         return createdEntity;
     }
 
+    public async Task<List<TaskTemplateInfluencer>> CreateTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerIds,
+        DateTime creationTime,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        var createdEntities = await _provider.CreateTaskTemplateInfluencersAsync(
+            taskTemplateId,
+            influencerIds,
+            creationTime,
+            cancellationToken
+        );
+
+        return createdEntities;
+    }
+
+    public async Task<List<TaskTemplateInfluencer>> ReplaceTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerIds,
+        DateTime creationTime,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        var updatedEntities = await _provider.ReplaceTaskTemplateInfluencersAsync(
+            taskTemplateId,
+            influencerIds,
+            creationTime,
+            cancellationToken
+        );
+
+        return updatedEntities;
+    }
+
+    public async Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default)
+    {
+        await _provider.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
+    }
+
+    public async Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    {
+        var entity = await _provider.GetTaskTemplateInfluencerByIdAsync(influencerLinkId, cancellationToken);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"{nameof(TaskTemplateInfluencer)} '{influencerLinkId}' was not found.");
+        }
+
+        await _provider.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
+    }
+
     public async Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var archivedEntity = await _provider.ArchiveTaskTemplateAsync(id, cancellationToken);

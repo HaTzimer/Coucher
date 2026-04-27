@@ -75,6 +75,16 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
         return updatedEntity;
     }
 
+    public async Task SetExerciseTaskHasChildrenAsync(
+        Guid taskId,
+        bool hasChildren,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await GetRequiredByIdAsync(taskId, cancellationToken);
+        await _provider.SetExerciseTaskHasChildrenAsync(taskId, hasChildren, cancellationToken);
+    }
+
     public async Task<TaskDependency> CreateTaskDependencyAsync(
         TaskDependency entity,
         CancellationToken cancellationToken = default

@@ -112,6 +112,11 @@ internal sealed class MockDataGenerator
         AddList(items, ConstantValues.InfluencerClosedListKey, new[] { "אוכלוסיה", "תשתיות", "מידע", "תשתיות לאומיות", "בריאות" }, now);
         AddList(items, ConstantValues.UnitEchelonClosedListKey, new[] { "גדוד", "חטיבה", "אוגדה", "פיקוד" }, now);
 
+        items.Single(item => item.Key == ConstantValues.ExerciseStatusClosedListKey && item.DisplayOrder == 1).Id =
+            ConstantValues.MockDefaultExerciseStatusId;
+        items.Single(item => item.Key == ConstantValues.TaskStatusClosedListKey && item.DisplayOrder == 0).Id =
+            ConstantValues.MockDefaultExerciseTaskStatusId;
+
         return items;
     }
 

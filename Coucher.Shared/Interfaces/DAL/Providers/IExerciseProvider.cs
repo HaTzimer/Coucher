@@ -30,6 +30,11 @@ public interface IExerciseProvider : IProviderBase<Exercise, Guid>
         ExerciseParticipant entity,
         CancellationToken cancellationToken = default
     );
+    Task<ExerciseUnitContact?> GetExerciseUnitContactByIdAsync(Guid contactId, CancellationToken cancellationToken = default);
+    Task<ExerciseUnitContact> UpdateExerciseUnitContactAsync(
+        ExerciseUnitContact entity,
+        CancellationToken cancellationToken = default
+    );
     Task DeleteExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default);
     Task<bool> ExerciseSectionExistsAsync(Guid sectionLinkId, CancellationToken cancellationToken = default);
     Task DeleteExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default);

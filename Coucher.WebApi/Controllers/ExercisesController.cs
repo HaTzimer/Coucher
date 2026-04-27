@@ -1,5 +1,6 @@
 using Coucher.Shared.Interfaces.Services;
 using Coucher.Shared.Models.DAL.Exercises;
+using Coucher.Shared.Models.Enums;
 using Coucher.Shared.Models.WebApi.Requests.Exercises;
 using Coucher.WebApi.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,18 @@ public sealed class ExercisesController : ControllerBase
         return Ok(exercise);
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<Exercise>> UpdateAsync(
+        Guid id,
+        [FromBody] UpdateExerciseRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var exercise = await _exerciseService.UpdateExerciseAsync(id, request, cancellationToken);
+
+        return Ok(exercise);
+    }
+
     [HttpPut("{id:guid}/details")]
     public async Task<ActionResult<Exercise>> UpdateDetailsAsync(
         Guid id,
@@ -44,11 +57,11 @@ public sealed class ExercisesController : ControllerBase
     [HttpPut("{id:guid}/end-date")]
     public async Task<ActionResult<Exercise>> UpdateEndDateAsync(
         Guid id,
-        [FromBody] UpdateExerciseEndDateRequest request,
+        [FromBody] DateOnly endDate,
         CancellationToken cancellationToken
     )
     {
-        var exercise = await _exerciseService.UpdateExerciseEndDateAsync(id, request, cancellationToken);
+        var exercise = await _exerciseService.UpdateExerciseEndDateAsync(id, endDate, cancellationToken);
 
         return Ok(exercise);
     }
@@ -56,11 +69,11 @@ public sealed class ExercisesController : ControllerBase
     [HttpPut("{id:guid}/status")]
     public async Task<ActionResult<Exercise>> UpdateStatusAsync(
         Guid id,
-        [FromBody] UpdateExerciseStatusRequest request,
+        [FromBody] Guid statusId,
         CancellationToken cancellationToken
     )
     {
-        var exercise = await _exerciseService.UpdateExerciseStatusAsync(id, request, cancellationToken);
+        var exercise = await _exerciseService.UpdateExerciseStatusAsync(id, statusId, cancellationToken);
 
         return Ok(exercise);
     }
@@ -68,11 +81,15 @@ public sealed class ExercisesController : ControllerBase
     [HttpPut("{id:guid}/trainee-unit")]
     public async Task<ActionResult<Exercise>> UpdateTraineeUnitAsync(
         Guid id,
-        [FromBody] UpdateExerciseTraineeUnitRequest request,
+        [FromBody] Guid traineeUnitId,
         CancellationToken cancellationToken
     )
     {
-        var exercise = await _exerciseService.UpdateExerciseTraineeUnitAsync(id, request, cancellationToken);
+        var exercise = await _exerciseService.UpdateExerciseTraineeUnitAsync(
+            id,
+            traineeUnitId,
+            cancellationToken
+        );
 
         return Ok(exercise);
     }
@@ -80,11 +97,15 @@ public sealed class ExercisesController : ControllerBase
     [HttpPut("{id:guid}/trainer-unit")]
     public async Task<ActionResult<Exercise>> UpdateTrainerUnitAsync(
         Guid id,
-        [FromBody] UpdateExerciseTrainerUnitRequest request,
+        [FromBody] Guid trainerUnitId,
         CancellationToken cancellationToken
     )
     {
-        var exercise = await _exerciseService.UpdateExerciseTrainerUnitAsync(id, request, cancellationToken);
+        var exercise = await _exerciseService.UpdateExerciseTrainerUnitAsync(
+            id,
+            trainerUnitId,
+            cancellationToken
+        );
 
         return Ok(exercise);
     }
@@ -97,6 +118,34 @@ public sealed class ExercisesController : ControllerBase
     )
     {
         var participant = await _exerciseService.AddExerciseParticipantAsync(id, request, cancellationToken);
+
+        return Ok(participant);
+    }
+
+    [HttpPut("participants/{participantId:guid}/role")]
+    public async Task<ActionResult<ExerciseParticipant>> UpdateParticipantRoleAsync(
+        Guid participantId,
+        [FromBody] ExerciseRole role,
+        CancellationToken cancellationToken
+    )
+    {
+        var participant = await _exerciseService.UpdateExerciseParticipantRoleAsync(
+            participantId,
+            role,
+            cancellationToken
+        );
+
+        return Ok(participant);
+    }
+
+    [HttpPut("{id:guid}/manager")]
+    public async Task<ActionResult<ExerciseParticipant>> UpdateManagerAsync(
+        Guid id,
+        [FromBody] string managerUserId,
+        CancellationToken cancellationToken
+    )
+    {
+        var participant = await _exerciseService.ReassignExerciseManagerAsync(id, managerUserId, cancellationToken);
 
         return Ok(participant);
     }
@@ -133,6 +182,18 @@ public sealed class ExercisesController : ControllerBase
     )
     {
         var contact = await _exerciseService.AddExerciseUnitContactAsync(id, request, cancellationToken);
+
+        return Ok(contact);
+    }
+
+    [HttpPut("contacts/{contactId:guid}")]
+    public async Task<ActionResult<ExerciseUnitContact>> UpdateContactAsync(
+        Guid contactId,
+        [FromBody] UpdateExerciseUnitContactRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var contact = await _exerciseService.UpdateExerciseUnitContactAsync(contactId, request, cancellationToken);
 
         return Ok(contact);
     }

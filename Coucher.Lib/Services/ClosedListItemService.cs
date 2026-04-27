@@ -83,15 +83,47 @@ public sealed class ClosedListItemService : IClosedListItemService
         return createdEntities;
     }
 
-    public async Task<ClosedListItem> UpdateClosedListItemValueAsync(
+    public async Task<ClosedListItem> UpdateClosedListItemAsync(
         Guid closedListItemId,
-        UpdateClosedListItemValueRequest request,
+        UpdateClosedListItemRequest request,
         CancellationToken cancellationToken = default
     )
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
         entity.Value = request.Value;
+        entity.Description = request.Description;
+        entity.DisplayOrder = request.DisplayOrder;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<ClosedListItem> UpdateClosedListItemValueAsync(
+        Guid closedListItemId,
+        string value,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
+        entity.Value = value;
+        entity.LastUpdateTime = DateTime.UtcNow;
+        var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<ClosedListItem> UpdateClosedListItemDescriptionAsync(
+        Guid closedListItemId,
+        string? description,
+        CancellationToken cancellationToken = default
+    )
+    {
+        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
+        entity.Description = description;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
 
@@ -100,13 +132,13 @@ public sealed class ClosedListItemService : IClosedListItemService
 
     public async Task<ClosedListItem> UpdateClosedListItemDisplayOrderAsync(
         Guid closedListItemId,
-        UpdateClosedListItemDisplayOrderRequest request,
+        int? displayOrder,
         CancellationToken cancellationToken = default
     )
     {
         _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
-        entity.DisplayOrder = request.DisplayOrder;
+        entity.DisplayOrder = displayOrder;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
 

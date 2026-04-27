@@ -163,6 +163,31 @@ public sealed class ExerciseProvider : IExerciseProvider
         return entity;
     }
 
+    public async Task<ExerciseUnitContact?> GetExerciseUnitContactByIdAsync(
+        Guid contactId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseUnitContact>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == contactId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseUnitContact> UpdateExerciseUnitContactAsync(
+        ExerciseUnitContact entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseUnitContact>();
+        entities.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
     public async Task DeleteExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);

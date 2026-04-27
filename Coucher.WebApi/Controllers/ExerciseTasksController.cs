@@ -29,6 +29,18 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(exerciseTask);
     }
 
+    [HttpPost("{id:guid}/children")]
+    public async Task<ActionResult<ExerciseTask>> CreateChildAsync(
+        Guid id,
+        [FromBody] CreateExerciseTaskChildRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var exerciseTask = await _exerciseTaskService.CreateExerciseTaskChildAsync(id, request, cancellationToken);
+
+        return Ok(exerciseTask);
+    }
+
     [HttpPost("bulk")]
     public async Task<ActionResult<List<ExerciseTask>>> BulkCreateAsync(
         [FromBody] List<CreateExerciseTaskRequest> requests,
@@ -40,14 +52,26 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(exerciseTasks);
     }
 
-    [HttpPut("{id:guid}/series")]
-    public async Task<ActionResult<ExerciseTask>> UpdateSeriesAsync(
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<ExerciseTask>> UpdateAsync(
         Guid id,
-        [FromBody] UpdateExerciseTaskSeriesRequest request,
+        [FromBody] UpdateExerciseTaskRequest request,
         CancellationToken cancellationToken
     )
     {
-        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskSeriesAsync(id, request, cancellationToken);
+        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskAsync(id, request, cancellationToken);
+
+        return Ok(exerciseTask);
+    }
+
+    [HttpPut("{id:guid}/series")]
+    public async Task<ActionResult<ExerciseTask>> UpdateSeriesAsync(
+        Guid id,
+        [FromBody] Guid seriesId,
+        CancellationToken cancellationToken
+    )
+    {
+        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskSeriesAsync(id, seriesId, cancellationToken);
 
         return Ok(exerciseTask);
     }
@@ -55,11 +79,15 @@ public sealed class ExerciseTasksController : ControllerBase
     [HttpPut("{id:guid}/category")]
     public async Task<ActionResult<ExerciseTask>> UpdateCategoryAsync(
         Guid id,
-        [FromBody] UpdateExerciseTaskCategoryRequest request,
+        [FromBody] Guid categoryId,
         CancellationToken cancellationToken
     )
     {
-        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskCategoryAsync(id, request, cancellationToken);
+        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskCategoryAsync(
+            id,
+            categoryId,
+            cancellationToken
+        );
 
         return Ok(exerciseTask);
     }
@@ -67,11 +95,23 @@ public sealed class ExerciseTasksController : ControllerBase
     [HttpPut("{id:guid}/status")]
     public async Task<ActionResult<ExerciseTask>> UpdateStatusAsync(
         Guid id,
-        [FromBody] UpdateExerciseTaskStatusRequest request,
+        [FromBody] Guid statusId,
         CancellationToken cancellationToken
     )
     {
-        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskStatusAsync(id, request, cancellationToken);
+        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskStatusAsync(id, statusId, cancellationToken);
+
+        return Ok(exerciseTask);
+    }
+
+    [HttpPut("{id:guid}/due-date")]
+    public async Task<ActionResult<ExerciseTask>> UpdateDueDateAsync(
+        Guid id,
+        [FromBody] DateTime dueDate,
+        CancellationToken cancellationToken
+    )
+    {
+        var exerciseTask = await _exerciseTaskService.UpdateExerciseTaskDueDateAsync(id, dueDate, cancellationToken);
 
         return Ok(exerciseTask);
     }
@@ -89,15 +129,19 @@ public sealed class ExerciseTasksController : ControllerBase
     }
 
     [HttpPost("{id:guid}/dependencies")]
-    public async Task<ActionResult<TaskDependency>> AddDependencyAsync(
+    public async Task<ActionResult<List<TaskDependency>>> AddDependencyAsync(
         Guid id,
-        [FromBody] AddExerciseTaskDependencyRequest request,
+        [FromBody] List<string> dependsOnIds,
         CancellationToken cancellationToken
     )
     {
-        var dependency = await _exerciseTaskService.AddExerciseTaskDependencyAsync(id, request, cancellationToken);
+        var dependencies = await _exerciseTaskService.AddExerciseTaskDependenciesAsync(
+            id,
+            dependsOnIds,
+            cancellationToken
+        );
 
-        return Ok(dependency);
+        return Ok(dependencies);
     }
 
     [HttpDelete("dependencies/{dependencyId:guid}")]
@@ -127,13 +171,13 @@ public sealed class ExerciseTasksController : ControllerBase
     [HttpPut("{id:guid}/responsible-users")]
     public async Task<ActionResult<List<ExerciseTaskResponsibleUser>>> BulkUpdateResponsibleUsersAsync(
         Guid id,
-        [FromBody] BulkUpdateExerciseTaskResponsibleUsersRequest request,
+        [FromBody] List<string> userIds,
         CancellationToken cancellationToken
     )
     {
         var responsibleUsers = await _exerciseTaskService.BulkUpdateExerciseTaskResponsibleUsersAsync(
             id,
-            request,
+            userIds,
             cancellationToken
         );
 

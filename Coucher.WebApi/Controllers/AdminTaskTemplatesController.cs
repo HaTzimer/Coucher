@@ -40,14 +40,26 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(taskTemplates);
     }
 
-    [HttpPut("{id:guid}/series")]
-    public async Task<ActionResult<TaskTemplate>> UpdateSeriesAsync(
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<TaskTemplate>> UpdateAsync(
         Guid id,
-        [FromBody] UpdateTaskTemplateSeriesRequest request,
+        [FromBody] UpdateTaskTemplateRequest request,
         CancellationToken cancellationToken
     )
     {
-        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateSeriesAsync(id, request, cancellationToken);
+        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateAsync(id, request, cancellationToken);
+
+        return Ok(taskTemplate);
+    }
+
+    [HttpPut("{id:guid}/series")]
+    public async Task<ActionResult<TaskTemplate>> UpdateSeriesAsync(
+        Guid id,
+        [FromBody] Guid? seriesId,
+        CancellationToken cancellationToken
+    )
+    {
+        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateSeriesAsync(id, seriesId, cancellationToken);
 
         return Ok(taskTemplate);
     }
@@ -55,11 +67,31 @@ public sealed class AdminTaskTemplatesController : ControllerBase
     [HttpPut("{id:guid}/category")]
     public async Task<ActionResult<TaskTemplate>> UpdateCategoryAsync(
         Guid id,
-        [FromBody] UpdateTaskTemplateCategoryRequest request,
+        [FromBody] Guid? categoryId,
         CancellationToken cancellationToken
     )
     {
-        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateCategoryAsync(id, request, cancellationToken);
+        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateCategoryAsync(
+            id,
+            categoryId,
+            cancellationToken
+        );
+
+        return Ok(taskTemplate);
+    }
+
+    [HttpPut("{id:guid}/default-weeks-before-exercise-start")]
+    public async Task<ActionResult<TaskTemplate>> UpdateDefaultWeeksBeforeExerciseStartAsync(
+        Guid id,
+        [FromBody] int defaultWeeksBeforeExerciseStart,
+        CancellationToken cancellationToken
+    )
+    {
+        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateDefaultWeeksBeforeExerciseStartAsync(
+            id,
+            defaultWeeksBeforeExerciseStart,
+            cancellationToken
+        );
 
         return Ok(taskTemplate);
     }
@@ -98,6 +130,38 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         var dependency = await _taskTemplateService.AddTaskTemplateDependencyAsync(id, request, cancellationToken);
 
         return Ok(dependency);
+    }
+
+    [HttpPost("{id:guid}/influencers")]
+    public async Task<ActionResult<List<TaskTemplateInfluencer>>> AddInfluencersAsync(
+        Guid id,
+        [FromBody] List<Guid> influencerIds,
+        CancellationToken cancellationToken
+    )
+    {
+        var influencers = await _taskTemplateService.AddTaskTemplateInfluencersAsync(
+            id,
+            influencerIds,
+            cancellationToken
+        );
+
+        return Ok(influencers);
+    }
+
+    [HttpDelete("dependencies/{dependencyId:guid}")]
+    public async Task<IActionResult> DeleteDependencyAsync(Guid dependencyId, CancellationToken cancellationToken)
+    {
+        await _taskTemplateService.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpDelete("influencers/{influencerLinkId:guid}")]
+    public async Task<IActionResult> DeleteInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken)
+    {
+        await _taskTemplateService.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
+
+        return NoContent();
     }
 
     [HttpPost("{id:guid}/archive")]
