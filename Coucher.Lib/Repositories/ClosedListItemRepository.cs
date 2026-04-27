@@ -38,16 +38,61 @@ public sealed class ClosedListItemRepository : IClosedListItemRepository
         return entity;
     }
 
+    public async Task<bool> IsHighestDisplayOrderItemForKeyAsync(
+        Guid id,
+        string key,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var isHighestDisplayOrderItem = await _provider.IsHighestDisplayOrderItemForKeyAsync(
+            id,
+            key,
+            cancellationToken
+        );
+
+        return isHighestDisplayOrderItem;
+    }
+
+    public async Task<ClosedListItem> CreateClosedListItemAsync(
+        ClosedListItem entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var createdEntity = await _provider.CreateClosedListItemAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<List<ClosedListItem>> CreateClosedListItemsAsync(
+        List<ClosedListItem> entities,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var createdEntities = await _provider.CreateClosedListItemsAsync(entities, cancellationToken);
+
+        return createdEntities;
+    }
+
+    public async Task<ClosedListItem> UpdateClosedListItemAsync(
+        ClosedListItem entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var updatedEntity = await _provider.UpdateClosedListItemAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
     public async Task<ClosedListItem> AddAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
     {
-        var createdEntity = await _provider.AddAsync(entity, cancellationToken);
+        var createdEntity = await CreateClosedListItemAsync(entity, cancellationToken);
 
         return createdEntity;
     }
 
     public async Task<ClosedListItem> UpdateAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
     {
-        var updatedEntity = await _provider.UpdateAsync(entity, cancellationToken);
+        var updatedEntity = await UpdateClosedListItemAsync(entity, cancellationToken);
 
         return updatedEntity;
     }

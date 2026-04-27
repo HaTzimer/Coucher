@@ -17,7 +17,7 @@ Read [references/architecture.md](references/architecture.md) before implementin
 - Put business logic, DAL orchestration, DbContext, providers, repositories, GraphQL setup, services, factories, and similar implementation categories in `Coucher.Lib`.
 - Put canonical DAL/domain entities, enums, all DI-facing interfaces, and shared extensions in `Coucher.Shared`.
 - Keep dependency direction one-way: `Coucher.WebApi` -> `Coucher.Lib` -> `Coucher.Shared`.
-- Do not move request DTOs or API transport models into `Coucher.Shared`.
+- Keep Web API request DTOs under `Coucher.Shared/Models/WebApi/Requests/...`.
 - Do not put business orchestration into `Coucher.WebApi`.
 - Do not put host-specific concerns into `Coucher.Shared`.
 

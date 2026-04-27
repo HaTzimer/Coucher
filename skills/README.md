@@ -9,6 +9,7 @@ Source of truth for repo conventions is `AGENTS.md`. Skills should reference it 
 - `skills/architecture/provider-repository-service-pattern`: project boundaries + provider/repository/service layering.
 - `skills/architecture/dal-dbcontext-practices`: EF Core entity + DbContext rules and patterns.
 - `skills/architecture/model-creation-practices`: canonical model creation conventions.
+- `skills/architecture/create-update-workflows`: explicit create/update request-contract and write-flow rules.
 
 ## Operations
 

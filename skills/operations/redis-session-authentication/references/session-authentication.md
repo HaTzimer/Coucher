@@ -18,7 +18,7 @@ The important split is:
 
 ## What The Redis Provider Does
 
-`AuthorizationCacheRedisProvider` is the session store. Its behavior is the part to reproduce in Coucher.
+`CacheRedisProvider` is the session store in Coucher. Its behavior is the part to preserve when changing Redis-backed session auth.
 
 It keeps two Redis keys:
 
@@ -86,7 +86,7 @@ Suggested shared models:
 
 Suggested shared interfaces:
 
-- `Interfaces/DAL/Providers/IAuthorizationCacheProvider.cs`
+- `Interfaces/DAL/Providers/ICacheProvider.cs`
 - `Interfaces/Services/IAuthenticationService.cs`
 
 If login request DTOs are added, keep them in `Coucher.Shared/Models/WebApi/Requests/Auth`.
@@ -97,7 +97,8 @@ Implement the reusable logic in `Coucher.Lib`.
 
 Suggested files:
 
-- `DAL/Providers/AuthorizationCacheRedisProvider.cs`
+- `Coucher.Shared/Interfaces/DAL/Providers/ICacheProvider.cs`
+- `DAL/Cache/CacheRedisProvider.cs`
 - `Services/AuthenticationService.cs`
 - `Services/GraphQlCurrentUserService.cs` or similar shared helper for GraphQL
 
@@ -108,7 +109,7 @@ Provider rules:
 - Keep Redis key construction internal to the provider.
 - Expose methods equivalent to:
   - `CreateUserSessionAsync`
-  - `RemoveUserSessionByIdAsync`
+  - `RemoveUserSessionByUserIdAsync`
   - `GetUserAuthenticationResultBySessionAsync`
 
 Service rules:
@@ -137,7 +138,7 @@ Filter rules:
 Startup rules:
 
 - Register `AddHttpContextAccessor()`.
-- Register `IAuthorizationCacheProvider`.
+- Register `ICacheProvider`.
 - Register `IAuthenticationService`.
 - Register `WebApiSessionAuthenticationFilter`.
 - Keep Redis primitives coming from `Augustus.Infra.Core`; do not reimplement the base Redis connection machinery.

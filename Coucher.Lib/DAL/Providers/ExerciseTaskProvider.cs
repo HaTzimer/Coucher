@@ -40,7 +40,21 @@ public sealed class ExerciseTaskProvider : IExerciseTaskProvider
         return entity;
     }
 
-    public async Task<ExerciseTask> AddAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
+    public async Task<int> GetNextSerialNumberAsync(Guid exerciseId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        var nextSerialNumber = (await entities
+            .Where(item => item.ExerciseId == exerciseId)
+            .MaxAsync(item => (int?)item.SerialNumber, cancellationToken) ?? 0) + 1;
+
+        return nextSerialNumber;
+    }
+
+    public async Task<ExerciseTask> CreateExerciseTaskAsync(
+        ExerciseTask entity,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<ExerciseTask>();
@@ -50,7 +64,23 @@ public sealed class ExerciseTaskProvider : IExerciseTaskProvider
         return entity;
     }
 
-    public async Task<ExerciseTask> UpdateAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
+    public async Task<List<ExerciseTask>> CreateExerciseTasksAsync(
+        List<ExerciseTask> entitiesToCreate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseTask>();
+        await entities.AddRangeAsync(entitiesToCreate, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entitiesToCreate;
+    }
+
+    public async Task<ExerciseTask> UpdateExerciseTaskAsync(
+        ExerciseTask entity,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<ExerciseTask>();
@@ -58,6 +88,20 @@ public sealed class ExerciseTaskProvider : IExerciseTaskProvider
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
+    }
+
+    public async Task<ExerciseTask> AddAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
+    {
+        var createdEntity = await CreateExerciseTaskAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<ExerciseTask> UpdateAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
+    {
+        var updatedEntity = await UpdateExerciseTaskAsync(entity, cancellationToken);
+
+        return updatedEntity;
     }
 
     public async Task DeleteAsync(ExerciseTask entity, CancellationToken cancellationToken = default)

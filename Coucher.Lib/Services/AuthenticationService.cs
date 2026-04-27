@@ -9,17 +9,17 @@ namespace Coucher.Lib.Services;
 
 public sealed class AuthenticationService : IAuthenticationService
 {
-    private readonly IAuthorizationCacheProvider _authorizationCacheProvider;
+    private readonly ICacheProvider _cacheProvider;
     private readonly IUserProfileRepository _userProfileRepository;
     private readonly IHashGenerator _hashGenerator;
 
     public AuthenticationService(
-        IAuthorizationCacheProvider authorizationCacheProvider,
+        ICacheProvider cacheProvider,
         IUserProfileRepository userProfileRepository,
         IHashGenerator hashGenerator
     )
     {
-        _authorizationCacheProvider = authorizationCacheProvider;
+        _cacheProvider = cacheProvider;
         _userProfileRepository = userProfileRepository;
         _hashGenerator = hashGenerator;
     }
@@ -36,10 +36,10 @@ public sealed class AuthenticationService : IAuthenticationService
             return null;
         }
 
-        await _authorizationCacheProvider.RemoveUserSessionByUserIdAsync(user.Id);
+        await _cacheProvider.RemoveUserSessionByUserIdAsync(user.Id);
         await _userProfileRepository.UpdateLastLoginTimeAsync(user.Id, DateTime.UtcNow, cancellationToken);
 
-        var sessionId = await _authorizationCacheProvider.CreateUserSessionAsync(user.Id);
+        var sessionId = await _cacheProvider.CreateUserSessionAsync(user.Id);
 
         return new AuthenticatedSession
         {
@@ -50,13 +50,13 @@ public sealed class AuthenticationService : IAuthenticationService
 
     public async Task LogoutAsync(string sessionId, CancellationToken cancellationToken = default)
     {
-        var authenticationResult = await _authorizationCacheProvider.GetUserAuthenticationResultBySessionAsync(sessionId);
+        var authenticationResult = await _cacheProvider.GetUserAuthenticationResultBySessionAsync(sessionId);
         if (!authenticationResult.IsValid || authenticationResult.UserId is null)
         {
             return;
         }
 
-        await _authorizationCacheProvider.RemoveUserSessionByUserIdAsync(authenticationResult.UserId.Value);
+        await _cacheProvider.RemoveUserSessionByUserIdAsync(authenticationResult.UserId.Value);
     }
 
     public async Task<HeaderAuthenticationResult> AuthenticateSessionAsync(
@@ -73,7 +73,7 @@ public sealed class AuthenticationService : IAuthenticationService
             };
         }
 
-        var authenticationResult = await _authorizationCacheProvider.GetUserAuthenticationResultBySessionAsync(sessionId);
+        var authenticationResult = await _cacheProvider.GetUserAuthenticationResultBySessionAsync(sessionId);
         if (!authenticationResult.IsValid || authenticationResult.UserId is null)
         {
             return new HeaderAuthenticationResult

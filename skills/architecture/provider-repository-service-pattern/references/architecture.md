@@ -54,7 +54,7 @@ Put this in `Coucher.Shared`:
 - All DI-facing interfaces and other shared contracts.
 - Shared extensions in `Extensions`.
 
-Do not put API request DTOs here.
+Keep API request DTOs under `Coucher.Shared/Models/WebApi/Requests/...`.
 
 ## DTO placement
 
@@ -195,7 +195,7 @@ Use this decision rule when adding code:
 
 Treat these as architecture violations:
 
-- A request DTO placed outside `Coucher.WebApi`.
+- A request DTO placed outside `Coucher.Shared/Models/WebApi/Requests/...`.
 - A shared entity placed outside `Coucher.Shared`.
 - Business logic placed in controllers or startup code instead of `Lib`.
 - Services placed outside `Coucher.Lib/Services`.

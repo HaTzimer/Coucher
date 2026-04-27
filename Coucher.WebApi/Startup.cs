@@ -2,6 +2,7 @@ using Augustus.Infra.Core.Shared.Extensions;
 using Augustus.Infra.Core.Shared.Interfaces;
 using Augustus.Infra.Core.DAL.Redis;
 using Coucher.Lib.DAL;
+using Coucher.Lib.DAL.Cache;
 using Coucher.Lib.DAL.Providers;
 using Coucher.Lib.Gql;
 using Coucher.Lib.Repositories;
@@ -36,6 +37,7 @@ public sealed class Startup
         services.AddScoped<IClosedListItemProvider, ClosedListItemProvider>();
         services.AddScoped<ITaskTemplateProvider, TaskTemplateProvider>();
         services.AddScoped<IUserNotificationProvider, UserNotificationProvider>();
+        services.AddScoped<IUserRoleProvider, UserRoleProvider>();
 
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IExerciseTaskRepository, ExerciseTaskRepository>();
@@ -43,6 +45,7 @@ public sealed class Startup
         services.AddScoped<IClosedListItemRepository, ClosedListItemRepository>();
         services.AddScoped<ITaskTemplateRepository, TaskTemplateRepository>();
         services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 
         services.AddScoped<IExerciseService, ExerciseService>();
         services.AddScoped<IExerciseTaskService, ExerciseTaskService>();
@@ -50,10 +53,11 @@ public sealed class Startup
         services.AddScoped<IClosedListItemService, ClosedListItemService>();
         services.AddScoped<ITaskTemplateService, TaskTemplateService>();
         services.AddScoped<IUserNotificationService, UserNotificationService>();
+        services.AddScoped<IUserRoleService, UserRoleService>();
         services.AddScoped<IMockSeedService, MockSeedService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
-        services.AddScoped<IGraphQlCurrentUserService, GraphQlCurrentUserService>();
-        services.AddSingleton<IAuthorizationCacheProvider, AuthorizationCacheRedisProvider>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<ICacheProvider, CacheRedisProvider>();
         services.AddScoped<WebApiSessionAuthenticationFilter>();
         services.AddSingleton<RedisCommunicationFactory>();
         services.AddTransient<IRedisConnection, RedisConnection>();

@@ -19,7 +19,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ClosedListItem>> GetClosedListItems(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -36,7 +36,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<Unit>> GetUnits(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -53,7 +53,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<Exercise>> GetExercises(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -70,7 +70,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseParticipant>> GetExerciseParticipants(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -87,7 +87,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseUnitContact>> GetExerciseUnitContacts(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -104,7 +104,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseInfluencer>> GetExerciseInfluencers(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -121,7 +121,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseSection>> GetExerciseSections(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -138,7 +138,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseTask>> GetExerciseTasks(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -155,7 +155,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<ExerciseTaskResponsibleUser>> GetExerciseTaskResponsibleUsers(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -172,7 +172,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskDependency>> GetTaskDependencies(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -189,7 +189,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskTemplate>> GetTaskTemplates(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -206,7 +206,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskTemplateDependency>> GetTaskTemplateDependencies(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -223,7 +223,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<TaskTemplateInfluencer>> GetTaskTemplateInfluencers(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -240,7 +240,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<UserProfile>> GetUsers(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -257,7 +257,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<UserRole>> GetUserRoles(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -274,7 +274,7 @@ public sealed class CoucherQuery
     [UseSorting]
     public async Task<IQueryable<UserNotification>> GetUserNotifications(
         CoucherDbContext dbContext,
-        [Service] IGraphQlCurrentUserService currentUserService,
+        [Service] ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {
@@ -285,7 +285,7 @@ public sealed class CoucherQuery
     }
 
     private static async Task EnsureAuthenticatedAsync(
-        IGraphQlCurrentUserService currentUserService,
+        ICurrentUserService currentUserService,
         CancellationToken cancellationToken
     )
     {

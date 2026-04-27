@@ -5,9 +5,9 @@ using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Models.Internal.Authentication;
 using StackExchange.Redis;
 
-namespace Coucher.Lib.DAL.Providers;
+namespace Coucher.Lib.DAL.Cache;
 
-public sealed class AuthorizationCacheRedisProvider : CommonRedisProvider, IAuthorizationCacheProvider
+public sealed class CacheRedisProvider : CommonRedisProvider, ICacheProvider
 {
     private readonly string _servicePrefix;
     private readonly string _sessionIdPrefix;
@@ -16,7 +16,7 @@ public sealed class AuthorizationCacheRedisProvider : CommonRedisProvider, IAuth
     private readonly TimeSpan _sessionDurationExpansion;
     private readonly LuaScript _getUserIdBySessionAndExpandDurationScript;
 
-    public AuthorizationCacheRedisProvider(
+    public CacheRedisProvider(
         RedisCommunicationFactory factory,
         IAugustusLogger logger,
         IAugustusConfiguration config

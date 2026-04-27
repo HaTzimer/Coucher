@@ -1,0 +1,9 @@
+using Coucher.Shared.Models.DAL.Users;
+
+namespace Coucher.Shared.Interfaces.DAL.Providers;
+
+public interface IUserRoleProvider : IProviderBase<UserRole, Guid>
+{
+    Task<UserRole> CreateUserRoleAsync(UserRole entity, CancellationToken cancellationToken = default);
+    Task<UserRole> UpdateUserRoleAsync(UserRole entity, CancellationToken cancellationToken = default);
+}

@@ -1,8 +1,7 @@
 namespace Coucher.Shared.Models.WebApi.Requests.Tasks;
 
-public sealed class CreateExerciseTaskRequestModel
+public sealed class UpdateExerciseTaskRequestModel
 {
-    public Guid ExerciseId { get; set; }
     public Guid SeriesId { get; set; }
     public Guid CategoryId { get; set; }
     public Guid StatusId { get; set; }

@@ -38,16 +38,53 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
         return entity;
     }
 
+    public async Task<int> GetNextSerialNumberAsync(Guid exerciseId, CancellationToken cancellationToken = default)
+    {
+        var nextSerialNumber = await _provider.GetNextSerialNumberAsync(exerciseId, cancellationToken);
+
+        return nextSerialNumber;
+    }
+
+    public async Task<ExerciseTask> CreateExerciseTaskAsync(
+        ExerciseTask entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var createdEntity = await _provider.CreateExerciseTaskAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<List<ExerciseTask>> CreateExerciseTasksAsync(
+        List<ExerciseTask> entities,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var createdEntities = await _provider.CreateExerciseTasksAsync(entities, cancellationToken);
+
+        return createdEntities;
+    }
+
+    public async Task<ExerciseTask> UpdateExerciseTaskAsync(
+        ExerciseTask entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var updatedEntity = await _provider.UpdateExerciseTaskAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
     public async Task<ExerciseTask> AddAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
     {
-        var createdEntity = await _provider.AddAsync(entity, cancellationToken);
+        var createdEntity = await CreateExerciseTaskAsync(entity, cancellationToken);
 
         return createdEntity;
     }
 
     public async Task<ExerciseTask> UpdateAsync(ExerciseTask entity, CancellationToken cancellationToken = default)
     {
-        var updatedEntity = await _provider.UpdateAsync(entity, cancellationToken);
+        var updatedEntity = await UpdateExerciseTaskAsync(entity, cancellationToken);
 
         return updatedEntity;
     }

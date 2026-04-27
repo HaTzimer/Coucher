@@ -38,16 +38,53 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
         return entity;
     }
 
+    public async Task<int> GetNextSerialNumberAsync(CancellationToken cancellationToken = default)
+    {
+        var nextSerialNumber = await _provider.GetNextSerialNumberAsync(cancellationToken);
+
+        return nextSerialNumber;
+    }
+
+    public async Task<TaskTemplate> CreateTaskTemplateAsync(
+        TaskTemplate entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var createdEntity = await _provider.CreateTaskTemplateAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<List<TaskTemplate>> CreateTaskTemplatesAsync(
+        List<TaskTemplate> entities,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var createdEntities = await _provider.CreateTaskTemplatesAsync(entities, cancellationToken);
+
+        return createdEntities;
+    }
+
+    public async Task<TaskTemplate> UpdateTaskTemplateAsync(
+        TaskTemplate entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var updatedEntity = await _provider.UpdateTaskTemplateAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
     public async Task<TaskTemplate> AddAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
     {
-        var createdEntity = await _provider.AddAsync(entity, cancellationToken);
+        var createdEntity = await CreateTaskTemplateAsync(entity, cancellationToken);
 
         return createdEntity;
     }
 
     public async Task<TaskTemplate> UpdateAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
     {
-        var updatedEntity = await _provider.UpdateAsync(entity, cancellationToken);
+        var updatedEntity = await UpdateTaskTemplateAsync(entity, cancellationToken);
 
         return updatedEntity;
     }

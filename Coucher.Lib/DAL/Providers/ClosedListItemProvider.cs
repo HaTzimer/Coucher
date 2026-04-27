@@ -40,7 +40,35 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
         return entity;
     }
 
-    public async Task<ClosedListItem> AddAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
+    public async Task<bool> IsHighestDisplayOrderItemForKeyAsync(
+        Guid id,
+        string key,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ClosedListItem>();
+        var targetEntity = await entities.FirstOrDefaultAsync(
+            item => item.Id == id && item.Key == key,
+            cancellationToken
+        );
+        if (targetEntity is null)
+        {
+            return false;
+        }
+
+        var highestDisplayOrder = await entities
+            .Where(item => item.Key == key)
+            .MaxAsync(item => (int?)item.DisplayOrder, cancellationToken);
+        var isHighestDisplayOrderItem = targetEntity.DisplayOrder == highestDisplayOrder;
+
+        return isHighestDisplayOrderItem;
+    }
+
+    public async Task<ClosedListItem> CreateClosedListItemAsync(
+        ClosedListItem entity,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<ClosedListItem>();
@@ -50,7 +78,23 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
         return entity;
     }
 
-    public async Task<ClosedListItem> UpdateAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
+    public async Task<List<ClosedListItem>> CreateClosedListItemsAsync(
+        List<ClosedListItem> entitiesToCreate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ClosedListItem>();
+        await entities.AddRangeAsync(entitiesToCreate, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entitiesToCreate;
+    }
+
+    public async Task<ClosedListItem> UpdateClosedListItemAsync(
+        ClosedListItem entity,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<ClosedListItem>();
@@ -58,6 +102,20 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
+    }
+
+    public async Task<ClosedListItem> AddAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
+    {
+        var createdEntity = await CreateClosedListItemAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<ClosedListItem> UpdateAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
+    {
+        var updatedEntity = await UpdateClosedListItemAsync(entity, cancellationToken);
+
+        return updatedEntity;
     }
 
     public async Task DeleteAsync(ClosedListItem entity, CancellationToken cancellationToken = default)

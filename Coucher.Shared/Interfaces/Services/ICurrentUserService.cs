@@ -1,6 +1,6 @@
 namespace Coucher.Shared.Interfaces.Services;
 
-public interface IGraphQlCurrentUserService
+public interface ICurrentUserService
 {
     Task<Guid> GetRequiredCurrentUserIdAsync(CancellationToken cancellationToken = default);
 }

@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace Coucher.Lib.Services;
 
-public sealed class GraphQlCurrentUserService : IGraphQlCurrentUserService
+public sealed class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAuthenticationService _authenticationService;
     private readonly string _sessionIdHeader;
     private readonly string _itemsUserIdKey;
 
-    public GraphQlCurrentUserService(
+    public CurrentUserService(
         IHttpContextAccessor httpContextAccessor,
         IAuthenticationService authenticationService,
         IAugustusConfiguration config
@@ -54,7 +54,7 @@ public sealed class GraphQlCurrentUserService : IGraphQlCurrentUserService
         var authResult = await _authenticationService.AuthenticateSessionAsync(sessionId.ToString(), cancellationToken);
         if (authResult.HeaderAuthentication != SessionAuthenticationResult.Valid || authResult.UserId is null)
         {
-            throw new AuthenticationException(authResult.ErrorMessage ?? "Unauthorized GraphQL request.");
+            throw new AuthenticationException(authResult.ErrorMessage ?? "Unauthorized request.");
         }
 
         httpContext.Items[_itemsUserIdKey] = authResult.UserId.Value;

@@ -38,16 +38,30 @@ public sealed class ExerciseRepository : IExerciseRepository
         return entity;
     }
 
+    public async Task<Exercise> CreateExerciseAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        var createdEntity = await _provider.CreateExerciseAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<Exercise> UpdateExerciseAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        var updatedEntity = await _provider.UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
     public async Task<Exercise> AddAsync(Exercise entity, CancellationToken cancellationToken = default)
     {
-        var createdEntity = await _provider.AddAsync(entity, cancellationToken);
+        var createdEntity = await CreateExerciseAsync(entity, cancellationToken);
 
         return createdEntity;
     }
 
     public async Task<Exercise> UpdateAsync(Exercise entity, CancellationToken cancellationToken = default)
     {
-        var updatedEntity = await _provider.UpdateAsync(entity, cancellationToken);
+        var updatedEntity = await UpdateExerciseAsync(entity, cancellationToken);
 
         return updatedEntity;
     }

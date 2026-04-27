@@ -40,7 +40,19 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         return entity;
     }
 
-    public async Task<TaskTemplate> AddAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
+    public async Task<int> GetNextSerialNumberAsync(CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<TaskTemplate>();
+        var nextSerialNumber = (await entities.MaxAsync(item => (int?)item.SerialNumber, cancellationToken) ?? 0) + 1;
+
+        return nextSerialNumber;
+    }
+
+    public async Task<TaskTemplate> CreateTaskTemplateAsync(
+        TaskTemplate entity,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<TaskTemplate>();
@@ -50,7 +62,23 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         return entity;
     }
 
-    public async Task<TaskTemplate> UpdateAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
+    public async Task<List<TaskTemplate>> CreateTaskTemplatesAsync(
+        List<TaskTemplate> entitiesToCreate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<TaskTemplate>();
+        await entities.AddRangeAsync(entitiesToCreate, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entitiesToCreate;
+    }
+
+    public async Task<TaskTemplate> UpdateTaskTemplateAsync(
+        TaskTemplate entity,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<TaskTemplate>();
@@ -58,6 +86,20 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
+    }
+
+    public async Task<TaskTemplate> AddAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
+    {
+        var createdEntity = await CreateTaskTemplateAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<TaskTemplate> UpdateAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
+    {
+        var updatedEntity = await UpdateTaskTemplateAsync(entity, cancellationToken);
+
+        return updatedEntity;
     }
 
     public async Task DeleteAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
