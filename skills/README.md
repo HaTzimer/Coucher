@@ -16,6 +16,8 @@ Use this lightweight flow instead of scanning the whole repo:
 
 Default routing for this repo:
 
+- Endpoint shape / route design:
+  - `skills/architecture/endpoint-design-practices`
 - Layering/responsibility changes:
   - `skills/architecture/provider-repository-service-pattern`
 - EF/DAL/entity/DbContext work:
@@ -38,6 +40,7 @@ Do not scan the whole repo for skill files every turn.
 
 ## Architecture
 
+- `skills/architecture/endpoint-design-practices`: REST route shape, unified update endpoint, and request-contract design.
 - `skills/architecture/provider-repository-service-pattern`: project boundaries + provider/repository/service layering.
 - `skills/architecture/dal-dbcontext-practices`: EF Core entity + DbContext rules and patterns.
 - `skills/architecture/model-creation-practices`: canonical model creation conventions.

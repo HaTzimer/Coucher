@@ -11,6 +11,7 @@ Use this skill when adding or reviewing write flows for Coucher.
 
 - Do not change DAL entity shape, `CoucherDbContext`, or migrations as part of this skill's normal workflow.
 - Keep Web API request models under `Coucher.Shared/Models/WebApi/Requests/...`.
+- For route and request-contract shape, also read `skills/architecture/endpoint-design-practices/SKILL.md`.
 - Use explicit write methods such as `CreateExerciseAsync(...)`, `CreateExerciseTasksAsync(...)`, or `UpdateTaskTemplateAsync(...)` instead of routing new write endpoints through raw generic entity `AddAsync/UpdateAsync` calls.
 - Keep create/update request models limited to client-owned business fields. Never accept server-owned fields from clients.
 - Stamp existing time/audit fields in services with `DateTime.UtcNow`.
@@ -39,7 +40,9 @@ Use this skill when adding or reviewing write flows for Coucher.
 ## Request Model Guidance
 
 - Create models may include only client-owned fields needed to create the aggregate.
-- Update models should be full mutable payloads for root fields, not patch payloads.
+- Update models should default to one unified root update payload per aggregate.
+- Unified root update models should use nullable/optional root fields so only provided values are applied.
+- Use explicit clear flags for nullable string fields that may need to be cleared.
 - Update models should not replace related child collections or link sets unless the feature explicitly calls for aggregate replacement.
 - For bulk create, reuse the single-create request type and accept `List<CreateXRequest>`.
 

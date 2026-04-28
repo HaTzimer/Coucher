@@ -1,0 +1,4 @@
+interface:
+  display_name: "Endpoint Design Practices"
+  short_description: "Unified update endpoint conventions for Coucher APIs."
+  default_prompt: "Design or refactor Coucher endpoints using the repo's unified update and route-shape conventions."

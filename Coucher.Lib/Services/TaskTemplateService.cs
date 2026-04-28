@@ -126,129 +126,25 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
+
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        entity.SeriesId = request.SeriesId;
-        entity.CategoryId = request.CategoryId;
-        entity.Name = request.Name;
-        entity.Description = request.Description;
-        entity.Notes = request.Notes;
-        entity.DefaultWeeksBeforeExerciseStart = request.DefaultWeeksBeforeExerciseStart;
-        var now = DateTime.UtcNow;
-        entity.LastUpdateTime = now;
+
+        ValidateUpdateTaskTemplateRequest(request);
+
+        var changedFields = ApplyTaskTemplateUpdates(entity, request);
+        if (changedFields.Count == 0)
+            return entity;
+
+        entity.LastUpdateTime = DateTime.UtcNow;
+
         var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
-        _ = await _repository.ReplaceTaskTemplateInfluencersAsync(
-            taskTemplateId,
-            request.InfluencerIds ?? new List<Guid>(),
-            now,
-            cancellationToken
-        );
 
         _logger.Info("Task template updated", new Dictionary<string, object>
         {
             { "userId", currentUserId },
             { "taskTemplateId", taskTemplateId },
-            { "changedFields", new[] { "SeriesId", "CategoryId", "Name", "Description", "Notes", "DefaultWeeksBeforeExerciseStart", "InfluencerIds" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<TaskTemplate> UpdateTaskTemplateSeriesAsync(
-        Guid taskTemplateId,
-        Guid? seriesId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        entity.SeriesId = seriesId;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
-
-        _logger.Info("Task template series updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "taskTemplateId", taskTemplateId },
-            { "changedFields", new[] { "SeriesId" } },
-            { "seriesId", seriesId ?? Guid.Empty },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<TaskTemplate> UpdateTaskTemplateCategoryAsync(
-        Guid taskTemplateId,
-        Guid? categoryId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        entity.CategoryId = categoryId;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
-
-        _logger.Info("Task template category updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "taskTemplateId", taskTemplateId },
-            { "changedFields", new[] { "CategoryId" } },
-            { "categoryId", categoryId ?? Guid.Empty },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<TaskTemplate> UpdateTaskTemplateDefaultWeeksBeforeExerciseStartAsync(
-        Guid taskTemplateId,
-        int defaultWeeksBeforeExerciseStart,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        entity.DefaultWeeksBeforeExerciseStart = defaultWeeksBeforeExerciseStart;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
-
-        _logger.Info("Task template default weeks updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "taskTemplateId", taskTemplateId },
-            { "changedFields", new[] { "DefaultWeeksBeforeExerciseStart" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<TaskTemplate> UpdateTaskTemplateDetailsAsync(
-        Guid taskTemplateId,
-        UpdateTaskTemplateDetailsRequest request,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        entity.Name = request.Name;
-        entity.Description = request.Description;
-        entity.Notes = request.Notes;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
-
-        _logger.Info("Task template details updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "taskTemplateId", taskTemplateId },
-            { "changedFields", new[] { "Name", "Description", "Notes" } },
+            { "changedFields", changedFields.ToArray() },
             { "result", "success" }
         });
 
@@ -454,6 +350,86 @@ public sealed class TaskTemplateService : ITaskTemplateService
         _logger.Error(exception);
 
         throw exception;
+    }
+
+    private void ValidateUpdateTaskTemplateRequest(UpdateTaskTemplateRequest request)
+    {
+        if (request.Description is not null && request.ClearDescription)
+            ThrowBadRequest(
+                "Description cannot be updated and cleared in the same request.",
+                ("clearDescription", request.ClearDescription)
+            );
+
+        if (request.Notes is not null && request.ClearNotes)
+            ThrowBadRequest(
+                "Notes cannot be updated and cleared in the same request.",
+                ("clearNotes", request.ClearNotes)
+            );
+    }
+
+    private static List<string> ApplyTaskTemplateUpdates(
+        TaskTemplate entity,
+        UpdateTaskTemplateRequest request
+    )
+    {
+        var changedFields = new List<string>();
+
+        if (request.SeriesId.HasValue && entity.SeriesId != request.SeriesId.Value)
+        {
+            entity.SeriesId = request.SeriesId.Value;
+            changedFields.Add("SeriesId");
+        }
+
+        if (request.CategoryId.HasValue && entity.CategoryId != request.CategoryId.Value)
+        {
+            entity.CategoryId = request.CategoryId.Value;
+            changedFields.Add("CategoryId");
+        }
+
+        if (request.Name is not null && entity.Name != request.Name)
+        {
+            entity.Name = request.Name;
+            changedFields.Add("Name");
+        }
+
+        if (request.ClearDescription)
+        {
+            if (entity.Description is not null)
+            {
+                entity.Description = null;
+                changedFields.Add("Description");
+            }
+        }
+
+        if (request.Description is not null && entity.Description != request.Description)
+        {
+            entity.Description = request.Description;
+            changedFields.Add("Description");
+        }
+
+        if (request.ClearNotes)
+        {
+            if (entity.Notes is not null)
+            {
+                entity.Notes = null;
+                changedFields.Add("Notes");
+            }
+        }
+
+        if (request.Notes is not null && entity.Notes != request.Notes)
+        {
+            entity.Notes = request.Notes;
+            changedFields.Add("Notes");
+        }
+
+        if (request.DefaultWeeksBeforeExerciseStart.HasValue
+            && entity.DefaultWeeksBeforeExerciseStart != request.DefaultWeeksBeforeExerciseStart.Value)
+        {
+            entity.DefaultWeeksBeforeExerciseStart = request.DefaultWeeksBeforeExerciseStart.Value;
+            changedFields.Add("DefaultWeeksBeforeExerciseStart");
+        }
+
+        return changedFields;
     }
 
     private TaskTemplate BuildTaskTemplateTree(

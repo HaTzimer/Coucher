@@ -370,29 +370,25 @@ Expected:
 Expected:
 - `200 OK`
 
-### E4. Exercise definition full update
+### E4. Unified exercise root update
 
 Call:
 - `PUT /api/exercises/{id}`
 
-As manager/admin:
-- expect `200 OK`
-
-As participant/auditor/unrelated user:
-- expect `403 Forbidden`
-
-### E5. Exercise partial definition updates
-
-Call each:
-- `PUT /api/exercises/{id}/details`
-- `PUT /api/exercises/{id}/end-date`
-- `PUT /api/exercises/{id}/status`
-- `PUT /api/exercises/{id}/trainee-unit`
-- `PUT /api/exercises/{id}/trainer-unit`
+Body scenarios:
+- only `Name`
+- only `EndDate`
+- only `StatusId`
+- only `TraineeUnitId`
+- only `TrainerUnitId`
+- `Description` with `ClearDescription = true`
+- mixed root-field updates in one request
 
 Expected:
 - manager/admin allowed
 - participant/auditor/unrelated user forbidden
+- request is rejected when both `Description` and `ClearDescription = true` are sent
+- empty request object returns current exercise unchanged
 
 ### E6. Add participant
 
@@ -605,18 +601,21 @@ Expected:
 - admin `200 OK`
 - non-admin `403 Forbidden`
 
-### C2. Update closed-list item
+### C2. Unified closed-list item update
 
 Calls:
 - `PUT /api/admin/closed-list-items/{id}`
-- `PUT /api/admin/closed-list-items/{id}/value`
-- `PUT /api/admin/closed-list-items/{id}/description`
-- `PUT /api/admin/closed-list-items/{id}/display-order`
 - `PUT /api/admin/closed-list-items/display-orders`
 
 Expected:
 - admin `200 OK`
 - non-admin `403 Forbidden`
+
+Body scenarios for `PUT /api/admin/closed-list-items/{id}`:
+- only `Value`
+- only `DisplayOrder`
+- `Description` with `ClearDescription = true`
+- mixed root-field updates in one request
 
 ### C3. Archive and unarchive closed-list item
 
@@ -658,18 +657,23 @@ Call:
 Expected:
 - admin only
 
-### TT3. Update template
+### TT3. Unified template root update
 
 Calls:
 - `PUT /api/admin/task-templates/{id}`
-- `PUT /api/admin/task-templates/{id}/series`
-- `PUT /api/admin/task-templates/{id}/category`
-- `PUT /api/admin/task-templates/{id}/default-weeks-before-exercise-start`
-- `PUT /api/admin/task-templates/{id}/details`
 
 Expected:
 - admin allowed
 - non-admin forbidden
+
+Body scenarios:
+- only `SeriesId`
+- only `CategoryId`
+- only `Name`
+- only `DefaultWeeksBeforeExerciseStart`
+- `Description` with `ClearDescription = true`
+- `Notes` with `ClearNotes = true`
+- mixed root-field updates in one request
 
 ### TT4. Child, dependency, and influencer management
 
