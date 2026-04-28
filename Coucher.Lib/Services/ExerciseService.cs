@@ -387,39 +387,14 @@ public sealed class ExerciseService : IExerciseService
         return updatedEntity;
     }
 
-    public async Task<Exercise> ArchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default)
+    public async Task<Exercise> SetExerciseArchiveStateAsync(
+        Guid exerciseId,
+        bool isArchived,
+        CancellationToken cancellationToken = default
+    )
     {
         await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
-        var archivedStatusId = await _closedListItemRepository.GetHighestDisplayOrderItemIdByKeyAsync(
-            ConstantValues.ExerciseStatusClosedListKey,
-            cancellationToken: cancellationToken
-        );
-        var now = DateTime.UtcNow;
 
-        entity.ArchiveTime = now;
-        entity.ArchivedByUserId = currentUserId;
-        entity.LastUpdateTime = now;
-        if (archivedStatusId.HasValue)
-            entity.StatusId = archivedStatusId.Value;
-
-        var archivedEntity = await _repository.ArchiveExerciseAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise archived", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", exerciseId },
-            { "statusId", entity.StatusId ?? Guid.Empty },
-            { "result", "success" }
-        });
-
-        return archivedEntity;
-    }
-
-    public async Task<Exercise> UnarchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default)
-    {
-        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
         var archivedStatusId = await _closedListItemRepository.GetHighestDisplayOrderItemIdByKeyAsync(
@@ -431,9 +406,32 @@ public sealed class ExerciseService : IExerciseService
             archivedStatusId,
             cancellationToken
         );
+        var now = DateTime.UtcNow;
+
+        if (isArchived)
+        {
+            entity.ArchiveTime = now;
+            entity.ArchivedByUserId = currentUserId;
+            entity.LastUpdateTime = now;
+            if (archivedStatusId.HasValue)
+                entity.StatusId = archivedStatusId.Value;
+
+            var archivedEntity = await _repository.ArchiveExerciseAsync(entity, cancellationToken);
+
+            _logger.Info("Exercise archived", new Dictionary<string, object>
+            {
+                { "userId", currentUserId },
+                { "exerciseId", exerciseId },
+                { "statusId", entity.StatusId ?? Guid.Empty },
+                { "result", "success" }
+            });
+
+            return archivedEntity;
+        }
+
         entity.ArchiveTime = null;
         entity.ArchivedByUserId = null;
-        entity.LastUpdateTime = DateTime.UtcNow;
+        entity.LastUpdateTime = now;
         if (archivedStatusId.HasValue && entity.StatusId == archivedStatusId.Value && fallbackStatusId.HasValue)
             entity.StatusId = fallbackStatusId.Value;
 

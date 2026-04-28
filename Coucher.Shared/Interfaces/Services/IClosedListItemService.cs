@@ -22,9 +22,9 @@ public interface IClosedListItemService : IServiceBase<ClosedListItem, Guid>
         BulkUpdateClosedListItemDisplayOrdersRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<ClosedListItem> ArchiveClosedListItemAsync(Guid closedListItemId, CancellationToken cancellationToken = default);
-    Task<ClosedListItem> UnarchiveClosedListItemAsync(
+    Task<ClosedListItem> SetClosedListItemArchiveStateAsync(
         Guid closedListItemId,
+        bool isArchived,
         CancellationToken cancellationToken = default
     );
 }

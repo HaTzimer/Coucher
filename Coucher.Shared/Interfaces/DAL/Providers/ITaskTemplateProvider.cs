@@ -21,12 +21,6 @@ public interface ITaskTemplateProvider : IProviderBase<TaskTemplate, Guid>
         DateTime creationTime,
         CancellationToken cancellationToken = default
     );
-    Task<List<TaskTemplateInfluencer>> ReplaceTaskTemplateInfluencersAsync(
-        Guid taskTemplateId,
-        List<Guid> influencerIds,
-        DateTime creationTime,
-        CancellationToken cancellationToken = default
-    );
     Task<TaskTemplateInfluencer?> GetTaskTemplateInfluencerByIdAsync(
         Guid influencerLinkId,
         CancellationToken cancellationToken = default

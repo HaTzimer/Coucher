@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Coucher.WebApi.Controllers;
 
 [ApiController]
-[Route("api/admin/user-roles")]
+[Route("api/admin/user-role")]
 [ServiceFilter(typeof(WebApiSessionAuthenticationFilter))]
 public sealed class AdminUserRolesController : ControllerBase
 {
@@ -18,7 +18,7 @@ public sealed class AdminUserRolesController : ControllerBase
         _userRoleService = userRoleService;
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("update/{id:guid}")]
     public async Task<ActionResult<UserRole>> UpdateAsync(
         Guid id,
         [FromBody] UpdateUserRoleRequest request,

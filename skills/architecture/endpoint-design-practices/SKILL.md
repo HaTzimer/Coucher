@@ -14,7 +14,7 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
 ## Core Rules
 
 - Prefer one unified root update endpoint per aggregate:
-  - `PUT /api/<aggregate>/{id}`
+  - `PUT /api/<resource>/update/{id}`
 - Make unified root update request models nullable/optional:
   - only non-null values are applied
 - For nullable string fields that must be clearable, add explicit clear flags:
@@ -28,6 +28,7 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
   - responsible users
   - influencers
   - children
+- For attached entities and relation links, allow add or remove operations, not replace-all overrides.
 - Do not split root-field updates into `/name`, `/status`, `/details`, `/series`, or similar endpoints unless there is a real behavioral difference that cannot be expressed cleanly in one unified request.
 - If a request body is one scalar value, accept the raw scalar body instead of a wrapper DTO.
 - Keep bulk collection operations on dedicated endpoints instead of overloading the unified root update endpoint.
@@ -35,12 +36,26 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
 ## Route Shape
 
 - Use:
-  - `POST /api/<aggregate>` for create
-  - `POST /api/<aggregate>/bulk` for bulk create
-  - `PUT /api/<aggregate>/{id}` for unified root-field update
-  - `POST`/`DELETE` or dedicated `PUT` routes for relation changes
-  - `POST /archive` and `POST /unarchive` when the aggregate is archived instead of deleted
+  - singular root resource bases such as:
+    - `api/exercise-task`
+    - `api/exercise`
+    - `api/admin/task-template`
+    - `api/admin/closed-list-item`
+    - `api/admin/user-role`
+  - `POST /api/<resource>/create/single` for create
+  - `POST /api/<resource>/create/bulk` for bulk create
+  - `PUT /api/<resource>/update/{id}` for unified root-field update
+  - `DELETE /api/<resource>/delete/{id}` for explicit root deletes when the aggregate supports delete
+  - explicit verb routes for relation changes such as:
+    - `POST /api/<resource>/{id}/add-participant`
+    - `POST /api/<resource>/{id}/add-responsible-user`
+    - `DELETE /api/<resource>/remove-participant/{participantId}`
+    - `DELETE /api/<resource>/remove-dependency/{dependencyId}`
+    - `PUT /api/<resource>/update-contact/{contactId}` when an attached entity itself needs field edits
+  - `PUT /api/<resource>/archive/{id}` with a raw `bool` body for archive state changes
 - Do not create duplicate endpoint pairs where both routes only add/update the same root data in different shapes.
+- Do not use generic plural relation paths when an explicit action name makes the behavior clearer.
+- Do not expose replace-all routes for attached entity collections.
 
 ## Request Model Guidance
 
@@ -70,7 +85,7 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
 Prefer:
 
 ```csharp
-[HttpPut("{id:guid}")]
+[HttpPut("update/{id:guid}")]
 public async Task<ActionResult<Exercise>> UpdateAsync(
     Guid id,
     [FromBody] UpdateExerciseRequest request,
@@ -109,9 +124,45 @@ public sealed class UpdateExerciseDetailsRequest
 }
 ```
 
+Do prefer:
+
+```csharp
+[HttpPut("archive/{id:guid}")]
+public async Task<ActionResult<Exercise>> SetArchiveStateAsync(
+    Guid id,
+    [FromBody] bool isArchived,
+    CancellationToken cancellationToken
+)
+```
+
+Do not prefer:
+
+```csharp
+[HttpPost("{id:guid}/archive")]
+[HttpPost("{id:guid}/unarchive")]
+```
+
+Do prefer:
+
+```csharp
+[HttpPost("{id:guid}/add-responsible-user")]
+[HttpDelete("remove-responsible-user/{responsibilityId:guid}")]
+```
+
+Do not prefer:
+
+```csharp
+[HttpPost("{id:guid}/responsible-users")]
+[HttpPut("{id:guid}/responsible-users")]
+[HttpDelete("responsible-users/{responsibilityId:guid}")]
+```
+
 ## Review Checklist
 
 - Reject split root-field update routes when a unified nullable request would be simpler.
+- Reject separate archive and unarchive endpoints when one raw-boolean archive-state endpoint would do the same job.
+- Reject replace-all routes for attached entity collections.
+- Reject vague relation route names when explicit `add-*`, `remove-*`, `set-*`, or `update-*` naming would describe the behavior better.
 - Reject relation fields inside unified root update DTOs.
 - Reject single-scalar wrapper DTOs.
 - Reject use of `null` as both `no change` and `clear`.

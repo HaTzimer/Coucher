@@ -202,35 +202,30 @@ public sealed class ClosedListItemService : IClosedListItemService
         return updatedEntities;
     }
 
-    public async Task<ClosedListItem> ArchiveClosedListItemAsync(
+    public async Task<ClosedListItem> SetClosedListItemArchiveStateAsync(
         Guid closedListItemId,
+        bool isArchived,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
 
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var archivedEntity = await _repository.ArchiveClosedListItemAsync(closedListItemId, cancellationToken);
-
-        _logger.Info("Closed-list item archived", new Dictionary<string, object>
+        if (isArchived)
         {
-            { "userId", currentUserId },
-            { "closedListItemId", closedListItemId },
-            { "key", archivedEntity.Key },
-            { "result", "success" }
-        });
+            var archivedEntity = await _repository.ArchiveClosedListItemAsync(closedListItemId, cancellationToken);
 
-        return archivedEntity;
-    }
+            _logger.Info("Closed-list item archived", new Dictionary<string, object>
+            {
+                { "userId", currentUserId },
+                { "closedListItemId", closedListItemId },
+                { "key", archivedEntity.Key },
+                { "result", "success" }
+            });
 
-    public async Task<ClosedListItem> UnarchiveClosedListItemAsync(
-        Guid closedListItemId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
+            return archivedEntity;
+        }
 
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var unarchivedEntity = await _repository.UnarchiveClosedListItemAsync(closedListItemId, cancellationToken);
 
         _logger.Info("Closed-list item unarchived", new Dictionary<string, object>

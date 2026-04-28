@@ -35,9 +35,9 @@ public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
     );
     Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default);
     Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);
-    Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid taskTemplateId, CancellationToken cancellationToken = default);
-    Task<TaskTemplate> UnarchiveTaskTemplateAsync(
+    Task<TaskTemplate> SetTaskTemplateArchiveStateAsync(
         Guid taskTemplateId,
+        bool isArchived,
         CancellationToken cancellationToken = default
     );
 }

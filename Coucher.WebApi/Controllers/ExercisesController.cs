@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Coucher.WebApi.Controllers;
 
 [ApiController]
-[Route("api/exercises")]
+[Route("api/exercise")]
 [ServiceFilter(typeof(WebApiSessionAuthenticationFilter))]
 public sealed class ExercisesController : ControllerBase
 {
@@ -19,7 +19,7 @@ public sealed class ExercisesController : ControllerBase
         _exerciseService = exerciseService;
     }
 
-    [HttpPost]
+    [HttpPost("create/single")]
     public async Task<ActionResult<Exercise>> CreateAsync(
         [FromBody] CreateExerciseRequest request,
         CancellationToken cancellationToken
@@ -30,7 +30,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(exercise);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("update/{id:guid}")]
     public async Task<ActionResult<Exercise>> UpdateAsync(
         Guid id,
         [FromBody] UpdateExerciseRequest request,
@@ -42,7 +42,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(exercise);
     }
 
-    [HttpPost("{id:guid}/participants")]
+    [HttpPost("{id:guid}/add-participant")]
     public async Task<ActionResult<ExerciseParticipant>> AddParticipantAsync(
         Guid id,
         [FromBody] string userId,
@@ -54,7 +54,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(participant);
     }
 
-    [HttpPut("participants/{participantId:guid}/role")]
+    [HttpPut("update-participant-role/{participantId:guid}")]
     public async Task<ActionResult<ExerciseParticipant>> UpdateParticipantRoleAsync(
         Guid participantId,
         [FromBody] ExerciseRole role,
@@ -70,7 +70,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(participant);
     }
 
-    [HttpPut("{id:guid}/manager")]
+    [HttpPut("{id:guid}/set-manager")]
     public async Task<ActionResult<ExerciseParticipant>> UpdateManagerAsync(
         Guid id,
         [FromBody] string managerUserId,
@@ -82,7 +82,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(participant);
     }
 
-    [HttpPost("{id:guid}/sections")]
+    [HttpPost("{id:guid}/add-section")]
     public async Task<ActionResult<ExerciseSection>> AddSectionAsync(
         Guid id,
         [FromBody] Guid sectionId,
@@ -94,7 +94,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(section);
     }
 
-    [HttpPost("{id:guid}/influencers")]
+    [HttpPost("{id:guid}/add-influencer")]
     public async Task<ActionResult<ExerciseInfluencer>> AddInfluencerAsync(
         Guid id,
         [FromBody] Guid influencerId,
@@ -106,7 +106,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(influencer);
     }
 
-    [HttpPost("{id:guid}/contacts")]
+    [HttpPost("{id:guid}/add-contact")]
     public async Task<ActionResult<ExerciseUnitContact>> AddContactAsync(
         Guid id,
         [FromBody] AddExerciseUnitContactRequest request,
@@ -118,7 +118,7 @@ public sealed class ExercisesController : ControllerBase
         return Ok(contact);
     }
 
-    [HttpPut("contacts/{contactId:guid}")]
+    [HttpPut("update-contact/{contactId:guid}")]
     public async Task<ActionResult<ExerciseUnitContact>> UpdateContactAsync(
         Guid contactId,
         [FromBody] UpdateExerciseUnitContactRequest request,
@@ -130,23 +130,19 @@ public sealed class ExercisesController : ControllerBase
         return Ok(contact);
     }
 
-    [HttpPost("{id:guid}/archive")]
-    public async Task<ActionResult<Exercise>> ArchiveAsync(Guid id, CancellationToken cancellationToken)
+    [HttpPut("archive/{id:guid}")]
+    public async Task<ActionResult<Exercise>> SetArchiveStateAsync(
+        Guid id,
+        [FromBody] bool isArchived,
+        CancellationToken cancellationToken
+    )
     {
-        var exercise = await _exerciseService.ArchiveExerciseAsync(id, cancellationToken);
+        var exercise = await _exerciseService.SetExerciseArchiveStateAsync(id, isArchived, cancellationToken);
 
         return Ok(exercise);
     }
 
-    [HttpPost("{id:guid}/unarchive")]
-    public async Task<ActionResult<Exercise>> UnarchiveAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var exercise = await _exerciseService.UnarchiveExerciseAsync(id, cancellationToken);
-
-        return Ok(exercise);
-    }
-
-    [HttpDelete("participants/{participantId:guid}")]
+    [HttpDelete("remove-participant/{participantId:guid}")]
     public async Task<IActionResult> RemoveParticipantAsync(Guid participantId, CancellationToken cancellationToken)
     {
         await _exerciseService.RemoveExerciseParticipantAsync(participantId, cancellationToken);
@@ -154,7 +150,7 @@ public sealed class ExercisesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("sections/{sectionLinkId:guid}")]
+    [HttpDelete("remove-section/{sectionLinkId:guid}")]
     public async Task<IActionResult> RemoveSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken)
     {
         await _exerciseService.RemoveExerciseSectionAsync(sectionLinkId, cancellationToken);
@@ -162,7 +158,7 @@ public sealed class ExercisesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("influencers/{influencerLinkId:guid}")]
+    [HttpDelete("remove-influencer/{influencerLinkId:guid}")]
     public async Task<IActionResult> RemoveInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken)
     {
         await _exerciseService.RemoveExerciseInfluencerAsync(influencerLinkId, cancellationToken);
@@ -170,7 +166,7 @@ public sealed class ExercisesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("contacts/{contactId:guid}")]
+    [HttpDelete("remove-contact/{contactId:guid}")]
     public async Task<IActionResult> RemoveContactAsync(Guid contactId, CancellationToken cancellationToken)
     {
         await _exerciseService.RemoveExerciseUnitContactAsync(contactId, cancellationToken);

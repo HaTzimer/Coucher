@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Coucher.WebApi.Controllers;
 
 [ApiController]
-[Route("api/admin/task-templates")]
+[Route("api/admin/task-template")]
 [ServiceFilter(typeof(WebApiSessionAuthenticationFilter))]
 public sealed class AdminTaskTemplatesController : ControllerBase
 {
@@ -18,7 +18,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         _taskTemplateService = taskTemplateService;
     }
 
-    [HttpPost]
+    [HttpPost("create/single")]
     public async Task<ActionResult<TaskTemplate>> CreateAsync(
         [FromBody] CreateTaskTemplateRequest request,
         CancellationToken cancellationToken
@@ -29,7 +29,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(taskTemplate);
     }
 
-    [HttpPost("bulk")]
+    [HttpPost("create/bulk")]
     public async Task<ActionResult<List<TaskTemplate>>> BulkCreateAsync(
         [FromBody] List<CreateTaskTemplateRequest> requests,
         CancellationToken cancellationToken
@@ -40,7 +40,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(taskTemplates);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("update/{id:guid}")]
     public async Task<ActionResult<TaskTemplate>> UpdateAsync(
         Guid id,
         [FromBody] UpdateTaskTemplateRequest request,
@@ -52,7 +52,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(taskTemplate);
     }
 
-    [HttpPost("{id:guid}/children")]
+    [HttpPost("{id:guid}/add-child")]
     public async Task<ActionResult<TaskTemplate>> AddChildAsync(
         Guid id,
         [FromBody] CreateTaskTemplateChildRequest request,
@@ -64,7 +64,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(taskTemplate);
     }
 
-    [HttpPost("{id:guid}/dependencies")]
+    [HttpPost("{id:guid}/add-dependency")]
     public async Task<ActionResult<TaskTemplateDependency>> AddDependencyAsync(
         Guid id,
         [FromBody] Guid dependsOnId,
@@ -76,7 +76,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(dependency);
     }
 
-    [HttpPost("{id:guid}/influencers")]
+    [HttpPost("{id:guid}/add-influencers")]
     public async Task<ActionResult<List<TaskTemplateInfluencer>>> AddInfluencersAsync(
         Guid id,
         [FromBody] List<Guid> influencerIds,
@@ -92,7 +92,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(influencers);
     }
 
-    [HttpDelete("dependencies/{dependencyId:guid}")]
+    [HttpDelete("remove-dependency/{dependencyId:guid}")]
     public async Task<IActionResult> DeleteDependencyAsync(Guid dependencyId, CancellationToken cancellationToken)
     {
         await _taskTemplateService.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
@@ -100,7 +100,7 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("influencers/{influencerLinkId:guid}")]
+    [HttpDelete("remove-influencer/{influencerLinkId:guid}")]
     public async Task<IActionResult> DeleteInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken)
     {
         await _taskTemplateService.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
@@ -108,18 +108,18 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("{id:guid}/archive")]
-    public async Task<ActionResult<TaskTemplate>> ArchiveAsync(Guid id, CancellationToken cancellationToken)
+    [HttpPut("archive/{id:guid}")]
+    public async Task<ActionResult<TaskTemplate>> SetArchiveStateAsync(
+        Guid id,
+        [FromBody] bool isArchived,
+        CancellationToken cancellationToken
+    )
     {
-        var taskTemplate = await _taskTemplateService.ArchiveTaskTemplateAsync(id, cancellationToken);
-
-        return Ok(taskTemplate);
-    }
-
-    [HttpPost("{id:guid}/unarchive")]
-    public async Task<ActionResult<TaskTemplate>> UnarchiveAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var taskTemplate = await _taskTemplateService.UnarchiveTaskTemplateAsync(id, cancellationToken);
+        var taskTemplate = await _taskTemplateService.SetTaskTemplateArchiveStateAsync(
+            id,
+            isArchived,
+            cancellationToken
+        );
 
         return Ok(taskTemplate);
     }

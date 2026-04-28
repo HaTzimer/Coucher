@@ -156,24 +156,6 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
         return createdEntity;
     }
 
-    public async Task<List<ExerciseTaskResponsibleUser>> ReplaceExerciseTaskResponsibleUsersAsync(
-        Guid taskId,
-        List<Guid> userIds,
-        DateTime creationTime,
-        CancellationToken cancellationToken = default
-    )
-    {
-        _ = await GetRequiredByIdAsync(taskId, cancellationToken);
-        var updatedEntities = await _provider.ReplaceExerciseTaskResponsibleUsersAsync(
-            taskId,
-            userIds,
-            creationTime,
-            cancellationToken
-        );
-
-        return updatedEntities;
-    }
-
     public async Task DeleteExerciseTaskResponsibleUserAsync(
         Guid responsibilityId,
         CancellationToken cancellationToken = default

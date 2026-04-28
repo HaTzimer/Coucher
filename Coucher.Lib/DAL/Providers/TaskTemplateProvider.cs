@@ -153,65 +153,6 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         return newEntities;
     }
 
-    public async Task<List<TaskTemplateInfluencer>> ReplaceTaskTemplateInfluencersAsync(
-        Guid taskTemplateId,
-        List<Guid> influencerIds,
-        DateTime creationTime,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-
-        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-        var entities = dbContext.Set<TaskTemplateInfluencer>();
-        var normalizedInfluencerIds = influencerIds.Distinct().ToList();
-        var existingEntities = await entities
-            .Where(item => item.TemplateId == taskTemplateId)
-            .ToListAsync(cancellationToken);
-
-        var existingInfluencerIds = existingEntities
-            .Where(item => item.InfluencerId.HasValue)
-            .Select(item => item.InfluencerId!.Value)
-            .ToHashSet();
-        var influencerLinkIdsToDelete = existingEntities
-            .Where(item => !item.InfluencerId.HasValue || !normalizedInfluencerIds.Contains(item.InfluencerId.Value))
-            .Select(item => item.Id)
-            .ToList();
-
-        if (influencerLinkIdsToDelete.Count > 0)
-        {
-            await entities
-                .Where(item => influencerLinkIdsToDelete.Contains(item.Id))
-                .ExecuteDeleteAsync(cancellationToken);
-        }
-
-        var newEntities = normalizedInfluencerIds
-            .Where(influencerId => !existingInfluencerIds.Contains(influencerId))
-            .Select(influencerId => new TaskTemplateInfluencer
-            {
-                Id = Guid.NewGuid(),
-                TemplateId = taskTemplateId,
-                InfluencerId = influencerId,
-                CreationTime = creationTime
-            })
-            .ToList();
-
-        if (newEntities.Count > 0)
-        {
-            await entities.AddRangeAsync(newEntities, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        await transaction.CommitAsync(cancellationToken);
-
-        var updatedEntities = await entities
-            .Where(item => item.TemplateId == taskTemplateId)
-            .ToListAsync(cancellationToken);
-
-        return updatedEntities;
-    }
-
     public async Task<TaskTemplateInfluencer?> GetTaskTemplateInfluencerByIdAsync(
         Guid influencerLinkId,
         CancellationToken cancellationToken = default

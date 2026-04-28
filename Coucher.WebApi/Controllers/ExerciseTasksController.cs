@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Coucher.WebApi.Controllers;
 
 [ApiController]
-[Route("api/exercise-tasks")]
+[Route("api/exercise-task")]
 [ServiceFilter(typeof(WebApiSessionAuthenticationFilter))]
 public sealed class ExerciseTasksController : ControllerBase
 {
@@ -18,7 +18,7 @@ public sealed class ExerciseTasksController : ControllerBase
         _exerciseTaskService = exerciseTaskService;
     }
 
-    [HttpPost]
+    [HttpPost("create/single")]
     public async Task<ActionResult<ExerciseTask>> CreateAsync(
         [FromBody] CreateExerciseTaskRequest request,
         CancellationToken cancellationToken
@@ -29,7 +29,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(exerciseTask);
     }
 
-    [HttpPost("{id:guid}/children")]
+    [HttpPost("{id:guid}/add-child")]
     public async Task<ActionResult<ExerciseTask>> CreateChildAsync(
         Guid id,
         [FromBody] CreateExerciseTaskChildRequest request,
@@ -41,7 +41,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(exerciseTask);
     }
 
-    [HttpPost("bulk")]
+    [HttpPost("create/bulk")]
     public async Task<ActionResult<List<ExerciseTask>>> BulkCreateAsync(
         [FromBody] List<CreateExerciseTaskRequest> requests,
         CancellationToken cancellationToken
@@ -52,7 +52,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(exerciseTasks);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("update/{id:guid}")]
     public async Task<ActionResult<ExerciseTask>> UpdateAsync(
         Guid id,
         [FromBody] UpdateExerciseTaskRequest request,
@@ -64,7 +64,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(exerciseTask);
     }
 
-    [HttpPost("{id:guid}/dependencies")]
+    [HttpPost("{id:guid}/add-dependencies")]
     public async Task<ActionResult<List<TaskDependency>>> AddDependencyAsync(
         Guid id,
         [FromBody] List<string> dependsOnIds,
@@ -80,7 +80,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(dependencies);
     }
 
-    [HttpDelete("dependencies/{dependencyId:guid}")]
+    [HttpDelete("remove-dependency/{dependencyId:guid}")]
     public async Task<IActionResult> DeleteDependencyAsync(Guid dependencyId, CancellationToken cancellationToken)
     {
         await _exerciseTaskService.DeleteExerciseTaskDependencyAsync(dependencyId, cancellationToken);
@@ -88,7 +88,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("{id:guid}/responsible-users")]
+    [HttpPost("{id:guid}/add-responsible-user")]
     public async Task<ActionResult<ExerciseTaskResponsibleUser>> AddResponsibleUserAsync(
         Guid id,
         [FromBody] string userId,
@@ -104,23 +104,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return Ok(responsibleUser);
     }
 
-    [HttpPut("{id:guid}/responsible-users")]
-    public async Task<ActionResult<List<ExerciseTaskResponsibleUser>>> BulkUpdateResponsibleUsersAsync(
-        Guid id,
-        [FromBody] List<string> userIds,
-        CancellationToken cancellationToken
-    )
-    {
-        var responsibleUsers = await _exerciseTaskService.BulkUpdateExerciseTaskResponsibleUsersAsync(
-            id,
-            userIds,
-            cancellationToken
-        );
-
-        return Ok(responsibleUsers);
-    }
-
-    [HttpDelete("responsible-users/{responsibilityId:guid}")]
+    [HttpDelete("remove-responsible-user/{responsibilityId:guid}")]
     public async Task<IActionResult> DeleteResponsibleUserAsync(Guid responsibilityId, CancellationToken cancellationToken)
     {
         await _exerciseTaskService.DeleteExerciseTaskResponsibleUserAsync(responsibilityId, cancellationToken);
@@ -128,7 +112,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("{id:guid}/responsible-users/bulk-delete")]
+    [HttpPost("{id:guid}/remove-responsible-users")]
     public async Task<IActionResult> BulkDeleteResponsibleUsersAsync(
         Guid id,
         [FromBody] BulkDeleteExerciseTaskResponsibleUsersRequest request,
@@ -140,7 +124,7 @@ public sealed class ExerciseTasksController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("delete/{id:guid}")]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         await _exerciseTaskService.DeleteExerciseTaskDeepAsync(id, cancellationToken);

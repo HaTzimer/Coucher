@@ -204,7 +204,7 @@ Expected:
 As admin:
 - get a non-admin `userId`
 - get that user’s existing `userRole` row id from GraphQL
-- call `PUT /api/admin/user-roles/{id}`
+- call `PUT /api/admin/user-role/update/{id}`
 
 Body example:
 
@@ -224,7 +224,7 @@ Save that user’s session as `AUDITOR_SESSION`.
 ### B2. Verify admin-only user-role update is blocked for non-admin
 
 As regular user and as auditor:
-- repeat the same `PUT /api/admin/user-roles/{id}`
+- repeat the same `PUT /api/admin/user-role/update/{id}`
 
 Expected:
 - `403 Forbidden`
@@ -353,7 +353,7 @@ Expected results:
 ### E1. Regular user creates an exercise
 
 Call:
-- `POST /api/exercises`
+- `POST /api/exercise/create/single`
 
 Verify:
 - `200 OK`
@@ -373,7 +373,7 @@ Expected:
 ### E4. Unified exercise root update
 
 Call:
-- `PUT /api/exercises/{id}`
+- `PUT /api/exercise/update/{id}`
 
 Body scenarios:
 - only `Name`
@@ -393,7 +393,7 @@ Expected:
 ### E6. Add participant
 
 Call:
-- `POST /api/exercises/{id}/participants`
+- `POST /api/exercise/{id}/add-participant`
 - raw string body of target user id
 
 Expected:
@@ -406,7 +406,7 @@ Verify in GraphQL:
 ### E7. Update participant role
 
 Call:
-- `PUT /api/exercises/participants/{participantId}/role`
+- `PUT /api/exercise/update-participant-role/{participantId}`
 
 Expected:
 - manager/admin allowed
@@ -415,7 +415,7 @@ Expected:
 ### E8. Reassign exercise manager
 
 Call:
-- `PUT /api/exercises/{id}/manager`
+- `PUT /api/exercise/{id}/set-manager`
 - raw string body of target user id
 
 Expected:
@@ -429,8 +429,8 @@ Verify:
 ### E9. Add and remove section
 
 Calls:
-- `POST /api/exercises/{id}/sections`
-- `DELETE /api/exercises/sections/{sectionLinkId}`
+- `POST /api/exercise/{id}/add-section`
+- `DELETE /api/exercise/remove-section/{sectionLinkId}`
 
 Expected:
 - manager/admin allowed
@@ -439,8 +439,8 @@ Expected:
 ### E10. Add and remove influencer
 
 Calls:
-- `POST /api/exercises/{id}/influencers`
-- `DELETE /api/exercises/influencers/{influencerLinkId}`
+- `POST /api/exercise/{id}/add-influencer`
+- `DELETE /api/exercise/remove-influencer/{influencerLinkId}`
 
 Expected:
 - manager/admin allowed
@@ -449,19 +449,20 @@ Expected:
 ### E11. Add, update, and remove contact
 
 Calls:
-- `POST /api/exercises/{id}/contacts`
-- `PUT /api/exercises/contacts/{contactId}`
-- `DELETE /api/exercises/contacts/{contactId}`
+- `POST /api/exercise/{id}/add-contact`
+- `PUT /api/exercise/update-contact/{contactId}`
+- `DELETE /api/exercise/remove-contact/{contactId}`
 
 Expected:
 - manager/admin allowed
 - participant/auditor/unrelated user forbidden
 
-### E12. Archive and unarchive exercise
+### E12. Exercise archive state update
 
 Calls:
-- `POST /api/exercises/{id}/archive`
-- `POST /api/exercises/{id}/unarchive`
+- `PUT /api/exercise/archive/{id}`
+- body `true` to archive
+- body `false` to unarchive
 
 Expected:
 - manager/admin allowed
@@ -478,7 +479,7 @@ Use one exercise where the tester is manager and one where the tester is partici
 ### T1. Create root task
 
 Call:
-- `POST /api/exercise-tasks`
+- `POST /api/exercise-task/create/single`
 
 Expected:
 - manager/admin allowed
@@ -490,7 +491,7 @@ Verify:
 ### T2. Bulk create tasks
 
 Call:
-- `POST /api/exercise-tasks/bulk`
+- `POST /api/exercise-task/create/bulk`
 
 Expected:
 - manager/admin allowed
@@ -502,7 +503,7 @@ Verify:
 ### T3. Create child task
 
 Call:
-- `POST /api/exercise-tasks/{id}/children`
+- `POST /api/exercise-task/{id}/add-child`
 
 Expected:
 - manager/admin allowed
@@ -515,7 +516,7 @@ Verify:
 ### T4. Full task update
 
 Call:
-- `PUT /api/exercise-tasks/{id}`
+- `PUT /api/exercise-task/update/{id}`
 
 Expected:
 - manager/admin allowed
@@ -524,7 +525,7 @@ Expected:
 ### T5. Unified task field update
 
 Call:
-- `PUT /api/exercise-tasks/{id}`
+- `PUT /api/exercise-task/update/{id}`
 
 Body scenarios:
 - only `SeriesId`
@@ -547,15 +548,15 @@ Expected:
 ### T6. Participant task relation edits
 
 Calls:
-- `POST /api/exercise-tasks/{id}/responsible-users`
-- `PUT /api/exercise-tasks/{id}/responsible-users`
-- `DELETE /api/exercise-tasks/responsible-users/{responsibilityId}`
-- `POST /api/exercise-tasks/{id}/responsible-users/bulk-delete`
+- `POST /api/exercise-task/{id}/add-responsible-user`
+- `DELETE /api/exercise-task/remove-responsible-user/{responsibilityId}`
+- `POST /api/exercise-task/{id}/remove-responsible-users`
 
 Expected:
 - participant in same exercise allowed
 - manager/admin allowed
 - auditor/unrelated user forbidden
+- no replace-all responsible-user endpoint exists
 
 Verify:
 - status updates set `lastStatusUpdaterId`, `lastStatusUpdateTime`
@@ -564,8 +565,8 @@ Verify:
 ### T7. Dependency management
 
 Calls:
-- `POST /api/exercise-tasks/{id}/dependencies`
-- `DELETE /api/exercise-tasks/dependencies/{dependencyId}`
+- `POST /api/exercise-task/{id}/add-dependencies`
+- `DELETE /api/exercise-task/remove-dependency/{dependencyId}`
 
 Expected:
 - add/delete allowed only for manager/admin
@@ -578,7 +579,7 @@ Negative checks:
 ### T8. Delete task
 
 Call:
-- `DELETE /api/exercise-tasks/{id}`
+- `DELETE /api/exercise-task/delete/{id}`
 
 Expected:
 - manager/admin allowed
@@ -594,8 +595,8 @@ Run all as admin, then repeat one representative case as auditor and regular use
 ### C1. Create and bulk create closed-list items
 
 Calls:
-- `POST /api/admin/closed-list-items`
-- `POST /api/admin/closed-list-items/bulk`
+- `POST /api/admin/closed-list-item/create/single`
+- `POST /api/admin/closed-list-item/create/bulk`
 
 Expected:
 - admin `200 OK`
@@ -604,24 +605,25 @@ Expected:
 ### C2. Unified closed-list item update
 
 Calls:
-- `PUT /api/admin/closed-list-items/{id}`
-- `PUT /api/admin/closed-list-items/display-orders`
+- `PUT /api/admin/closed-list-item/update/{id}`
+- `PUT /api/admin/closed-list-item/update/display-orders`
 
 Expected:
 - admin `200 OK`
 - non-admin `403 Forbidden`
 
-Body scenarios for `PUT /api/admin/closed-list-items/{id}`:
+Body scenarios for `PUT /api/admin/closed-list-item/update/{id}`:
 - only `Value`
 - only `DisplayOrder`
 - `Description` with `ClearDescription = true`
 - mixed root-field updates in one request
 
-### C3. Archive and unarchive closed-list item
+### C3. Closed-list-item archive state update
 
 Calls:
-- `POST /api/admin/closed-list-items/{id}/archive`
-- `POST /api/admin/closed-list-items/{id}/unarchive`
+- `PUT /api/admin/closed-list-item/archive/{id}`
+- body `true` to archive
+- body `false` to unarchive
 
 Expected:
 - admin allowed
@@ -632,7 +634,7 @@ Expected:
 ### TT1. Create template with nested children and dependency keys
 
 Call:
-- `POST /api/admin/task-templates`
+- `POST /api/admin/task-template/create/single`
 
 Use payload with:
 - root template
@@ -652,7 +654,7 @@ Verify:
 ### TT2. Bulk create templates
 
 Call:
-- `POST /api/admin/task-templates/bulk`
+- `POST /api/admin/task-template/create/bulk`
 
 Expected:
 - admin only
@@ -660,7 +662,7 @@ Expected:
 ### TT3. Unified template root update
 
 Calls:
-- `PUT /api/admin/task-templates/{id}`
+- `PUT /api/admin/task-template/update/{id}`
 
 Expected:
 - admin allowed
@@ -678,21 +680,22 @@ Body scenarios:
 ### TT4. Child, dependency, and influencer management
 
 Calls:
-- `POST /api/admin/task-templates/{id}/children`
-- `POST /api/admin/task-templates/{id}/dependencies`
-- `DELETE /api/admin/task-templates/dependencies/{dependencyId}`
-- `POST /api/admin/task-templates/{id}/influencers`
-- `DELETE /api/admin/task-templates/influencers/{influencerLinkId}`
+- `POST /api/admin/task-template/{id}/add-child`
+- `POST /api/admin/task-template/{id}/add-dependency`
+- `DELETE /api/admin/task-template/remove-dependency/{dependencyId}`
+- `POST /api/admin/task-template/{id}/add-influencers`
+- `DELETE /api/admin/task-template/remove-influencer/{influencerLinkId}`
 
 Expected:
 - admin allowed
 - non-admin forbidden
 
-### TT5. Archive and unarchive task template
+### TT5. Task-template archive state update
 
 Calls:
-- `POST /api/admin/task-templates/{id}/archive`
-- `POST /api/admin/task-templates/{id}/unarchive`
+- `PUT /api/admin/task-template/archive/{id}`
+- body `true` to archive
+- body `false` to unarchive
 
 Expected:
 - admin allowed

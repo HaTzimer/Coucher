@@ -21,12 +21,6 @@ public interface ITaskTemplateRepository : IRepositoryBase<TaskTemplate, Guid>
         DateTime creationTime,
         CancellationToken cancellationToken = default
     );
-    Task<List<TaskTemplateInfluencer>> ReplaceTaskTemplateInfluencersAsync(
-        Guid taskTemplateId,
-        List<Guid> influencerIds,
-        DateTime creationTime,
-        CancellationToken cancellationToken = default
-    );
     Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default);
     Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);
     Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default);

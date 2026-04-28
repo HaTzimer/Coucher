@@ -282,7 +282,7 @@ For Web API request bodies, if the payload contains only one scalar value, do no
 Preferred:
 
 ```csharp
-[HttpPut("{id:guid}/status")]
+[HttpPut("update/{id:guid}")]
 public async Task<ActionResult<Exercise>> UpdateStatusAsync(
     Guid id,
     [FromBody] Guid statusId,
@@ -293,7 +293,7 @@ public async Task<ActionResult<Exercise>> UpdateStatusAsync(
 Also prefer:
 
 ```csharp
-[HttpPost("{id:guid}/participants")]
+[HttpPost("{id:guid}/add-participant")]
 public async Task<ActionResult<ExerciseParticipant>> AddParticipantAsync(
     Guid id,
     [FromBody] string userId,

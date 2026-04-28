@@ -28,12 +28,6 @@ public interface IExerciseTaskRepository : IRepositoryBase<ExerciseTask, Guid>
         ExerciseTaskResponsibleUser entity,
         CancellationToken cancellationToken = default
     );
-    Task<List<ExerciseTaskResponsibleUser>> ReplaceExerciseTaskResponsibleUsersAsync(
-        Guid taskId,
-        List<Guid> userIds,
-        DateTime creationTime,
-        CancellationToken cancellationToken = default
-    );
     Task DeleteExerciseTaskResponsibleUserAsync(Guid responsibilityId, CancellationToken cancellationToken = default);
     Task DeleteExerciseTaskResponsibleUsersAsync(
         Guid taskId,

@@ -34,11 +34,6 @@ public interface IExerciseTaskService : IServiceBase<ExerciseTask, Guid>
         string userId,
         CancellationToken cancellationToken = default
     );
-    Task<List<ExerciseTaskResponsibleUser>> BulkUpdateExerciseTaskResponsibleUsersAsync(
-        Guid taskId,
-        List<string> userIds,
-        CancellationToken cancellationToken = default
-    );
     Task DeleteExerciseTaskResponsibleUserAsync(Guid responsibilityId, CancellationToken cancellationToken = default);
     Task BulkDeleteExerciseTaskResponsibleUsersAsync(
         Guid taskId,

@@ -185,65 +185,6 @@ public sealed class ExerciseTaskProvider : IExerciseTaskProvider
         return entity;
     }
 
-    public async Task<List<ExerciseTaskResponsibleUser>> ReplaceExerciseTaskResponsibleUsersAsync(
-        Guid taskId,
-        List<Guid> userIds,
-        DateTime creationTime,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-
-        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-        var entities = dbContext.Set<ExerciseTaskResponsibleUser>();
-        var normalizedUserIds = userIds.Distinct().ToList();
-        var existingEntities = await entities
-            .Where(item => item.TaskId == taskId)
-            .ToListAsync(cancellationToken);
-
-        var existingUserIds = existingEntities
-            .Where(item => item.UserId.HasValue)
-            .Select(item => item.UserId!.Value)
-            .ToHashSet();
-        var responsibilityIdsToDelete = existingEntities
-            .Where(item => !item.UserId.HasValue || !normalizedUserIds.Contains(item.UserId.Value))
-            .Select(item => item.Id)
-            .ToList();
-
-        if (responsibilityIdsToDelete.Count > 0)
-        {
-            await entities
-                .Where(item => responsibilityIdsToDelete.Contains(item.Id))
-                .ExecuteDeleteAsync(cancellationToken);
-        }
-
-        var newEntities = normalizedUserIds
-            .Where(userId => !existingUserIds.Contains(userId))
-            .Select(userId => new ExerciseTaskResponsibleUser
-            {
-                Id = Guid.NewGuid(),
-                TaskId = taskId,
-                UserId = userId,
-                CreationTime = creationTime
-            })
-            .ToList();
-
-        if (newEntities.Count > 0)
-        {
-            await entities.AddRangeAsync(newEntities, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        await transaction.CommitAsync(cancellationToken);
-
-        var updatedEntities = await entities
-            .Where(item => item.TaskId == taskId)
-            .ToListAsync(cancellationToken);
-
-        return updatedEntities;
-    }
-
     public async Task DeleteExerciseTaskResponsibleUserAsync(
         Guid responsibilityId,
         CancellationToken cancellationToken = default

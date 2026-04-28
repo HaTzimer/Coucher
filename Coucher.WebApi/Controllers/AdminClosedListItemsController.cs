@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Coucher.WebApi.Controllers;
 
 [ApiController]
-[Route("api/admin/closed-list-items")]
+[Route("api/admin/closed-list-item")]
 [ServiceFilter(typeof(WebApiSessionAuthenticationFilter))]
 public sealed class AdminClosedListItemsController : ControllerBase
 {
@@ -18,7 +18,7 @@ public sealed class AdminClosedListItemsController : ControllerBase
         _closedListItemService = closedListItemService;
     }
 
-    [HttpPost]
+    [HttpPost("create/single")]
     public async Task<ActionResult<ClosedListItem>> CreateAsync(
         [FromBody] CreateClosedListItemRequest request,
         CancellationToken cancellationToken
@@ -29,7 +29,7 @@ public sealed class AdminClosedListItemsController : ControllerBase
         return Ok(closedListItem);
     }
 
-    [HttpPost("bulk")]
+    [HttpPost("create/bulk")]
     public async Task<ActionResult<List<ClosedListItem>>> BulkCreateAsync(
         [FromBody] List<CreateClosedListItemRequest> requests,
         CancellationToken cancellationToken
@@ -40,7 +40,7 @@ public sealed class AdminClosedListItemsController : ControllerBase
         return Ok(closedListItems);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("update/{id:guid}")]
     public async Task<ActionResult<ClosedListItem>> UpdateAsync(
         Guid id,
         [FromBody] UpdateClosedListItemRequest request,
@@ -52,7 +52,7 @@ public sealed class AdminClosedListItemsController : ControllerBase
         return Ok(closedListItem);
     }
 
-    [HttpPut("display-orders")]
+    [HttpPut("update/display-orders")]
     public async Task<ActionResult<List<ClosedListItem>>> BulkUpdateDisplayOrdersAsync(
         [FromBody] BulkUpdateClosedListItemDisplayOrdersRequest request,
         CancellationToken cancellationToken
@@ -66,18 +66,18 @@ public sealed class AdminClosedListItemsController : ControllerBase
         return Ok(closedListItems);
     }
 
-    [HttpPost("{id:guid}/archive")]
-    public async Task<ActionResult<ClosedListItem>> ArchiveAsync(Guid id, CancellationToken cancellationToken)
+    [HttpPut("archive/{id:guid}")]
+    public async Task<ActionResult<ClosedListItem>> SetArchiveStateAsync(
+        Guid id,
+        [FromBody] bool isArchived,
+        CancellationToken cancellationToken
+    )
     {
-        var closedListItem = await _closedListItemService.ArchiveClosedListItemAsync(id, cancellationToken);
-
-        return Ok(closedListItem);
-    }
-
-    [HttpPost("{id:guid}/unarchive")]
-    public async Task<ActionResult<ClosedListItem>> UnarchiveAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var closedListItem = await _closedListItemService.UnarchiveClosedListItemAsync(id, cancellationToken);
+        var closedListItem = await _closedListItemService.SetClosedListItemArchiveStateAsync(
+            id,
+            isArchived,
+            cancellationToken
+        );
 
         return Ok(closedListItem);
     }

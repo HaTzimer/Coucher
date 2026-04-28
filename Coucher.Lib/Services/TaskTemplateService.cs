@@ -284,32 +284,29 @@ public sealed class TaskTemplateService : ITaskTemplateService
         });
     }
 
-    public async Task<TaskTemplate> ArchiveTaskTemplateAsync(
+    public async Task<TaskTemplate> SetTaskTemplateArchiveStateAsync(
         Guid taskTemplateId,
+        bool isArchived,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var archivedEntity = await _repository.ArchiveTaskTemplateAsync(taskTemplateId, cancellationToken);
 
-        _logger.Info("Task template archived", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        if (isArchived)
         {
-            { "userId", currentUserId },
-            { "taskTemplateId", taskTemplateId },
-            { "result", "success" }
-        });
+            var archivedEntity = await _repository.ArchiveTaskTemplateAsync(taskTemplateId, cancellationToken);
 
-        return archivedEntity;
-    }
+            _logger.Info("Task template archived", new Dictionary<string, object>
+            {
+                { "userId", currentUserId },
+                { "taskTemplateId", taskTemplateId },
+                { "result", "success" }
+            });
 
-    public async Task<TaskTemplate> UnarchiveTaskTemplateAsync(
-        Guid taskTemplateId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+            return archivedEntity;
+        }
+
         var unarchivedEntity = await _repository.UnarchiveTaskTemplateAsync(taskTemplateId, cancellationToken);
 
         _logger.Info("Task template unarchived", new Dictionary<string, object>

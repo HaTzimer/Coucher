@@ -47,8 +47,11 @@ public interface IExerciseService : IServiceBase<Exercise, Guid>
         UpdateExerciseUnitContactRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<Exercise> ArchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default);
-    Task<Exercise> UnarchiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken = default);
+    Task<Exercise> SetExerciseArchiveStateAsync(
+        Guid exerciseId,
+        bool isArchived,
+        CancellationToken cancellationToken = default
+    );
     Task RemoveExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default);
     Task RemoveExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default);
     Task RemoveExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);

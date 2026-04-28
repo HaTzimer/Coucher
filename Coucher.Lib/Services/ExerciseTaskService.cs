@@ -362,33 +362,6 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         return createdEntity;
     }
 
-    public async Task<List<ExerciseTaskResponsibleUser>> BulkUpdateExerciseTaskResponsibleUsersAsync(
-        Guid taskId,
-        List<string> userIds,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var parsedUserIds = userIds.Select(item => ParseGuidString(item, "UserId")).Distinct().ToList();
-        var updatedEntities = await _repository.ReplaceExerciseTaskResponsibleUsersAsync(
-            taskId,
-            parsedUserIds,
-            DateTime.UtcNow,
-            cancellationToken
-        );
-
-        _logger.Info("Exercise task responsible users replaced", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "taskId", taskId },
-            { "count", updatedEntities.Count },
-            { "result", "success" }
-        });
-
-        return updatedEntities;
-    }
-
     public async Task DeleteExerciseTaskResponsibleUserAsync(
         Guid responsibilityId,
         CancellationToken cancellationToken = default
