@@ -18,21 +18,6 @@ public interface IClosedListItemService : IServiceBase<ClosedListItem, Guid>
         UpdateClosedListItemRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<ClosedListItem> UpdateClosedListItemValueAsync(
-        Guid closedListItemId,
-        string value,
-        CancellationToken cancellationToken = default
-    );
-    Task<ClosedListItem> UpdateClosedListItemDescriptionAsync(
-        Guid closedListItemId,
-        string? description,
-        CancellationToken cancellationToken = default
-    );
-    Task<ClosedListItem> UpdateClosedListItemDisplayOrderAsync(
-        Guid closedListItemId,
-        int? displayOrder,
-        CancellationToken cancellationToken = default
-    );
     Task<List<ClosedListItem>> BulkUpdateClosedListItemDisplayOrdersAsync(
         BulkUpdateClosedListItemDisplayOrdersRequest request,
         CancellationToken cancellationToken = default

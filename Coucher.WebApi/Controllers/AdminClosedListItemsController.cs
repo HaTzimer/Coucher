@@ -52,54 +52,6 @@ public sealed class AdminClosedListItemsController : ControllerBase
         return Ok(closedListItem);
     }
 
-    [HttpPut("{id:guid}/value")]
-    public async Task<ActionResult<ClosedListItem>> UpdateValueAsync(
-        Guid id,
-        [FromBody] string value,
-        CancellationToken cancellationToken
-    )
-    {
-        var closedListItem = await _closedListItemService.UpdateClosedListItemValueAsync(
-            id,
-            value,
-            cancellationToken
-        );
-
-        return Ok(closedListItem);
-    }
-
-    [HttpPut("{id:guid}/description")]
-    public async Task<ActionResult<ClosedListItem>> UpdateDescriptionAsync(
-        Guid id,
-        [FromBody] string? description,
-        CancellationToken cancellationToken
-    )
-    {
-        var closedListItem = await _closedListItemService.UpdateClosedListItemDescriptionAsync(
-            id,
-            description,
-            cancellationToken
-        );
-
-        return Ok(closedListItem);
-    }
-
-    [HttpPut("{id:guid}/display-order")]
-    public async Task<ActionResult<ClosedListItem>> UpdateDisplayOrderAsync(
-        Guid id,
-        [FromBody] int? displayOrder,
-        CancellationToken cancellationToken
-    )
-    {
-        var closedListItem = await _closedListItemService.UpdateClosedListItemDisplayOrderAsync(
-            id,
-            displayOrder,
-            cancellationToken
-        );
-
-        return Ok(closedListItem);
-    }
-
     [HttpPut("display-orders")]
     public async Task<ActionResult<List<ClosedListItem>>> BulkUpdateDisplayOrdersAsync(
         [FromBody] BulkUpdateClosedListItemDisplayOrdersRequest request,

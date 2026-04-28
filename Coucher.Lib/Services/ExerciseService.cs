@@ -121,12 +121,12 @@ public sealed class ExerciseService : IExerciseService
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
 
-        entity.Name = request.Name;
-        entity.Description = request.Description;
-        entity.EndDate = request.EndDate;
-        entity.StatusId = request.StatusId;
-        entity.TraineeUnitId = request.TraineeUnitId;
-        entity.TrainerUnitId = request.TrainerUnitId;
+        ValidateUpdateExerciseRequest(request);
+
+        var changedFields = ApplyExerciseFieldUpdates(entity, request);
+        if (changedFields.Count == 0)
+            return entity;
+
         entity.LastUpdateTime = DateTime.UtcNow;
 
         var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
@@ -135,131 +135,7 @@ public sealed class ExerciseService : IExerciseService
         {
             { "userId", currentUserId },
             { "exerciseId", exerciseId },
-            { "changedFields", new[] { "Name", "Description", "EndDate", "StatusId", "TraineeUnitId", "TrainerUnitId" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<Exercise> UpdateExerciseDetailsAsync(
-        Guid exerciseId,
-        UpdateExerciseDetailsRequest request,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
-        entity.Name = request.Name;
-        entity.Description = request.Description;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise details updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", exerciseId },
-            { "changedFields", new[] { "Name", "Description" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<Exercise> UpdateExerciseEndDateAsync(
-        Guid exerciseId,
-        DateOnly endDate,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
-        entity.EndDate = endDate;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise end date updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", exerciseId },
-            { "changedFields", new[] { "EndDate" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<Exercise> UpdateExerciseStatusAsync(
-        Guid exerciseId,
-        Guid statusId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
-        entity.StatusId = statusId;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise status updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", exerciseId },
-            { "statusId", statusId },
-            { "changedFields", new[] { "StatusId" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<Exercise> UpdateExerciseTraineeUnitAsync(
-        Guid exerciseId,
-        Guid traineeUnitId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
-        entity.TraineeUnitId = traineeUnitId;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise trainee unit updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", exerciseId },
-            { "traineeUnitId", traineeUnitId },
-            { "changedFields", new[] { "TraineeUnitId" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<Exercise> UpdateExerciseTrainerUnitAsync(
-        Guid exerciseId,
-        Guid trainerUnitId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(exerciseId, cancellationToken);
-        entity.TrainerUnitId = trainerUnitId;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise trainer unit updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", exerciseId },
-            { "trainerUnitId", trainerUnitId },
-            { "changedFields", new[] { "TrainerUnitId" } },
+            { "changedFields", changedFields.ToArray() },
             { "result", "success" }
         });
 
@@ -792,6 +668,67 @@ public sealed class ExerciseService : IExerciseService
         }).ToList();
 
         return sectionLinks;
+    }
+
+    private void ValidateUpdateExerciseRequest(UpdateExerciseRequest request)
+    {
+        if (request.Description is not null && request.ClearDescription)
+            ThrowBadRequest(
+                "Description cannot be updated and cleared in the same request.",
+                ("clearDescription", request.ClearDescription)
+            );
+    }
+
+    private static List<string> ApplyExerciseFieldUpdates(Exercise entity, UpdateExerciseRequest request)
+    {
+        var changedFields = new List<string>();
+
+        if (request.Name is not null && entity.Name != request.Name)
+        {
+            entity.Name = request.Name;
+            changedFields.Add("Name");
+        }
+
+        if (request.ClearDescription)
+        {
+            if (entity.Description is not null)
+            {
+                entity.Description = null;
+                changedFields.Add("Description");
+            }
+        }
+
+        if (request.Description is not null && entity.Description != request.Description)
+        {
+            entity.Description = request.Description;
+            changedFields.Add("Description");
+        }
+
+        if (request.EndDate.HasValue && entity.EndDate != request.EndDate.Value)
+        {
+            entity.EndDate = request.EndDate.Value;
+            changedFields.Add("EndDate");
+        }
+
+        if (request.StatusId.HasValue && entity.StatusId != request.StatusId.Value)
+        {
+            entity.StatusId = request.StatusId.Value;
+            changedFields.Add("StatusId");
+        }
+
+        if (request.TraineeUnitId.HasValue && entity.TraineeUnitId != request.TraineeUnitId.Value)
+        {
+            entity.TraineeUnitId = request.TraineeUnitId.Value;
+            changedFields.Add("TraineeUnitId");
+        }
+
+        if (request.TrainerUnitId.HasValue && entity.TrainerUnitId != request.TrainerUnitId.Value)
+        {
+            entity.TrainerUnitId = request.TrainerUnitId.Value;
+            changedFields.Add("TrainerUnitId");
+        }
+
+        return changedFields;
     }
 
     private Guid ParseManagerUserId(string managerUserId)

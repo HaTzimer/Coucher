@@ -1,0 +1,5538 @@
+﻿{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Coucher.WebApi",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/admin/closed-list-items": {
+      "post": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClosedListItemRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClosedListItemRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClosedListItemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/bulk": {
+      "post": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateClosedListItemRequest"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateClosedListItemRequest"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateClosedListItemRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClosedListItem"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClosedListItem"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClosedListItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/{id}": {
+      "put": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClosedListItemRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClosedListItemRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClosedListItemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/{id}/value": {
+      "put": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/{id}/description": {
+      "put": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/{id}/display-order": {
+      "put": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/display-orders": {
+      "put": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpdateClosedListItemDisplayOrdersRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpdateClosedListItemDisplayOrdersRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpdateClosedListItemDisplayOrdersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClosedListItem"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClosedListItem"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClosedListItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/{id}/archive": {
+      "post": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/closed-list-items/{id}/unarchive": {
+      "post": {
+        "tags": [
+          "AdminClosedListItems"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedListItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates": {
+      "post": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskTemplateRequest"
+              },
+              "example": {
+                "templateKey": "root-template",
+                "seriesId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afb0",
+                "name": "Root Template",
+                "description": "Top level task template",
+                "notes": "Optional notes",
+                "defaultWeeksBeforeExerciseStart": 2,
+                "influencerIds": [
+                  "3fa85f64-5717-4562-b3fc-2c963f66afc1"
+                ],
+                "children": [
+                  {
+                    "templateKey": "child-a",
+                    "name": "Child A",
+                    "defaultWeeksBeforeExerciseStart": 1
+                  },
+                  {
+                    "templateKey": "child-b",
+                    "name": "Child B",
+                    "defaultWeeksBeforeExerciseStart": 1,
+                    "dependsOnTemplateKeys": [
+                      "child-a"
+                    ]
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskTemplateRequest"
+              },
+              "example": {
+                "templateKey": "root-template",
+                "seriesId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afb0",
+                "name": "Root Template",
+                "description": "Top level task template",
+                "notes": "Optional notes",
+                "defaultWeeksBeforeExerciseStart": 2,
+                "influencerIds": [
+                  "3fa85f64-5717-4562-b3fc-2c963f66afc1"
+                ],
+                "children": [
+                  {
+                    "templateKey": "child-a",
+                    "name": "Child A",
+                    "defaultWeeksBeforeExerciseStart": 1
+                  },
+                  {
+                    "templateKey": "child-b",
+                    "name": "Child B",
+                    "defaultWeeksBeforeExerciseStart": 1,
+                    "dependsOnTemplateKeys": [
+                      "child-a"
+                    ]
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskTemplateRequest"
+              },
+              "example": {
+                "templateKey": "root-template",
+                "seriesId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afb0",
+                "name": "Root Template",
+                "description": "Top level task template",
+                "notes": "Optional notes",
+                "defaultWeeksBeforeExerciseStart": 2,
+                "influencerIds": [
+                  "3fa85f64-5717-4562-b3fc-2c963f66afc1"
+                ],
+                "children": [
+                  {
+                    "templateKey": "child-a",
+                    "name": "Child A",
+                    "defaultWeeksBeforeExerciseStart": 1
+                  },
+                  {
+                    "templateKey": "child-b",
+                    "name": "Child B",
+                    "defaultWeeksBeforeExerciseStart": 1,
+                    "dependsOnTemplateKeys": [
+                      "child-a"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/bulk": {
+      "post": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateTaskTemplateRequest"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateTaskTemplateRequest"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateTaskTemplateRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskTemplate"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskTemplate"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskTemplate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}": {
+      "put": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/series": {
+      "put": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/category": {
+      "put": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/default-weeks-before-exercise-start": {
+      "put": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/details": {
+      "put": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateDetailsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateDetailsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateDetailsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/children": {
+      "post": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskTemplateChildRequest"
+              },
+              "example": {
+                "templateKey": "child-b",
+                "name": "Child B",
+                "defaultWeeksBeforeExerciseStart": 1,
+                "dependsOnTemplateKeys": [
+                  "child-a"
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskTemplateChildRequest"
+              },
+              "example": {
+                "templateKey": "child-b",
+                "name": "Child B",
+                "defaultWeeksBeforeExerciseStart": 1,
+                "dependsOnTemplateKeys": [
+                  "child-a"
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskTemplateChildRequest"
+              },
+              "example": {
+                "templateKey": "child-b",
+                "name": "Child B",
+                "defaultWeeksBeforeExerciseStart": 1,
+                "dependsOnTemplateKeys": [
+                  "child-a"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/dependencies": {
+      "post": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplateDependency"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplateDependency"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplateDependency"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/influencers": {
+      "post": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskTemplateInfluencer"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskTemplateInfluencer"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskTemplateInfluencer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/dependencies/{dependencyId}": {
+      "delete": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "dependencyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/influencers/{influencerLinkId}": {
+      "delete": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "influencerLinkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/archive": {
+      "post": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/task-templates/{id}/unarchive": {
+      "post": {
+        "tags": [
+          "AdminTaskTemplates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/user-roles/{id}": {
+      "put": {
+        "tags": [
+          "AdminUserRoles"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRoleRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRoleRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRole"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRole"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRole"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedSession"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedSession"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedSession"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedSession"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedSession"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedSession"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/details": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseDetailsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseDetailsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseDetailsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/end-date": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/status": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/trainee-unit": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/trainer-unit": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/participants": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/participants/{participantId}/role": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "participantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExerciseRole"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExerciseRole"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExerciseRole"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/manager": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseParticipant"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/sections": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSection"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSection"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/influencers": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseInfluencer"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseInfluencer"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseInfluencer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/contacts": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddExerciseUnitContactRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddExerciseUnitContactRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddExerciseUnitContactRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseUnitContact"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseUnitContact"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseUnitContact"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/contacts/{contactId}": {
+      "put": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "contactId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseUnitContactRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseUnitContactRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseUnitContactRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseUnitContact"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseUnitContact"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseUnitContact"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "contactId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/archive": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{id}/unarchive": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/participants/{participantId}": {
+      "delete": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "participantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/exercises/sections/{sectionLinkId}": {
+      "delete": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "sectionLinkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/exercises/influencers/{influencerLinkId}": {
+      "delete": {
+        "tags": [
+          "Exercises"
+        ],
+        "parameters": [
+          {
+            "name": "influencerLinkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks": {
+      "post": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseTaskRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseTaskRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseTaskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/{id}/children": {
+      "post": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseTaskChildRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseTaskChildRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseTaskChildRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/bulk": {
+      "post": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateExerciseTaskRequest"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateExerciseTaskRequest"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateExerciseTaskRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseTask"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseTask"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseTask"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/{id}": {
+      "put": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseTaskRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseTaskRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExerciseTaskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTask"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/{id}/dependencies": {
+      "post": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskDependency"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskDependency"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskDependency"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/dependencies/{dependencyId}": {
+      "delete": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "dependencyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/{id}/responsible-users": {
+      "post": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/responsible-users/{responsibilityId}": {
+      "delete": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "responsibilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/exercise-tasks/{id}/responsible-users/bulk-delete": {
+      "post": {
+        "tags": [
+          "ExerciseTasks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteExerciseTaskResponsibleUsersRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteExerciseTaskResponsibleUsersRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteExerciseTaskResponsibleUsersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/mock/seed": {
+      "post": {
+        "tags": [
+          "MockSeed"
+        ],
+        "parameters": [
+          {
+            "name": "AUGUSTUS_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "MAMRAZ_CORRELATION_ID",
+            "in": "header"
+          },
+          {
+            "name": "AUGUSTUS_CORRELATION_CREATION_TIMESTAMP",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedMocksRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedMocksRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedMocksRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MockSeedSummary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MockSeedSummary"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MockSeedSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddExerciseUnitContactRequest": {
+        "type": "object",
+        "properties": {
+          "contactType": {
+            "$ref": "#/components/schemas/ExerciseUnitContactType"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "profileImageUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AuthenticatedSession": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BulkDeleteExerciseTaskResponsibleUsersRequest": {
+        "type": "object",
+        "properties": {
+          "responsibilityIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BulkUpdateClosedListItemDisplayOrdersRequest": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClosedListItemDisplayOrderUpdateRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClosedListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isArchive": {
+            "type": "boolean"
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClosedListItemDisplayOrderUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateClosedListItemRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExerciseRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "traineeUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "trainerUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "compressionFactor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "influencerIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "sectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "managerUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "traineeUnitContacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseUnitContactRequest"
+            },
+            "nullable": true
+          },
+          "trainerUnitContacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseUnitContactRequest"
+            },
+            "nullable": true
+          },
+          "additionalParticipants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseParticipantRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExerciseTaskChildRequest": {
+        "type": "object",
+        "properties": {
+          "seriesId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsibleUserIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "dependsOnTaskIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateExerciseTaskRequest": {
+        "type": "object",
+        "properties": {
+          "taskKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "exerciseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "seriesId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsibleUserIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "dependsOnTaskIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "dependsOnTaskKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTaskTemplateChildRequest": {
+        "type": "object",
+        "properties": {
+          "templateKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "seriesId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultWeeksBeforeExerciseStart": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "influencerIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "dependsOnTemplateKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "example": {
+          "templateKey": "child-b",
+          "name": "Child B",
+          "defaultWeeksBeforeExerciseStart": 1,
+          "dependsOnTemplateKeys": [
+            "child-a"
+          ]
+        }
+      },
+      "CreateTaskTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "templateKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "seriesId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultWeeksBeforeExerciseStart": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "influencerIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "dependsOnTemplateKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateTaskTemplateChildRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "example": {
+          "templateKey": "root-template",
+          "seriesId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afb0",
+          "name": "Root Template",
+          "description": "Top level task template",
+          "notes": "Optional notes",
+          "defaultWeeksBeforeExerciseStart": 2,
+          "influencerIds": [
+            "3fa85f64-5717-4562-b3fc-2c963f66afc1"
+          ],
+          "children": [
+            {
+              "templateKey": "child-a",
+              "name": "Child A",
+              "defaultWeeksBeforeExerciseStart": 1
+            },
+            {
+              "templateKey": "child-b",
+              "name": "Child B",
+              "defaultWeeksBeforeExerciseStart": 1,
+              "dependsOnTemplateKeys": [
+                "child-a"
+              ]
+            }
+          ]
+        }
+      },
+      "Exercise": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "traineeUnitId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "trainerUnitId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "compressionFactor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completionTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "archiveTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "archivedByUserId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "traineeUnit": {
+            "$ref": "#/components/schemas/Unit"
+          },
+          "trainerUnit": {
+            "$ref": "#/components/schemas/Unit"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          },
+          "createdByUser": {
+            "$ref": "#/components/schemas/UserProfile"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseParticipant"
+            },
+            "nullable": true
+          },
+          "unitContacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseUnitContact"
+            },
+            "nullable": true
+          },
+          "influencers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseInfluencer"
+            },
+            "nullable": true
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseSection"
+            },
+            "nullable": true
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseTask"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseInfluencer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exerciseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "influencerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "influencer": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseParticipant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exerciseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/ExerciseRole"
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseParticipantRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/ExerciseRole"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseRole": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ExerciseSection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exerciseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "sectionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "section": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseTask": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exerciseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "seriesId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serialNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastStatusUpdaterId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastStatusUpdateTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completionTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "hasChildren": {
+            "type": "boolean"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/ExerciseTask"
+          },
+          "source": {
+            "$ref": "#/components/schemas/TaskTemplate"
+          },
+          "series": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseTask"
+            },
+            "nullable": true
+          },
+          "responsibleUsers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+            },
+            "nullable": true
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskDependency"
+            },
+            "nullable": true
+          },
+          "dependedOnBy": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskDependency"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseTaskResponsibleUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "task": {
+            "$ref": "#/components/schemas/ExerciseTask"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseUnitContact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exerciseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "contactType": {
+            "$ref": "#/components/schemas/ExerciseUnitContactType"
+          },
+          "firstName": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "profileImageUrl": {
+            "maxLength": 512,
+            "type": "string",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseUnitContactRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "profileImageUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExerciseUnitContactType": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "GlobalRole": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "identityNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "passwordOrPersonalNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MockSeedSummary": {
+        "type": "object",
+        "properties": {
+          "wasReset": {
+            "type": "boolean"
+          },
+          "closedListItemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userRoleCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exerciseCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exerciseParticipantCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exerciseUnitContactCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exerciseInfluencerCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exerciseSectionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taskTemplateCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taskTemplateDependencyCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taskTemplateInfluencerCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exerciseTaskCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exerciseTaskResponsibleUserCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taskDependencyCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userNotificationCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SeedMocksRequest": {
+        "type": "object",
+        "properties": {
+          "resetExisting": {
+            "type": "boolean"
+          },
+          "userCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "exerciseCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "additionalParticipantsPerExercise": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taskTemplateCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "tasksPerExercise": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "notificationsPerUser": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskDependency": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dependsOnId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "task": {
+            "$ref": "#/components/schemas/ExerciseTask"
+          },
+          "dependsOn": {
+            "$ref": "#/components/schemas/ExerciseTask"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskTemplate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "seriesId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "serialNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "defaultWeeksBeforeExerciseStart": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isArchive": {
+            "type": "boolean"
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/TaskTemplate"
+          },
+          "series": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskTemplate"
+            },
+            "nullable": true
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskTemplateDependency"
+            },
+            "nullable": true
+          },
+          "dependedOnBy": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskTemplateDependency"
+            },
+            "nullable": true
+          },
+          "influencers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskTemplateInfluencer"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskTemplateDependency": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dependsOnId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "template": {
+            "$ref": "#/components/schemas/TaskTemplate"
+          },
+          "dependsOn": {
+            "$ref": "#/components/schemas/TaskTemplate"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskTemplateInfluencer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "influencerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "template": {
+            "$ref": "#/components/schemas/TaskTemplate"
+          },
+          "influencer": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Unit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "echelonId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "echelon": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateClosedListItemRequest": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExerciseDetailsRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExerciseRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "traineeUnitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "trainerUnitId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExerciseTaskRequest": {
+        "type": "object",
+        "properties": {
+          "seriesId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "statusId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "clearDescription": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "clearNotes": {
+            "type": "boolean"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateExerciseUnitContactRequest": {
+        "type": "object",
+        "properties": {
+          "contactType": {
+            "$ref": "#/components/schemas/ExerciseUnitContactType"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "profileImageUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTaskTemplateDetailsRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTaskTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "seriesId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultWeeksBeforeExerciseStart": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "influencerIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateUserRoleRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "$ref": "#/components/schemas/GlobalRole"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserNotification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "title": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "exerciseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "identityNumber": {
+            "maxLength": 128,
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "personalNumber": {
+            "maxLength": 128,
+            "type": "string",
+            "nullable": true
+          },
+          "externalId": {
+            "maxLength": 512,
+            "type": "string",
+            "nullable": true
+          },
+          "unitId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "rank": {
+            "maxLength": 128,
+            "type": "string",
+            "nullable": true
+          },
+          "position": {
+            "maxLength": 128,
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "maxLength": 128,
+            "type": "string",
+            "nullable": true
+          },
+          "civilianEmail": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "militaryEmail": {
+            "maxLength": 256,
+            "type": "string",
+            "nullable": true
+          },
+          "profileImageUrl": {
+            "maxLength": 512,
+            "type": "string",
+            "nullable": true
+          },
+          "passwordHash": {
+            "maxLength": 512,
+            "type": "string",
+            "nullable": true
+          },
+          "lastLoginTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/Unit"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserRole"
+            },
+            "nullable": true
+          },
+          "exerciseParticipants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseParticipant"
+            },
+            "nullable": true
+          },
+          "responsibleTaskLinks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseTaskResponsibleUser"
+            },
+            "nullable": true
+          },
+          "notifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserNotification"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserRole": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/GlobalRole"
+          },
+          "assignedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "assignedByUserId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "SessionId": {
+        "type": "apiKey",
+        "name": "session-id",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "SessionId": [ ]
+    }
+  ]
+}

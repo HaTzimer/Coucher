@@ -52,62 +52,6 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(taskTemplate);
     }
 
-    [HttpPut("{id:guid}/series")]
-    public async Task<ActionResult<TaskTemplate>> UpdateSeriesAsync(
-        Guid id,
-        [FromBody] Guid? seriesId,
-        CancellationToken cancellationToken
-    )
-    {
-        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateSeriesAsync(id, seriesId, cancellationToken);
-
-        return Ok(taskTemplate);
-    }
-
-    [HttpPut("{id:guid}/category")]
-    public async Task<ActionResult<TaskTemplate>> UpdateCategoryAsync(
-        Guid id,
-        [FromBody] Guid? categoryId,
-        CancellationToken cancellationToken
-    )
-    {
-        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateCategoryAsync(
-            id,
-            categoryId,
-            cancellationToken
-        );
-
-        return Ok(taskTemplate);
-    }
-
-    [HttpPut("{id:guid}/default-weeks-before-exercise-start")]
-    public async Task<ActionResult<TaskTemplate>> UpdateDefaultWeeksBeforeExerciseStartAsync(
-        Guid id,
-        [FromBody] int defaultWeeksBeforeExerciseStart,
-        CancellationToken cancellationToken
-    )
-    {
-        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateDefaultWeeksBeforeExerciseStartAsync(
-            id,
-            defaultWeeksBeforeExerciseStart,
-            cancellationToken
-        );
-
-        return Ok(taskTemplate);
-    }
-
-    [HttpPut("{id:guid}/details")]
-    public async Task<ActionResult<TaskTemplate>> UpdateDetailsAsync(
-        Guid id,
-        [FromBody] UpdateTaskTemplateDetailsRequest request,
-        CancellationToken cancellationToken
-    )
-    {
-        var taskTemplate = await _taskTemplateService.UpdateTaskTemplateDetailsAsync(id, request, cancellationToken);
-
-        return Ok(taskTemplate);
-    }
-
     [HttpPost("{id:guid}/children")]
     public async Task<ActionResult<TaskTemplate>> AddChildAsync(
         Guid id,

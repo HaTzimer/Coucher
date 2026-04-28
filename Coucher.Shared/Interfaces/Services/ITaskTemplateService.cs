@@ -18,26 +18,6 @@ public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
         UpdateTaskTemplateRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<TaskTemplate> UpdateTaskTemplateSeriesAsync(
-        Guid taskTemplateId,
-        Guid? seriesId,
-        CancellationToken cancellationToken = default
-    );
-    Task<TaskTemplate> UpdateTaskTemplateCategoryAsync(
-        Guid taskTemplateId,
-        Guid? categoryId,
-        CancellationToken cancellationToken = default
-    );
-    Task<TaskTemplate> UpdateTaskTemplateDefaultWeeksBeforeExerciseStartAsync(
-        Guid taskTemplateId,
-        int defaultWeeksBeforeExerciseStart,
-        CancellationToken cancellationToken = default
-    );
-    Task<TaskTemplate> UpdateTaskTemplateDetailsAsync(
-        Guid taskTemplateId,
-        UpdateTaskTemplateDetailsRequest request,
-        CancellationToken cancellationToken = default
-    );
     Task<TaskTemplate> AddTaskTemplateChildAsync(
         Guid taskTemplateId,
         CreateTaskTemplateChildRequest request,

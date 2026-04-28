@@ -134,9 +134,12 @@ public sealed class ClosedListItemService : IClosedListItemService
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
 
-        entity.Value = request.Value;
-        entity.Description = request.Description;
-        entity.DisplayOrder = request.DisplayOrder;
+        ValidateUpdateClosedListItemRequest(request);
+
+        var changedFields = ApplyClosedListItemUpdates(entity, request);
+        if (changedFields.Count == 0)
+            return entity;
+
         entity.LastUpdateTime = DateTime.UtcNow;
 
         var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
@@ -146,91 +149,7 @@ public sealed class ClosedListItemService : IClosedListItemService
             { "userId", currentUserId },
             { "closedListItemId", closedListItemId },
             { "key", entity.Key },
-            { "changedFields", new[] { "Value", "Description", "DisplayOrder" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ClosedListItem> UpdateClosedListItemValueAsync(
-        Guid closedListItemId,
-        string value,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
-
-        entity.Value = value;
-        entity.LastUpdateTime = DateTime.UtcNow;
-
-        var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
-
-        _logger.Info("Closed-list item value updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "closedListItemId", closedListItemId },
-            { "key", entity.Key },
-            { "changedFields", new[] { "Value" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ClosedListItem> UpdateClosedListItemDescriptionAsync(
-        Guid closedListItemId,
-        string? description,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
-
-        entity.Description = description;
-        entity.LastUpdateTime = DateTime.UtcNow;
-
-        var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
-
-        _logger.Info("Closed-list item description updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "closedListItemId", closedListItemId },
-            { "key", entity.Key },
-            { "changedFields", new[] { "Description" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ClosedListItem> UpdateClosedListItemDisplayOrderAsync(
-        Guid closedListItemId,
-        int? displayOrder,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(closedListItemId, cancellationToken);
-
-        entity.DisplayOrder = displayOrder;
-        entity.LastUpdateTime = DateTime.UtcNow;
-
-        var updatedEntity = await _repository.UpdateClosedListItemAsync(entity, cancellationToken);
-
-        _logger.Info("Closed-list item display order updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "closedListItemId", closedListItemId },
-            { "key", entity.Key },
-            { "changedFields", new[] { "DisplayOrder" } },
+            { "changedFields", changedFields.ToArray() },
             { "result", "success" }
         });
 
@@ -353,6 +272,62 @@ public sealed class ClosedListItemService : IClosedListItemService
         _logger.Error(exception);
 
         throw exception;
+    }
+
+    private void ValidateUpdateClosedListItemRequest(UpdateClosedListItemRequest request)
+    {
+        if (request.Description is not null && request.ClearDescription)
+        {
+            var exception = new HttpStatusCodeException(
+                "Description cannot be updated and cleared in the same request.",
+                new Dictionary<string, object?>
+                {
+                    { "clearDescription", request.ClearDescription }
+                },
+                HttpStatusCode.BadRequest
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
+    }
+
+    private static List<string> ApplyClosedListItemUpdates(
+        ClosedListItem entity,
+        UpdateClosedListItemRequest request
+    )
+    {
+        var changedFields = new List<string>();
+
+        if (request.Value is not null && entity.Value != request.Value)
+        {
+            entity.Value = request.Value;
+            changedFields.Add("Value");
+        }
+
+        if (request.ClearDescription)
+        {
+            if (entity.Description is not null)
+            {
+                entity.Description = null;
+                changedFields.Add("Description");
+            }
+        }
+
+        if (request.Description is not null && entity.Description != request.Description)
+        {
+            entity.Description = request.Description;
+            changedFields.Add("Description");
+        }
+
+        if (request.DisplayOrder.HasValue && entity.DisplayOrder != request.DisplayOrder.Value)
+        {
+            entity.DisplayOrder = request.DisplayOrder.Value;
+            changedFields.Add("DisplayOrder");
+        }
+
+        return changedFields;
     }
 }
 

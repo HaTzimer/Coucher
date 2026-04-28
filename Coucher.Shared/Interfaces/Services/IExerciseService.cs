@@ -12,31 +12,6 @@ public interface IExerciseService : IServiceBase<Exercise, Guid>
         UpdateExerciseRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<Exercise> UpdateExerciseDetailsAsync(
-        Guid exerciseId,
-        UpdateExerciseDetailsRequest request,
-        CancellationToken cancellationToken = default
-    );
-    Task<Exercise> UpdateExerciseEndDateAsync(
-        Guid exerciseId,
-        DateOnly endDate,
-        CancellationToken cancellationToken = default
-    );
-    Task<Exercise> UpdateExerciseStatusAsync(
-        Guid exerciseId,
-        Guid statusId,
-        CancellationToken cancellationToken = default
-    );
-    Task<Exercise> UpdateExerciseTraineeUnitAsync(
-        Guid exerciseId,
-        Guid traineeUnitId,
-        CancellationToken cancellationToken = default
-    );
-    Task<Exercise> UpdateExerciseTrainerUnitAsync(
-        Guid exerciseId,
-        Guid trainerUnitId,
-        CancellationToken cancellationToken = default
-    );
     Task<ExerciseParticipant> AddExerciseParticipantAsync(
         Guid exerciseId,
         string userId,
