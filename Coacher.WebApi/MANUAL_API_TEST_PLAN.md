@@ -2,12 +2,12 @@
 
 ## Overview
 
-This document is a manual test plan for the current `Coacher.WebApi` surface.
+This document is the manual test plan for the current `Coacher.WebApi` surface.
 
 It covers:
 - authentication
 - authorization
-- GraphQL read access
+- GraphQL schema and read access
 - exercise writes
 - exercise task writes
 - admin writes
@@ -25,12 +25,13 @@ Use this plan after local development changes, before Docker image publication, 
 Recommended tools:
 - Swagger UI for quick REST validation
 - Postman or Bruno for repeatable manual scenarios
-- GraphQL Playground, Altair, or Swagger-adjacent client for `/graphql`
+- GraphQL Playground, Altair, or another GraphQL client for `/graphql`
 
 ## Important Notes
 
 - Most resources do not have REST `GET` endpoints.
 - Verify created or updated data mainly through GraphQL.
+- GraphQL introspection and non-admin-readable query fields are available without authentication.
 - Most write endpoints require authentication.
 - Authorization failures should return:
   - `401` for missing or invalid session
@@ -61,7 +62,7 @@ Suggested body:
 
 Expected:
 - `200 OK`
-- response contains counts for users, exercises, tasks, templates, notifications
+- response contains counts for users, exercises, tasks, templates, and notifications
 
 ### 2. Seeded login conventions
 
@@ -81,7 +82,7 @@ No seeded `Auditor` is created by default. Create one by updating a user role as
 
 ### 3. Collect ids for later tests
 
-Use GraphQL to collect:
+Use GraphQL as admin to collect:
 - user ids
 - user role ids
 - exercise ids
@@ -197,13 +198,70 @@ Call:
 Expected:
 - `401 Unauthorized`
 
+## GraphQL Schema and Open-Access Tests
+
+### GS1. Anonymous introspection works
+
+Call:
+- `POST /graphql`
+
+Body:
+
+```json
+{
+  "query": "query { __schema { queryType { name } } }"
+}
+```
+
+Expected:
+- `200 OK`
+- response contains `CoacherQuery`
+
+### GS2. Anonymous non-admin-readable fields work
+
+Query:
+
+```graphql
+query AnonymousRead {
+  closedListItems {
+    id
+    value
+  }
+  exercises {
+    id
+    name
+  }
+}
+```
+
+Expected:
+- `200 OK`
+- `closedListItems` returns data
+- `exercises` returns only rows visible to the anonymous snapshot, currently expected to be an empty list
+
+### GS3. Anonymous admin-only fields are denied
+
+Query:
+
+```graphql
+query AnonymousAdminRead {
+  users {
+    id
+  }
+}
+```
+
+Expected:
+- GraphQL returns an authorization error
+- error extension code is `AUTHORIZATION_FORBIDDEN`
+
 ## Authorization Bootstrap Tests
 
 ### B1. Promote one seeded user to Auditor
 
 As admin:
 - get a non-admin `userId`
-- get that user’s existing `userRole` row id from GraphQL
+- get that user's existing `userRole` row id from GraphQL
 - call `PUT /api/admin/user-role/update/{id}`
 
 Body example:
@@ -219,7 +277,7 @@ Expected:
 - `200 OK`
 - role becomes `Auditor`
 
-Save that user’s session as `AUDITOR_SESSION`.
+Save that user's session as `AUDITOR_SESSION`.
 
 ### B2. Verify admin-only user-role update is blocked for non-admin
 
@@ -231,7 +289,10 @@ Expected:
 
 ## GraphQL Visibility Tests
 
-Use the same query shape for all roles:
+Use the same query shape for:
+- admin
+- auditor
+- regular users with a valid session
 
 ```graphql
 query VisibilityCheck {
@@ -308,7 +369,7 @@ query AdminReads {
 Expected:
 - admin gets data
 
-Repeat as regular user and auditor.
+Repeat as regular user, auditor, and anonymous.
 
 Expected:
 - GraphQL returns an authorization error for admin-only fields
@@ -390,11 +451,18 @@ Expected:
 - request is rejected when both `Description` and `ClearDescription = true` are sent
 - empty request object returns current exercise unchanged
 
-### E6. Add participant
+### E5. Add participants
 
 Call:
 - `POST /api/exercise/{id}/add-participants`
-- raw string body of target user id
+
+Body example:
+
+```json
+[
+  "20600a0d-3fa7-4f97-997c-e8e3049b9c93"
+]
+```
 
 Expected:
 - manager/admin allowed
@@ -403,7 +471,7 @@ Expected:
 Verify in GraphQL:
 - new participant row exists
 
-### E7. Update participant role
+### E6. Update participant role
 
 Call:
 - `PUT /api/exercise/update-participant-role/{participantId}`
@@ -412,7 +480,7 @@ Expected:
 - manager/admin allowed
 - participant/auditor/unrelated user forbidden
 
-### E8. Reassign exercise manager
+### E7. Reassign exercise manager
 
 Call:
 - `PUT /api/exercise/{id}/set-manager`
@@ -426,7 +494,7 @@ Verify:
 - old manager becomes participant
 - target becomes manager
 
-### E9. Add and remove section
+### E8. Add and remove sections
 
 Calls:
 - `POST /api/exercise/{id}/add-sections`
@@ -435,8 +503,9 @@ Calls:
 Expected:
 - manager/admin allowed
 - participant/auditor/unrelated user forbidden
+- request body is a raw JSON list of section ids or section link ids, depending on the operation
 
-### E10. Add and remove influencer
+### E9. Add and remove influencers
 
 Calls:
 - `POST /api/exercise/{id}/add-influencers`
@@ -445,8 +514,9 @@ Calls:
 Expected:
 - manager/admin allowed
 - participant/auditor/unrelated user forbidden
+- request body is a raw JSON list of influencer ids or influencer link ids, depending on the operation
 
-### E11. Add, update, and remove contact
+### E10. Add, update, and remove contacts
 
 Calls:
 - `POST /api/exercise/{id}/add-contacts`
@@ -456,8 +526,10 @@ Calls:
 Expected:
 - manager/admin allowed
 - participant/auditor/unrelated user forbidden
+- add uses a JSON list of contact request objects
+- remove uses a raw JSON list of contact ids
 
-### E12. Exercise archive state update
+### E11. Exercise archive state update
 
 Calls:
 - `PUT /api/exercise/archive/{id}`
@@ -513,16 +585,7 @@ Verify:
 - child created under the parent
 - creating a grandchild under a child should fail
 
-### T4. Full task update
-
-Call:
-- `PUT /api/exercise-task/update/{id}`
-
-Expected:
-- manager/admin allowed
-- participant/auditor/unrelated user forbidden
-
-### T5. Unified task field update
+### T4. Unified task field update
 
 Call:
 - `PUT /api/exercise-task/update/{id}`
@@ -545,7 +608,7 @@ Expected:
 - request is rejected when both `Notes` and `ClearNotes = true` are sent
 - empty request object returns current task unchanged
 
-### T6. Participant task relation edits
+### T5. Participant task responsible-user edits
 
 Calls:
 - `POST /api/exercise-task/{id}/add-responsible-users`
@@ -556,12 +619,13 @@ Expected:
 - manager/admin allowed
 - auditor/unrelated user forbidden
 - no replace-all responsible-user endpoint exists
+- both endpoints use raw JSON lists in the request body
 
 Verify:
 - status updates set `lastStatusUpdaterId`, `lastStatusUpdateTime`
 - completion timestamp behavior matches status transitions
 
-### T7. Dependency management
+### T6. Dependency management
 
 Calls:
 - `POST /api/exercise-task/{id}/add-dependencies`
@@ -570,12 +634,13 @@ Calls:
 Expected:
 - add/delete allowed only for manager/admin
 - participant/auditor/unrelated user forbidden
+- both endpoints use raw JSON lists in the request body
 
 Negative checks:
 - self-dependency rejected
 - cross-exercise dependency rejected
 
-### T8. Delete task
+### T7. Delete task
 
 Call:
 - `DELETE /api/exercise-task/delete/{id}`
@@ -688,6 +753,7 @@ Calls:
 Expected:
 - admin allowed
 - non-admin forbidden
+- all collection attach/detach endpoints in this area use bulk JSON list bodies
 
 ### TT5. Task-template archive state update
 
@@ -741,6 +807,7 @@ Expected:
 Examples:
 - malformed GUID string body
 - malformed primitive JSON for scalar endpoints
+- malformed JSON list bodies for bulk attach/detach endpoints
 - invalid enum values
 
 Expected:
@@ -755,7 +822,9 @@ Expected:
 - creator visibility works even when creator is only a participant
 - manager can fully manage exercise and task data inside their exercise
 - participant can only perform partial task edits inside assigned exercises
+- GraphQL schema introspection works without authentication
+- GraphQL anonymous non-admin-readable fields load without authentication
 - GraphQL data is filtered by current user role and exercise scope
 - admin-only GraphQL fields are blocked for non-admin users
 - notifications query only returns current user notifications
-- Swagger still renders all current endpoints and scalar body shapes correctly
+- Swagger still renders all current endpoints and scalar or bulk body shapes correctly
