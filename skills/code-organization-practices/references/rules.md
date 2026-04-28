@@ -96,6 +96,7 @@ var entities = dbContext.Set<UserNotification>();
 - Make formatting decisions that optimize scanability, not terseness.
 - In service/repository methods, visually split distinct phases with blank lines instead of packing them into one block.
 - For `if` statements with only one following statement, omit braces.
+- For simple collection filtering, projection, or materialization, prefer LINQ over `foreach`.
 
 Preferred:
 
@@ -175,6 +176,27 @@ if (ShouldLogMockSeed())
 }
 ```
 
+Preferred:
+
+```csharp
+var parameters = entries
+.Where(item => item.Value is not null)
+.Select(item => new KeyValuePair<string, object>(item.Key, item.Value!))
+.ToDictionary(item => item.Key, item => item.Value);
+```
+
+Avoid:
+
+```csharp
+var parameters = new Dictionary<string, object>();
+
+foreach (var (key, value) in entries)
+{
+    if (value is not null)
+        parameters[key] = value;
+}
+```
+
 ## Single-scalar request bodies
 
 For Web API request bodies, if the payload contains only one scalar value, do not wrap it in a one-property request model. Use the scalar body directly.
@@ -245,6 +267,7 @@ public required DateTime LastUpdateTime { get; set; }
 ## Fluent chains
 
 For method chains split across lines, keep each chained call aligned directly under the receiver line without extra indentation.
+If an inner chain would need to be nested inside another call and become indented, extract the inner chain to a local variable first.
 
 Preferred:
 
@@ -270,4 +293,26 @@ var query = Entities
         .ThenInclude(item => item.DependsOnTask)
     .Include(item => item.DependedOnByTasks)
         .ThenInclude(item => item.ExerciseTask);
+```
+
+Avoid:
+
+```csharp
+var parameters = defaults
+.Concat(entries
+    .Where(item => item.Value is not null)
+    .Select(item => new KeyValuePair<string, object>(item.Key, item.Value!)))
+.ToDictionary(item => item.Key, item => item.Value);
+```
+
+Preferred:
+
+```csharp
+var entryParameters = entries
+.Where(item => item.Value is not null)
+.Select(item => new KeyValuePair<string, object>(item.Key, item.Value!));
+
+var parameters = defaults
+.Concat(entryParameters)
+.ToDictionary(item => item.Key, item => item.Value);
 ```

@@ -264,17 +264,18 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
         params (string Key, object? Value)[] entries
     )
     {
-        var parameters = new Dictionary<string, object>
-        {
-            { "result", "denied" },
-            { "userId", userId }
-        };
+        var entryParameters = entries
+        .Where(item => item.Value is not null)
+        .Select(item => new KeyValuePair<string, object>(item.Key, item.Value!));
 
-        foreach (var (key, value) in entries)
+        var parameters = new[]
         {
-            if (value is not null)
-                parameters[key] = value;
+            new KeyValuePair<string, object>("result", "denied"),
+            new KeyValuePair<string, object>("userId", userId)
         }
+        .Concat(entryParameters)
+        .GroupBy(item => item.Key)
+        .ToDictionary(item => item.Key, item => item.Last().Value);
 
         _logger.Warn("Authorization denied", parameters);
         throw new CoucherAuthorizationException(message);
