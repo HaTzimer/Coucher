@@ -23,31 +23,6 @@ public interface IExerciseTaskService : IServiceBase<ExerciseTask, Guid>
         UpdateExerciseTaskRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<ExerciseTask> UpdateExerciseTaskSeriesAsync(
-        Guid taskId,
-        Guid seriesId,
-        CancellationToken cancellationToken = default
-    );
-    Task<ExerciseTask> UpdateExerciseTaskCategoryAsync(
-        Guid taskId,
-        Guid categoryId,
-        CancellationToken cancellationToken = default
-    );
-    Task<ExerciseTask> UpdateExerciseTaskStatusAsync(
-        Guid taskId,
-        Guid statusId,
-        CancellationToken cancellationToken = default
-    );
-    Task<ExerciseTask> UpdateExerciseTaskDueDateAsync(
-        Guid taskId,
-        DateTime dueDate,
-        CancellationToken cancellationToken = default
-    );
-    Task<ExerciseTask> UpdateExerciseTaskDetailsAsync(
-        Guid taskId,
-        UpdateExerciseTaskDetailsRequest request,
-        CancellationToken cancellationToken = default
-    );
     Task<List<TaskDependency>> AddExerciseTaskDependenciesAsync(
         Guid taskId,
         List<string> dependsOnIds,

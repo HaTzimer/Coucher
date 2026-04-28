@@ -1,3 +1,6 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
 using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
@@ -262,7 +265,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var parentTemplate = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         if (parentTemplate.ParentId.HasValue)
-            throw new InvalidOperationException("Task templates support children only one level deep.");
+            ThrowConflict("Task templates support children only one level deep.", ("taskTemplateId", taskTemplateId));
 
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
@@ -298,7 +301,11 @@ public sealed class TaskTemplateService : ITaskTemplateService
         _ = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
 
         if (taskTemplateId == dependsOnId)
-            throw new InvalidOperationException("A task template cannot depend on itself.");
+            ThrowConflict(
+                "A task template cannot depend on itself.",
+                ("taskTemplateId", taskTemplateId),
+                ("dependsOnId", dependsOnId)
+            );
 
         var entity = new TaskTemplateDependency
         {
@@ -435,10 +442,21 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
     public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotSupportedException("Task templates use archive and unarchive operations instead of physical delete.");
+        var exception = new HttpStatusCodeException(
+            "Task templates use archive and unarchive operations instead of physical delete.",
+            new Dictionary<string, object?>
+            {
+                { "taskTemplateId", id }
+            },
+            HttpStatusCode.BadRequest
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
     }
 
-    private static TaskTemplate BuildTaskTemplateTree(
+    private TaskTemplate BuildTaskTemplateTree(
         CreateTaskTemplateRequest request,
         DateTime now,
         ref int nextSerialNumber,
@@ -493,7 +511,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         return entity;
     }
 
-    private static void WireDependencies(
+    private void WireDependencies(
         Dictionary<string, TaskTemplate> nodesByKey,
         List<(TaskTemplate Entity, TaskTemplateNodeRequestBase Request)> createdNodes,
         DateTime now
@@ -504,14 +522,13 @@ public sealed class TaskTemplateService : ITaskTemplateService
             foreach (var dependsOnTemplateKey in request.DependsOnTemplateKeys?.Distinct() ?? Enumerable.Empty<string>())
             {
                 if (!nodesByKey.TryGetValue(dependsOnTemplateKey, out var dependsOnEntity))
-                {
-                    throw new InvalidOperationException(
-                        $"Task template dependency key '{dependsOnTemplateKey}' was not found in the create payload."
+                    ThrowBadRequest(
+                        $"Task template dependency key '{dependsOnTemplateKey}' was not found in the create payload.",
+                        ("dependsOnTemplateKey", dependsOnTemplateKey)
                     );
-                }
 
                 if (dependsOnEntity.Id == entity.Id)
-                    throw new InvalidOperationException("A task template cannot depend on itself.");
+                    ThrowConflict("A task template cannot depend on itself.", ("taskTemplateId", entity.Id));
 
                 entity.Dependencies.Add(new TaskTemplateDependency
                 {
@@ -524,7 +541,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
         }
     }
 
-    private static void RegisterTemplateKey(
+    private void RegisterTemplateKey(
         string? templateKey,
         TaskTemplate entity,
         Dictionary<string, TaskTemplate> nodesByKey
@@ -534,7 +551,10 @@ public sealed class TaskTemplateService : ITaskTemplateService
             return;
 
         if (nodesByKey.ContainsKey(templateKey))
-            throw new InvalidOperationException($"Duplicate task template key '{templateKey}' was found in the create payload.");
+            ThrowBadRequest(
+                $"Duplicate task template key '{templateKey}' was found in the create payload.",
+                ("templateKey", templateKey)
+            );
 
         nodesByKey.Add(templateKey, entity);
     }
@@ -554,4 +574,32 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
         return entities;
     }
+
+    [DoesNotReturn]
+    private void ThrowBadRequest(string message, params (string Key, object? Value)[] entries)
+    {
+        var exception = new HttpStatusCodeException(
+            message,
+            entries.ToDictionary(item => item.Key, item => item.Value),
+            HttpStatusCode.BadRequest
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
+
+    [DoesNotReturn]
+    private void ThrowConflict(string message, params (string Key, object? Value)[] entries)
+    {
+        var exception = new DataConflictException(
+            message,
+            parameters: entries.ToDictionary(item => item.Key, item => item.Value)
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

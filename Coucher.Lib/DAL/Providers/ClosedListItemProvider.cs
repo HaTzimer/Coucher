@@ -1,3 +1,7 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Models.DAL.Admin;
 using Microsoft.EntityFrameworkCore;
@@ -6,16 +10,22 @@ namespace Coucher.Lib.DAL.Providers;
 
 public sealed class ClosedListItemProvider : IClosedListItemProvider
 {
+    private readonly IAugustusLogger _logger;
     private readonly IDbContextFactory<CoucherDbContext> _dbContextFactory;
 
-    public ClosedListItemProvider(IDbContextFactory<CoucherDbContext> dbContextFactory)
+    public ClosedListItemProvider(
+        IAugustusLogger logger,
+        IDbContextFactory<CoucherDbContext> dbContextFactory
+    )
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
     }
 
     public async Task<List<ClosedListItem>> ListAsync(CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         var items = await entities.ToListAsync(cancellationToken);
 
@@ -25,6 +35,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         var exists = await entities.AnyAsync(item => item.Id == id, cancellationToken);
 
@@ -34,6 +45,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     public async Task<ClosedListItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
@@ -47,6 +59,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>().Where(item => item.Key == key);
         if (excludedId.HasValue)
             entities = entities.Where(item => item.Id != excludedId.Value);
@@ -67,6 +80,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         var targetEntity = await entities.FirstOrDefaultAsync(
             item => item.Id == id && item.Key == key,
@@ -89,6 +103,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         await entities.AddAsync(entity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -102,6 +117,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         await entities.AddRangeAsync(entitiesToCreate, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -115,6 +131,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         entities.Update(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -128,6 +145,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         entities.UpdateRange(entitiesToUpdate);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -138,9 +156,12 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     public async Task<ClosedListItem> ArchiveClosedListItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
-        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"{nameof(ClosedListItem)} '{id}' was not found.");
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (entity is null)
+            ThrowNotFound(nameof(ClosedListItem), id);
+
         entity.IsArchive = true;
         entity.LastUpdateTime = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -151,9 +172,12 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     public async Task<ClosedListItem> UnarchiveClosedListItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
-        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"{nameof(ClosedListItem)} '{id}' was not found.");
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (entity is null)
+            ThrowNotFound(nameof(ClosedListItem), id);
+
         entity.IsArchive = false;
         entity.LastUpdateTime = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -178,8 +202,28 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
     public async Task DeleteAsync(ClosedListItem entity, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<ClosedListItem>();
         entities.Remove(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    [DoesNotReturn]
+    private void ThrowNotFound(string resourceName, Guid resourceId)
+    {
+        var exception = new HttpStatusCodeException(
+            $"{resourceName} '{resourceId}' was not found.",
+            new Dictionary<string, object?>
+            {
+                { "resourceName", resourceName },
+                { "resourceId", resourceId }
+            },
+            HttpStatusCode.NotFound
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

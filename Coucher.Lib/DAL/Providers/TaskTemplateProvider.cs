@@ -1,3 +1,7 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Models.DAL.Admin;
 using Microsoft.EntityFrameworkCore;
@@ -6,16 +10,22 @@ namespace Coucher.Lib.DAL.Providers;
 
 public sealed class TaskTemplateProvider : ITaskTemplateProvider
 {
+    private readonly IAugustusLogger _logger;
     private readonly IDbContextFactory<CoucherDbContext> _dbContextFactory;
 
-    public TaskTemplateProvider(IDbContextFactory<CoucherDbContext> dbContextFactory)
+    public TaskTemplateProvider(
+        IAugustusLogger logger,
+        IDbContextFactory<CoucherDbContext> dbContextFactory
+    )
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
     }
 
     public async Task<List<TaskTemplate>> ListAsync(CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         var items = await entities.ToListAsync(cancellationToken);
 
@@ -25,6 +35,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         var exists = await entities.AnyAsync(item => item.Id == id, cancellationToken);
 
@@ -34,6 +45,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task<TaskTemplate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
@@ -43,6 +55,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task<int> GetNextSerialNumberAsync(CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         var nextSerialNumber = (await entities.MaxAsync(item => (int?)item.SerialNumber, cancellationToken) ?? 0) + 1;
 
@@ -55,6 +68,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         await entities.AddAsync(entity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -68,6 +82,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         await entities.AddRangeAsync(entitiesToCreate, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -81,6 +96,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         entities.Update(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -94,6 +110,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         await dbContext.Set<TaskTemplateDependency>().AddAsync(entity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -108,6 +125,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplateInfluencer>();
         var normalizedInfluencerIds = influencerIds.Distinct().ToList();
         if (normalizedInfluencerIds.Count == 0)
@@ -143,6 +161,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         var entities = dbContext.Set<TaskTemplateInfluencer>();
@@ -199,6 +218,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entity = await dbContext.Set<TaskTemplateInfluencer>()
             .FirstOrDefaultAsync(item => item.Id == influencerLinkId, cancellationToken);
 
@@ -208,9 +228,12 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entity = await dbContext.Set<TaskTemplateDependency>()
-            .FirstOrDefaultAsync(item => item.Id == dependencyId, cancellationToken)
-            ?? throw new KeyNotFoundException($"{nameof(TaskTemplateDependency)} '{dependencyId}' was not found.");
+            .FirstOrDefaultAsync(item => item.Id == dependencyId, cancellationToken);
+        if (entity is null)
+            ThrowNotFound(nameof(TaskTemplateDependency), dependencyId);
+
         dbContext.Set<TaskTemplateDependency>().Remove(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
@@ -218,9 +241,12 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entity = await dbContext.Set<TaskTemplateInfluencer>()
-            .FirstOrDefaultAsync(item => item.Id == influencerLinkId, cancellationToken)
-            ?? throw new KeyNotFoundException($"{nameof(TaskTemplateInfluencer)} '{influencerLinkId}' was not found.");
+            .FirstOrDefaultAsync(item => item.Id == influencerLinkId, cancellationToken);
+        if (entity is null)
+            ThrowNotFound(nameof(TaskTemplateInfluencer), influencerLinkId);
+
         dbContext.Set<TaskTemplateInfluencer>().Remove(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
@@ -228,9 +254,12 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
-        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"{nameof(TaskTemplate)} '{id}' was not found.");
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (entity is null)
+            ThrowNotFound(nameof(TaskTemplate), id);
+
         entity.IsArchive = true;
         entity.LastUpdateTime = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -241,9 +270,12 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task<TaskTemplate> UnarchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
-        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"{nameof(TaskTemplate)} '{id}' was not found.");
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (entity is null)
+            ThrowNotFound(nameof(TaskTemplate), id);
+
         entity.IsArchive = false;
         entity.LastUpdateTime = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -268,8 +300,28 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
     public async Task DeleteAsync(TaskTemplate entity, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<TaskTemplate>();
         entities.Remove(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    [DoesNotReturn]
+    private void ThrowNotFound(string resourceName, Guid resourceId)
+    {
+        var exception = new HttpStatusCodeException(
+            $"{resourceName} '{resourceId}' was not found.",
+            new Dictionary<string, object?>
+            {
+                { "resourceName", resourceName },
+                { "resourceId", resourceId }
+            },
+            HttpStatusCode.NotFound
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

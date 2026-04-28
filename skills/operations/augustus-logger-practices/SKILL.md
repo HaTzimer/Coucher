@@ -29,6 +29,9 @@ For business or validation failures:
 3. Call `_logger.Error(exception)`.
 4. Throw the same exception.
 
+Do not log and throw plain framework exceptions from application code.
+Wrap application failures as `ExceptionWithParameters` or a `HttpStatusCodeException` subclass first.
+
 Prefer:
 
 ```csharp

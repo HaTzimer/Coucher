@@ -1,3 +1,7 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Models.DAL.Tasks;
@@ -6,10 +10,12 @@ namespace Coucher.Lib.Repositories;
 
 public sealed class ExerciseTaskRepository : IExerciseTaskRepository
 {
+    private readonly IAugustusLogger _logger;
     private readonly IExerciseTaskProvider _provider;
 
-    public ExerciseTaskRepository(IExerciseTaskProvider provider)
+    public ExerciseTaskRepository(IAugustusLogger logger, IExerciseTaskProvider provider)
     {
+        _logger = logger;
         _provider = provider;
     }
 
@@ -31,7 +37,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(ExerciseTask)} '{id}' was not found.");
+            ThrowNotFound(nameof(ExerciseTask), id);
 
         return entity;
     }
@@ -50,7 +56,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var dependency = await _provider.GetTaskDependencyByIdAsync(dependencyId, cancellationToken);
         if (dependency is null || !dependency.TaskId.HasValue)
-            throw new KeyNotFoundException($"{nameof(TaskDependency)} '{dependencyId}' was not found.");
+            ThrowNotFound(nameof(TaskDependency), dependencyId);
 
         var exerciseId = await GetRequiredExerciseIdByTaskIdAsync(dependency.TaskId.Value, cancellationToken);
 
@@ -67,7 +73,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
             cancellationToken
         );
         if (responsibility is null || !responsibility.TaskId.HasValue)
-            throw new KeyNotFoundException($"{nameof(ExerciseTaskResponsibleUser)} '{responsibilityId}' was not found.");
+            ThrowNotFound(nameof(ExerciseTaskResponsibleUser), responsibilityId);
 
         var exerciseId = await GetRequiredExerciseIdByTaskIdAsync(responsibility.TaskId.Value, cancellationToken);
 
@@ -135,7 +141,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var entity = await _provider.GetTaskDependencyByIdAsync(dependencyId, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(TaskDependency)} '{dependencyId}' was not found.");
+            ThrowNotFound(nameof(TaskDependency), dependencyId);
 
         await _provider.DeleteTaskDependencyAsync(dependencyId, cancellationToken);
     }
@@ -175,7 +181,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var entity = await _provider.GetExerciseTaskResponsibleUserByIdAsync(responsibilityId, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(ExerciseTaskResponsibleUser)} '{responsibilityId}' was not found.");
+            ThrowNotFound(nameof(ExerciseTaskResponsibleUser), responsibilityId);
 
         await _provider.DeleteExerciseTaskResponsibleUserAsync(responsibilityId, cancellationToken);
     }
@@ -215,4 +221,23 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
         var entity = await GetRequiredByIdAsync(id, cancellationToken);
         await _provider.DeleteAsync(entity, cancellationToken);
     }
+
+    [DoesNotReturn]
+    private void ThrowNotFound(string resourceName, Guid resourceId)
+    {
+        var exception = new HttpStatusCodeException(
+            $"{resourceName} '{resourceId}' was not found.",
+            new Dictionary<string, object?>
+            {
+                { "resourceName", resourceName },
+                { "resourceId", resourceId }
+            },
+            HttpStatusCode.NotFound
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

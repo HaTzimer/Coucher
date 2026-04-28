@@ -1,3 +1,5 @@
+using System.Net;
+using Augustus.Infra.Core.Shared.Exceptions;
 using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
@@ -339,6 +341,18 @@ public sealed class ClosedListItemService : IClosedListItemService
 
     public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotSupportedException("Closed-list items use archive and unarchive operations instead of physical delete.");
+        var exception = new HttpStatusCodeException(
+            "Closed-list items use archive and unarchive operations instead of physical delete.",
+            new Dictionary<string, object?>
+            {
+                { "closedListItemId", id }
+            },
+            HttpStatusCode.BadRequest
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
     }
 }
+

@@ -1,3 +1,6 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
 using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared;
 using Coucher.Shared.Interfaces.Repositories;
@@ -74,7 +77,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         await AttachExistingDependenciesAsync(entity, request.DependsOnTaskIds, now, cancellationToken);
 
         if (request.DependsOnTaskKeys is { Count: > 0 })
-            throw new InvalidOperationException("DependsOnTaskKeys are only supported in bulk create.");
+            ThrowBadRequest("DependsOnTaskKeys are only supported in bulk create.", ("exerciseId", request.ExerciseId));
 
         var createdEntity = await _repository.CreateExerciseTaskAsync(entity, cancellationToken);
 
@@ -103,7 +106,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         var parentTask = await _repository.GetRequiredByIdAsync(parentTaskId, cancellationToken);
 
         if (parentTask.ParentId.HasValue)
-            throw new InvalidOperationException("Exercise tasks support children only one level deep.");
+            ThrowConflict("Exercise tasks support children only one level deep.", ("parentTaskId", parentTaskId));
 
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(parentTask.ExerciseId, cancellationToken);
@@ -228,24 +231,20 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         CancellationToken cancellationToken = default
     )
     {
-        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
+        await EnsureCanUpdateExerciseTaskAsync(taskId, request, cancellationToken);
+
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
         var now = DateTime.UtcNow;
+        var changedFields = new List<string>();
 
-        entity.SeriesId = request.SeriesId;
-        entity.CategoryId = request.CategoryId;
-        entity.StatusId = request.StatusId;
-        entity.Name = request.Name;
-        entity.Description = request.Description;
-        entity.Notes = request.Notes;
-        entity.DueDate = request.DueDate;
+        ValidateUpdateExerciseTaskRequest(request);
+        await ApplyTaskFieldUpdatesAsync(entity, request, currentUserId, now, changedFields, cancellationToken);
+
+        if (changedFields.Count == 0)
+            return entity;
+
         entity.LastUpdateTime = now;
-        entity.LastStatusUpdaterId = currentUserId;
-        entity.LastStatusUpdateTime = now;
-        entity.CompletionTime = await IsCompletedStatusAsync(request.StatusId, cancellationToken)
-            ? now
-            : null;
         var updatedEntity = await _repository.UpdateExerciseTaskAsync(entity, cancellationToken);
 
         _logger.Info("Exercise task updated", new Dictionary<string, object>
@@ -253,146 +252,8 @@ public sealed class ExerciseTaskService : IExerciseTaskService
             { "userId", currentUserId },
             { "exerciseId", entity.ExerciseId },
             { "taskId", taskId },
-            { "changedFields", new[] { "SeriesId", "CategoryId", "StatusId", "Name", "Description", "Notes", "DueDate" } },
-            { "statusId", request.StatusId },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ExerciseTask> UpdateExerciseTaskDueDateAsync(
-        Guid taskId,
-        DateTime dueDate,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
-        entity.DueDate = dueDate;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseTaskAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise task due date updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", entity.ExerciseId },
-            { "taskId", taskId },
-            { "changedFields", new[] { "DueDate" } },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ExerciseTask> UpdateExerciseTaskSeriesAsync(
-        Guid taskId,
-        Guid seriesId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
-        entity.SeriesId = seriesId;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseTaskAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise task series updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", entity.ExerciseId },
-            { "taskId", taskId },
-            { "changedFields", new[] { "SeriesId" } },
-            { "seriesId", seriesId },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ExerciseTask> UpdateExerciseTaskCategoryAsync(
-        Guid taskId,
-        Guid categoryId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
-        entity.CategoryId = categoryId;
-        entity.LastUpdateTime = DateTime.UtcNow;
-        var updatedEntity = await _repository.UpdateExerciseTaskAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise task category updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", entity.ExerciseId },
-            { "taskId", taskId },
-            { "changedFields", new[] { "CategoryId" } },
-            { "categoryId", categoryId },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ExerciseTask> UpdateExerciseTaskStatusAsync(
-        Guid taskId,
-        Guid statusId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
-        var now = DateTime.UtcNow;
-
-        entity.StatusId = statusId;
-        entity.LastUpdateTime = now;
-        entity.LastStatusUpdaterId = currentUserId;
-        entity.LastStatusUpdateTime = now;
-        entity.CompletionTime = await IsCompletedStatusAsync(statusId, cancellationToken)
-            ? now
-            : null;
-        var updatedEntity = await _repository.UpdateExerciseTaskAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise task status updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", entity.ExerciseId },
-            { "taskId", taskId },
-            { "changedFields", new[] { "StatusId" } },
-            { "statusId", statusId },
-            { "result", "success" }
-        });
-
-        return updatedEntity;
-    }
-
-    public async Task<ExerciseTask> UpdateExerciseTaskDetailsAsync(
-        Guid taskId,
-        UpdateExerciseTaskDetailsRequest request,
-        CancellationToken cancellationToken = default
-    )
-    {
-        await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = await _repository.GetRequiredByIdAsync(taskId, cancellationToken);
-        entity.Name = request.Name;
-        entity.Description = request.Description;
-        entity.Notes = request.Notes;
-        entity.LastUpdateTime = DateTime.UtcNow;
-
-        var updatedEntity = await _repository.UpdateExerciseTaskAsync(entity, cancellationToken);
-
-        _logger.Info("Exercise task details updated", new Dictionary<string, object>
-        {
-            { "userId", currentUserId },
-            { "exerciseId", entity.ExerciseId },
-            { "taskId", taskId },
-            { "changedFields", new[] { "Name", "Description", "Notes" } },
+            { "changedFields", changedFields },
+            { "statusId", request.StatusId ?? Guid.Empty },
             { "result", "success" }
         });
 
@@ -419,11 +280,17 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         foreach (var dependsOnId in parsedDependsOnIds)
         {
             if (taskId == dependsOnId)
-                throw new InvalidOperationException("A task cannot depend on itself.");
+                ThrowConflict("A task cannot depend on itself.", ("taskId", taskId));
 
             var dependsOnTask = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
             if (task.ExerciseId != dependsOnTask.ExerciseId)
-                throw new InvalidOperationException("Task dependencies must stay within the same exercise.");
+                ThrowConflict(
+                    "Task dependencies must stay within the same exercise.",
+                    ("taskId", taskId),
+                    ("dependsOnId", dependsOnId),
+                    ("exerciseId", task.ExerciseId),
+                    ("dependsOnExerciseId", dependsOnTask.ExerciseId)
+                );
 
             var entity = new TaskDependency
             {
@@ -616,7 +483,120 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         return isCompletedStatus;
     }
 
-    private static void AttachResponsibleUsers(
+    private async Task EnsureCanUpdateExerciseTaskAsync(
+        Guid taskId,
+        UpdateExerciseTaskRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        if (HasFullEditFields(request))
+        {
+            await _authorizationService.EnsureCanFullyEditExerciseTaskAsync(taskId, cancellationToken);
+
+            return;
+        }
+
+        await _authorizationService.EnsureCanPartiallyEditExerciseTaskAsync(taskId, cancellationToken);
+    }
+
+    private static bool HasFullEditFields(UpdateExerciseTaskRequest request)
+    {
+        var hasFullEditFields = request.SeriesId.HasValue
+            || request.CategoryId.HasValue
+            || request.Name is not null
+            || request.Description is not null
+            || request.ClearDescription
+            || request.Notes is not null
+            || request.ClearNotes;
+
+        return hasFullEditFields;
+    }
+
+    private void ValidateUpdateExerciseTaskRequest(UpdateExerciseTaskRequest request)
+    {
+        if (request.Description is not null && request.ClearDescription)
+            ThrowBadRequest(
+                "Description and ClearDescription cannot both be sent in the same request.",
+                ("field", nameof(request.Description))
+            );
+
+        if (request.Notes is not null && request.ClearNotes)
+            ThrowBadRequest(
+                "Notes and ClearNotes cannot both be sent in the same request.",
+                ("field", nameof(request.Notes))
+            );
+    }
+
+    private async Task ApplyTaskFieldUpdatesAsync(
+        ExerciseTask entity,
+        UpdateExerciseTaskRequest request,
+        Guid currentUserId,
+        DateTime now,
+        List<string> changedFields,
+        CancellationToken cancellationToken
+    )
+    {
+        if (request.SeriesId.HasValue && entity.SeriesId != request.SeriesId.Value)
+        {
+            entity.SeriesId = request.SeriesId.Value;
+            changedFields.Add(nameof(entity.SeriesId));
+        }
+
+        if (request.CategoryId.HasValue && entity.CategoryId != request.CategoryId.Value)
+        {
+            entity.CategoryId = request.CategoryId.Value;
+            changedFields.Add(nameof(entity.CategoryId));
+        }
+
+        if (request.StatusId.HasValue && entity.StatusId != request.StatusId.Value)
+        {
+            entity.StatusId = request.StatusId.Value;
+            entity.LastStatusUpdaterId = currentUserId;
+            entity.LastStatusUpdateTime = now;
+            entity.CompletionTime = await IsCompletedStatusAsync(request.StatusId.Value, cancellationToken)
+                ? now
+                : null;
+            changedFields.Add(nameof(entity.StatusId));
+        }
+
+        if (request.Name is not null && entity.Name != request.Name)
+        {
+            entity.Name = request.Name;
+            changedFields.Add(nameof(entity.Name));
+        }
+
+        if (request.Description is not null && entity.Description != request.Description)
+        {
+            entity.Description = request.Description;
+            changedFields.Add(nameof(entity.Description));
+        }
+
+        if (request.ClearDescription && entity.Description is not null)
+        {
+            entity.Description = null;
+            changedFields.Add(nameof(entity.Description));
+        }
+
+        if (request.Notes is not null && entity.Notes != request.Notes)
+        {
+            entity.Notes = request.Notes;
+            changedFields.Add(nameof(entity.Notes));
+        }
+
+        if (request.ClearNotes && entity.Notes is not null)
+        {
+            entity.Notes = null;
+            changedFields.Add(nameof(entity.Notes));
+        }
+
+        if (request.DueDate.HasValue && entity.DueDate != request.DueDate.Value)
+        {
+            entity.DueDate = request.DueDate.Value;
+            changedFields.Add(nameof(entity.DueDate));
+        }
+    }
+
+    private void AttachResponsibleUsers(
         ExerciseTask entity,
         List<string>? responsibleUserIds,
         DateTime now
@@ -644,15 +624,21 @@ public sealed class ExerciseTaskService : IExerciseTaskService
     )
     {
         foreach (var dependsOnId in (dependsOnTaskIds ?? new List<string>())
-                     .Select(item => ParseGuidString(item, "DependsOnId"))
-                     .Distinct())
+            .Select(item => ParseGuidString(item, "DependsOnId"))
+            .Distinct())
         {
             if (entity.Id == dependsOnId)
-                throw new InvalidOperationException("A task cannot depend on itself.");
+                ThrowConflict("A task cannot depend on itself.", ("taskId", entity.Id));
 
             var dependsOnTask = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
             if (entity.ExerciseId != dependsOnTask.ExerciseId)
-                throw new InvalidOperationException("Task dependencies must stay within the same exercise.");
+                ThrowConflict(
+                    "Task dependencies must stay within the same exercise.",
+                    ("taskId", entity.Id),
+                    ("dependsOnId", dependsOnId),
+                    ("exerciseId", entity.ExerciseId),
+                    ("dependsOnExerciseId", dependsOnTask.ExerciseId)
+                );
 
             entity.Dependencies.Add(new TaskDependency
             {
@@ -664,7 +650,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         }
     }
 
-    private static void AttachBulkDependencies(
+    private void AttachBulkDependencies(
         ExerciseTask entity,
         List<string>? dependsOnTaskKeys,
         Dictionary<string, ExerciseTask> entitiesByTaskKey,
@@ -674,17 +660,22 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         foreach (var dependsOnTaskKey in (dependsOnTaskKeys ?? new List<string>()).Distinct(StringComparer.Ordinal))
         {
             if (!entitiesByTaskKey.TryGetValue(dependsOnTaskKey, out var dependsOnTask))
-            {
-                throw new InvalidOperationException(
-                    $"Task dependency key '{dependsOnTaskKey}' was not found in the bulk create payload."
+                ThrowBadRequest(
+                    $"Task dependency key '{dependsOnTaskKey}' was not found in the bulk create payload.",
+                    ("dependsOnTaskKey", dependsOnTaskKey)
                 );
-            }
 
             if (entity.Id == dependsOnTask.Id)
-                throw new InvalidOperationException("A task cannot depend on itself.");
+                ThrowConflict("A task cannot depend on itself.", ("taskId", entity.Id));
 
             if (entity.ExerciseId != dependsOnTask.ExerciseId)
-                throw new InvalidOperationException("Task dependencies must stay within the same exercise.");
+                ThrowConflict(
+                    "Task dependencies must stay within the same exercise.",
+                    ("taskId", entity.Id),
+                    ("dependsOnId", dependsOnTask.Id),
+                    ("exerciseId", entity.ExerciseId),
+                    ("dependsOnExerciseId", dependsOnTask.ExerciseId)
+                );
 
             entity.Dependencies.Add(new TaskDependency
             {
@@ -730,7 +721,7 @@ public sealed class ExerciseTaskService : IExerciseTaskService
         };
     }
 
-    private static void RegisterTaskKey(
+    private void RegisterTaskKey(
         string? taskKey,
         ExerciseTask entity,
         Dictionary<string, ExerciseTask> entitiesByTaskKey
@@ -740,14 +731,45 @@ public sealed class ExerciseTaskService : IExerciseTaskService
             return;
 
         if (!entitiesByTaskKey.TryAdd(taskKey, entity))
-            throw new InvalidOperationException($"Duplicate task key '{taskKey}' was found in the bulk create payload.");
+            ThrowBadRequest(
+                $"Duplicate task key '{taskKey}' was found in the bulk create payload.",
+                ("taskKey", taskKey)
+            );
     }
 
-    private static Guid ParseGuidString(string value, string fieldName)
+    private Guid ParseGuidString(string value, string fieldName)
     {
         if (!Guid.TryParse(value, out var parsedGuid))
-            throw new InvalidOperationException($"{fieldName} must be a valid GUID string.");
+            ThrowBadRequest($"{fieldName} must be a valid GUID string.", (fieldName, value));
 
         return parsedGuid;
     }
+
+    [DoesNotReturn]
+    private void ThrowBadRequest(string message, params (string Key, object? Value)[] entries)
+    {
+        var exception = new HttpStatusCodeException(
+            message,
+            entries.ToDictionary(item => item.Key, item => item.Value),
+            HttpStatusCode.BadRequest
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
+
+    [DoesNotReturn]
+    private void ThrowConflict(string message, params (string Key, object? Value)[] entries)
+    {
+        var exception = new DataConflictException(
+            message,
+            parameters: entries.ToDictionary(item => item.Key, item => item.Value)
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

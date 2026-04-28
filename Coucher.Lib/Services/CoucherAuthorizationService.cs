@@ -1,5 +1,7 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
 using Augustus.Infra.Core.Shared.Interfaces;
-using Coucher.Shared.Exceptions;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
 using Coucher.Shared.Models.Internal.Authorization;
@@ -88,7 +90,19 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     {
         var participant = await _exerciseRepository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
         if (!participant.ExerciseId.HasValue)
-            throw new KeyNotFoundException("Exercise participant is not linked to an exercise.");
+        {
+            var exception = new DataConflictException(
+                "Exercise participant is not linked to an exercise.",
+                parameters: new Dictionary<string, object?>
+                {
+                    { "participantId", participantId }
+                }
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         await EnsureCanManageExerciseAsync(participant.ExerciseId.Value, cancellationToken);
     }
@@ -100,7 +114,19 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     {
         var section = await _exerciseRepository.GetRequiredExerciseSectionByIdAsync(sectionLinkId, cancellationToken);
         if (!section.ExerciseId.HasValue)
-            throw new KeyNotFoundException("Exercise section is not linked to an exercise.");
+        {
+            var exception = new DataConflictException(
+                "Exercise section is not linked to an exercise.",
+                parameters: new Dictionary<string, object?>
+                {
+                    { "sectionLinkId", sectionLinkId }
+                }
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         await EnsureCanManageExerciseAsync(section.ExerciseId.Value, cancellationToken);
     }
@@ -115,7 +141,19 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
             cancellationToken
         );
         if (!influencer.ExerciseId.HasValue)
-            throw new KeyNotFoundException("Exercise influencer is not linked to an exercise.");
+        {
+            var exception = new DataConflictException(
+                "Exercise influencer is not linked to an exercise.",
+                parameters: new Dictionary<string, object?>
+                {
+                    { "influencerLinkId", influencerLinkId }
+                }
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         await EnsureCanManageExerciseAsync(influencer.ExerciseId.Value, cancellationToken);
     }
@@ -127,7 +165,19 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     {
         var contact = await _exerciseRepository.GetRequiredExerciseUnitContactByIdAsync(contactId, cancellationToken);
         if (!contact.ExerciseId.HasValue)
-            throw new KeyNotFoundException("Exercise contact is not linked to an exercise.");
+        {
+            var exception = new DataConflictException(
+                "Exercise contact is not linked to an exercise.",
+                parameters: new Dictionary<string, object?>
+                {
+                    { "contactId", contactId }
+                }
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         await EnsureCanManageExerciseAsync(contact.ExerciseId.Value, cancellationToken);
     }
@@ -258,6 +308,7 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
         );
     }
 
+    [DoesNotReturn]
     private void ThrowAuthorizationException(
         string message,
         Guid userId,
@@ -278,6 +329,16 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
         .ToDictionary(item => item.Key, item => item.Last().Value);
 
         _logger.Warn("Authorization denied", parameters);
-        throw new CoucherAuthorizationException(message);
+
+        var exception = new HttpStatusCodeException(
+            message,
+            parameters.ToDictionary(item => item.Key, item => (object?)item.Value),
+            HttpStatusCode.Forbidden
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
     }
 }
+

@@ -1,3 +1,6 @@
+using System.Net;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Models.DAL.Users;
@@ -6,10 +9,12 @@ namespace Coucher.Lib.Repositories;
 
 public sealed class UserProfileRepository : IUserProfileRepository
 {
+    private readonly IAugustusLogger _logger;
     private readonly IUserProfileProvider _provider;
 
-    public UserProfileRepository(IUserProfileProvider provider)
+    public UserProfileRepository(IAugustusLogger logger, IUserProfileProvider provider)
     {
+        _logger = logger;
         _provider = provider;
     }
 
@@ -50,7 +55,21 @@ public sealed class UserProfileRepository : IUserProfileRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(UserProfile)} '{id}' was not found.");
+        {
+            var exception = new HttpStatusCodeException(
+                $"{nameof(UserProfile)} '{id}' was not found.",
+                new Dictionary<string, object?>
+                {
+                    { "resourceName", nameof(UserProfile) },
+                    { "resourceId", id }
+                },
+                HttpStatusCode.NotFound
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         return entity;
     }
@@ -75,3 +94,4 @@ public sealed class UserProfileRepository : IUserProfileRepository
         await _provider.DeleteAsync(entity, cancellationToken);
     }
 }
+

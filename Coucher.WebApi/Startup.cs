@@ -81,7 +81,7 @@ public sealed class Startup
         services.AddControllers(options =>
         {
             options.Filters.AddService<CorrelationIdResourceFilter>();
-            options.Filters.Add<CoucherAuthorizationExceptionFilter>();
+            options.Filters.Add<CoucherHttpStatusCodeExceptionFilter>();
         })
             .AddJsonOptions(options =>
             {

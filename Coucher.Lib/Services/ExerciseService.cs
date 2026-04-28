@@ -1,3 +1,6 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
 using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared;
 using Coucher.Shared.Interfaces.Repositories;
@@ -304,11 +307,19 @@ public sealed class ExerciseService : IExerciseService
 
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         if (role == ExerciseRole.ExerciseManager)
-            throw new InvalidOperationException("Use the exercise manager endpoint to assign the manager role.");
+            ThrowBadRequest(
+                "Use the exercise manager endpoint to assign the manager role.",
+                ("participantId", participantId),
+                ("role", role.ToString())
+            );
 
         var participant = await _repository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
         if (participant.Role == ExerciseRole.ExerciseManager)
-            throw new InvalidOperationException("Use the exercise manager endpoint to change the current manager.");
+            ThrowBadRequest(
+                "Use the exercise manager endpoint to change the current manager.",
+                ("participantId", participantId),
+                ("role", participant.Role.ToString())
+            );
 
         participant.Role = role;
         var updatedEntity = await _repository.UpdateExerciseParticipantAsync(participant, cancellationToken);
@@ -569,7 +580,7 @@ public sealed class ExerciseService : IExerciseService
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var participant = await _repository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
         if (participant.ExerciseId is null)
-            throw new InvalidOperationException("Exercise participant is not linked to an exercise.");
+            ThrowConflict("Exercise participant is not linked to an exercise.", ("participantId", participantId));
 
         if (participant.Role == ExerciseRole.ExerciseManager)
         {
@@ -580,7 +591,11 @@ public sealed class ExerciseService : IExerciseService
                 .ThenBy(item => item.Id)
                 .FirstOrDefault();
             if (replacementParticipant is null)
-                throw new InvalidOperationException("Cannot remove the exercise manager when no replacement participant exists.");
+                ThrowConflict(
+                    "Cannot remove the exercise manager when no replacement participant exists.",
+                    ("participantId", participantId),
+                    ("exerciseId", participant.ExerciseId.Value)
+                );
 
             replacementParticipant.Role = ExerciseRole.ExerciseManager;
             _ = await _repository.UpdateExerciseParticipantAsync(replacementParticipant, cancellationToken);
@@ -678,10 +693,21 @@ public sealed class ExerciseService : IExerciseService
 
     public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotSupportedException("Exercises use archive and unarchive operations instead of physical delete.");
+        var exception = new HttpStatusCodeException(
+            "Exercises use archive and unarchive operations instead of physical delete.",
+            new Dictionary<string, object?>
+            {
+                { "exerciseId", id }
+            },
+            HttpStatusCode.BadRequest
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
     }
 
-    private static List<ExerciseParticipant> BuildParticipants(
+    private List<ExerciseParticipant> BuildParticipants(
         Guid exerciseId,
         CreateExerciseRequest request,
         DateTime creationTime
@@ -768,11 +794,39 @@ public sealed class ExerciseService : IExerciseService
         return sectionLinks;
     }
 
-    private static Guid ParseManagerUserId(string managerUserId)
+    private Guid ParseManagerUserId(string managerUserId)
     {
         if (!Guid.TryParse(managerUserId, out var parsedManagerUserId))
-            throw new InvalidOperationException("ManagerUserId must be a valid GUID string.");
+            ThrowBadRequest("ManagerUserId must be a valid GUID string.", ("managerUserId", managerUserId));
 
         return parsedManagerUserId;
     }
+
+    [DoesNotReturn]
+    private void ThrowBadRequest(string message, params (string Key, object? Value)[] entries)
+    {
+        var exception = new HttpStatusCodeException(
+            message,
+            entries.ToDictionary(item => item.Key, item => item.Value),
+            HttpStatusCode.BadRequest
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
+
+    [DoesNotReturn]
+    private void ThrowConflict(string message, params (string Key, object? Value)[] entries)
+    {
+        var exception = new DataConflictException(
+            message,
+            parameters: entries.ToDictionary(item => item.Key, item => item.Value)
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

@@ -13,6 +13,26 @@ Dependency direction:
 - `Coucher.WebApi` -> `Coucher.Lib`
 - `Coucher.Lib` -> `Coucher.Shared`
 
+## Skill Routing
+- Treat this `AGENTS.md` file as the first routing layer for deciding which local repo skill to use.
+- Before starting substantial work, identify whether the task is mainly about:
+  - architecture/layering
+  - model creation
+  - create/update API workflows
+  - logging
+  - configuration
+  - Redis/session authentication
+  - code organization/style
+- Then check `skills/README.md` and open only the matching `SKILL.md` file or files.
+- Do not scan the entire repo for skills on every turn.
+- Do not bulk-open every skill file.
+- Use the minimal relevant skill set for the task.
+- If a task clearly falls under one of the local repo skills, use that skill proactively even if the user did not name it explicitly.
+- If multiple skills could apply, prefer this order:
+  1. architecture skill when the task changes layer boundaries or responsibilities
+  2. operation skill when the task changes logging/config/auth behavior
+  3. tooling/code-organization skill when the task changes formatting or structural style
+
 ## Model Architecture
 `Coucher.Shared`:
 

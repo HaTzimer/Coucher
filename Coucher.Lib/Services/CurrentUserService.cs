@@ -1,4 +1,5 @@
-using System.Security.Authentication;
+using System.Net;
+using Augustus.Infra.Core.Shared.Exceptions;
 using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared;
 using Coucher.Shared.Interfaces.Services;
@@ -9,17 +10,20 @@ namespace Coucher.Lib.Services;
 
 public sealed class CurrentUserService : ICurrentUserService
 {
+    private readonly IAugustusLogger _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAuthenticationService _authenticationService;
     private readonly string _sessionIdHeader;
     private readonly string _itemsUserIdKey;
 
     public CurrentUserService(
+        IAugustusLogger logger,
         IHttpContextAccessor httpContextAccessor,
         IAuthenticationService authenticationService,
         IAugustusConfiguration config
     )
     {
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
         _authenticationService = authenticationService;
         _sessionIdHeader = config.GetOrThrow<string>(
@@ -34,8 +38,15 @@ public sealed class CurrentUserService : ICurrentUserService
 
     public async Task<Guid> GetRequiredCurrentUserIdAsync(CancellationToken cancellationToken = default)
     {
-        var httpContext = _httpContextAccessor.HttpContext
-            ?? throw new AuthenticationException("Missing HTTP context.");
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext is null)
+        {
+            var exception = new ExceptionWithParameters("Missing HTTP context.");
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         if (httpContext.Items.TryGetValue(_itemsUserIdKey, out var cachedUserId))
         {
@@ -49,10 +60,24 @@ public sealed class CurrentUserService : ICurrentUserService
         httpContext.Request.Headers.TryGetValue(_sessionIdHeader, out var sessionId);
         var authResult = await _authenticationService.AuthenticateSessionAsync(sessionId.ToString(), cancellationToken);
         if (authResult.HeaderAuthentication != SessionAuthenticationResult.Valid || authResult.UserId is null)
-            throw new AuthenticationException(authResult.ErrorMessage ?? "Unauthorized request.");
+        {
+            var exception = new HttpStatusCodeException(
+                authResult.ErrorMessage ?? "Unauthorized request.",
+                new Dictionary<string, object?>
+                {
+                    { "headerAuthentication", authResult.HeaderAuthentication.ToString() }
+                },
+                HttpStatusCode.Unauthorized
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         httpContext.Items[_itemsUserIdKey] = authResult.UserId.Value;
 
         return authResult.UserId.Value;
     }
 }
+

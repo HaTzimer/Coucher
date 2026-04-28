@@ -4,6 +4,38 @@ This repo stores local Codex-style skills under `skills/`.
 
 Source of truth for repo conventions is `AGENTS.md`. Skills should reference it instead of duplicating rules.
 
+## Skill Selection Flow
+
+Use this lightweight flow instead of scanning the whole repo:
+
+1. Read `AGENTS.md` first.
+2. Decide the task category from `AGENTS.md`.
+3. Use this index to locate the matching skill.
+4. Open only the relevant `SKILL.md` file or files.
+5. Use the smallest skill set that covers the task.
+
+Default routing for this repo:
+
+- Layering/responsibility changes:
+  - `skills/architecture/provider-repository-service-pattern`
+- EF/DAL/entity/DbContext work:
+  - `skills/architecture/dal-dbcontext-practices`
+- New shared model/entity creation:
+  - `skills/architecture/model-creation-practices`
+- Create/update Web API request and write-flow work:
+  - `skills/architecture/create-update-workflows`
+- Logging changes:
+  - `skills/operations/augustus-logger-practices`
+- Config/appsettings/config-key changes:
+  - `skills/operations/configuration-use-practices`
+- Session/auth pipeline changes:
+  - `skills/operations/redis-session-authentication`
+- Formatting/style/code-shape changes:
+  - `skills/tooling/code-organization-practices`
+
+Do not bulk-open all skills.
+Do not scan the whole repo for skill files every turn.
+
 ## Architecture
 
 - `skills/architecture/provider-repository-service-pattern`: project boundaries + provider/repository/service layering.

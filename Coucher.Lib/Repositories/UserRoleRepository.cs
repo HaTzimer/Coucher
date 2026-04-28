@@ -1,3 +1,6 @@
+using System.Net;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Models.Enums;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
@@ -7,10 +10,12 @@ namespace Coucher.Lib.Repositories;
 
 public sealed class UserRoleRepository : IUserRoleRepository
 {
+    private readonly IAugustusLogger _logger;
     private readonly IUserRoleProvider _provider;
 
-    public UserRoleRepository(IUserRoleProvider provider)
+    public UserRoleRepository(IAugustusLogger logger, IUserRoleProvider provider)
     {
+        _logger = logger;
         _provider = provider;
     }
 
@@ -32,7 +37,21 @@ public sealed class UserRoleRepository : IUserRoleRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(UserRole)} '{id}' was not found.");
+        {
+            var exception = new HttpStatusCodeException(
+                $"{nameof(UserRole)} '{id}' was not found.",
+                new Dictionary<string, object?>
+                {
+                    { "resourceName", nameof(UserRole) },
+                    { "resourceId", id }
+                },
+                HttpStatusCode.NotFound
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         return entity;
     }
@@ -89,3 +108,4 @@ public sealed class UserRoleRepository : IUserRoleRepository
         await _provider.DeleteAsync(entity, cancellationToken);
     }
 }
+

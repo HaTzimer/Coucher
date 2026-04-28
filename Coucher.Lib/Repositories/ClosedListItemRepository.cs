@@ -1,3 +1,6 @@
+using System.Net;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Models.DAL.Admin;
@@ -6,10 +9,12 @@ namespace Coucher.Lib.Repositories;
 
 public sealed class ClosedListItemRepository : IClosedListItemRepository
 {
+    private readonly IAugustusLogger _logger;
     private readonly IClosedListItemProvider _provider;
 
-    public ClosedListItemRepository(IClosedListItemProvider provider)
+    public ClosedListItemRepository(IAugustusLogger logger, IClosedListItemProvider provider)
     {
+        _logger = logger;
         _provider = provider;
     }
 
@@ -42,7 +47,21 @@ public sealed class ClosedListItemRepository : IClosedListItemRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(ClosedListItem)} '{id}' was not found.");
+        {
+            var exception = new HttpStatusCodeException(
+                $"{nameof(ClosedListItem)} '{id}' was not found.",
+                new Dictionary<string, object?>
+                {
+                    { "resourceName", nameof(ClosedListItem) },
+                    { "resourceId", id }
+                },
+                HttpStatusCode.NotFound
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         return entity;
     }
@@ -136,3 +155,4 @@ public sealed class ClosedListItemRepository : IClosedListItemRepository
         await _provider.DeleteAsync(entity, cancellationToken);
     }
 }
+

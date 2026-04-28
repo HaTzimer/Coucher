@@ -525,22 +525,32 @@ Expected:
 - manager/admin allowed
 - participant/auditor/unrelated user forbidden
 
-### T5. Full task partial-split updates
+### T5. Unified task field update
 
-Calls:
-- `PUT /api/exercise-tasks/{id}/series`
-- `PUT /api/exercise-tasks/{id}/category`
-- `PUT /api/exercise-tasks/{id}/details`
+Call:
+- `PUT /api/exercise-tasks/{id}`
+
+Body scenarios:
+- only `SeriesId`
+- only `CategoryId`
+- only `Name`
+- only `StatusId`
+- only `DueDate`
+- `Description` with `ClearDescription = true`
+- `Notes` with `ClearNotes = true`
+- mixed root-field updates in one request
 
 Expected:
-- manager/admin allowed
-- participant/auditor/unrelated user forbidden
+- manager/admin can update any allowed root fields
+- participant can update only `StatusId` and `DueDate`
+- participant is forbidden when sending full-edit fields or clear flags
+- request is rejected when both `Description` and `ClearDescription = true` are sent
+- request is rejected when both `Notes` and `ClearNotes = true` are sent
+- empty request object returns current task unchanged
 
-### T6. Participant partial task edits
+### T6. Participant task relation edits
 
 Calls:
-- `PUT /api/exercise-tasks/{id}/status`
-- `PUT /api/exercise-tasks/{id}/due-date`
 - `POST /api/exercise-tasks/{id}/responsible-users`
 - `PUT /api/exercise-tasks/{id}/responsible-users`
 - `DELETE /api/exercise-tasks/responsible-users/{responsibilityId}`

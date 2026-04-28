@@ -1,3 +1,7 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Models.DAL.Admin;
@@ -6,10 +10,12 @@ namespace Coucher.Lib.Repositories;
 
 public sealed class TaskTemplateRepository : ITaskTemplateRepository
 {
+    private readonly IAugustusLogger _logger;
     private readonly ITaskTemplateProvider _provider;
 
-    public TaskTemplateRepository(ITaskTemplateProvider provider)
+    public TaskTemplateRepository(IAugustusLogger logger, ITaskTemplateProvider provider)
     {
+        _logger = logger;
         _provider = provider;
     }
 
@@ -31,7 +37,7 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(TaskTemplate)} '{id}' was not found.");
+            ThrowNotFound(nameof(TaskTemplate), id);
 
         return entity;
     }
@@ -128,7 +134,7 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
     {
         var entity = await _provider.GetTaskTemplateInfluencerByIdAsync(influencerLinkId, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(TaskTemplateInfluencer)} '{influencerLinkId}' was not found.");
+            ThrowNotFound(nameof(TaskTemplateInfluencer), influencerLinkId);
 
         await _provider.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
     }
@@ -166,4 +172,23 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
         var entity = await GetRequiredByIdAsync(id, cancellationToken);
         await _provider.DeleteAsync(entity, cancellationToken);
     }
+
+    [DoesNotReturn]
+    private void ThrowNotFound(string resourceName, Guid resourceId)
+    {
+        var exception = new HttpStatusCodeException(
+            $"{resourceName} '{resourceId}' was not found.",
+            new Dictionary<string, object?>
+            {
+                { "resourceName", resourceName },
+                { "resourceId", resourceId }
+            },
+            HttpStatusCode.NotFound
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

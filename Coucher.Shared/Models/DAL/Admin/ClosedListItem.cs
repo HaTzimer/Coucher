@@ -37,5 +37,4 @@ public sealed class ClosedListItem
 
     [GraphQLDescription("When the entry was last updated.")]
     public required DateTime LastUpdateTime { get; set; }
-
 }

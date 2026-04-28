@@ -1,3 +1,7 @@
+using System.Net;
+using System.Diagnostics.CodeAnalysis;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Models.DAL.Exercises;
@@ -6,10 +10,12 @@ namespace Coucher.Lib.Repositories;
 
 public sealed class ExerciseRepository : IExerciseRepository
 {
+    private readonly IAugustusLogger _logger;
     private readonly IExerciseProvider _provider;
 
-    public ExerciseRepository(IExerciseProvider provider)
+    public ExerciseRepository(IAugustusLogger logger, IExerciseProvider provider)
     {
+        _logger = logger;
         _provider = provider;
     }
 
@@ -31,7 +37,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(Exercise)} '{id}' was not found.");
+            ThrowNotFound(nameof(Exercise), id);
 
         return entity;
     }
@@ -115,7 +121,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseParticipantByIdAsync(participantId, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(ExerciseParticipant)} '{participantId}' was not found.");
+            ThrowNotFound(nameof(ExerciseParticipant), participantId);
 
         return entity;
     }
@@ -180,7 +186,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseSectionByIdAsync(sectionLinkId, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(ExerciseSection)} '{sectionLinkId}' was not found.");
+            ThrowNotFound(nameof(ExerciseSection), sectionLinkId);
 
         return entity;
     }
@@ -192,7 +198,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseInfluencerByIdAsync(influencerLinkId, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(ExerciseInfluencer)} '{influencerLinkId}' was not found.");
+            ThrowNotFound(nameof(ExerciseInfluencer), influencerLinkId);
 
         return entity;
     }
@@ -204,7 +210,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseUnitContactByIdAsync(contactId, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(ExerciseUnitContact)} '{contactId}' was not found.");
+            ThrowNotFound(nameof(ExerciseUnitContact), contactId);
 
         return entity;
     }
@@ -229,7 +235,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var exists = await _provider.ExerciseSectionExistsAsync(sectionLinkId, cancellationToken);
         if (!exists)
-            throw new KeyNotFoundException($"{nameof(ExerciseSection)} '{sectionLinkId}' was not found.");
+            ThrowNotFound(nameof(ExerciseSection), sectionLinkId);
 
         await _provider.DeleteExerciseSectionAsync(sectionLinkId, cancellationToken);
     }
@@ -238,7 +244,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var exists = await _provider.ExerciseInfluencerExistsAsync(influencerLinkId, cancellationToken);
         if (!exists)
-            throw new KeyNotFoundException($"{nameof(ExerciseInfluencer)} '{influencerLinkId}' was not found.");
+            ThrowNotFound(nameof(ExerciseInfluencer), influencerLinkId);
 
         await _provider.DeleteExerciseInfluencerAsync(influencerLinkId, cancellationToken);
     }
@@ -247,7 +253,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var exists = await _provider.ExerciseUnitContactExistsAsync(contactId, cancellationToken);
         if (!exists)
-            throw new KeyNotFoundException($"{nameof(ExerciseUnitContact)} '{contactId}' was not found.");
+            ThrowNotFound(nameof(ExerciseUnitContact), contactId);
 
         await _provider.DeleteExerciseUnitContactAsync(contactId, cancellationToken);
     }
@@ -271,4 +277,23 @@ public sealed class ExerciseRepository : IExerciseRepository
         var entity = await GetRequiredByIdAsync(id, cancellationToken);
         await _provider.DeleteAsync(entity, cancellationToken);
     }
+
+    [DoesNotReturn]
+    private void ThrowNotFound(string resourceName, Guid resourceId)
+    {
+        var exception = new HttpStatusCodeException(
+            $"{resourceName} '{resourceId}' was not found.",
+            new Dictionary<string, object?>
+            {
+                { "resourceName", resourceName },
+                { "resourceId", resourceId }
+            },
+            HttpStatusCode.NotFound
+        );
+
+        _logger.Error(exception);
+
+        throw exception;
+    }
 }
+

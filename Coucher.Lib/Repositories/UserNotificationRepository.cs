@@ -1,3 +1,6 @@
+using System.Net;
+using Augustus.Infra.Core.Shared.Exceptions;
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Models.DAL.Notifications;
@@ -6,10 +9,12 @@ namespace Coucher.Lib.Repositories;
 
 public sealed class UserNotificationRepository : IUserNotificationRepository
 {
+    private readonly IAugustusLogger _logger;
     private readonly IUserNotificationProvider _provider;
 
-    public UserNotificationRepository(IUserNotificationProvider provider)
+    public UserNotificationRepository(IAugustusLogger logger, IUserNotificationProvider provider)
     {
+        _logger = logger;
         _provider = provider;
     }
 
@@ -31,7 +36,21 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-            throw new KeyNotFoundException($"{nameof(UserNotification)} '{id}' was not found.");
+        {
+            var exception = new HttpStatusCodeException(
+                $"{nameof(UserNotification)} '{id}' was not found.",
+                new Dictionary<string, object?>
+                {
+                    { "resourceName", nameof(UserNotification) },
+                    { "resourceId", id }
+                },
+                HttpStatusCode.NotFound
+            );
+
+            _logger.Error(exception);
+
+            throw exception;
+        }
 
         return entity;
     }
@@ -56,3 +75,4 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
         await _provider.DeleteAsync(entity, cancellationToken);
     }
 }
+

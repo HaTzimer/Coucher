@@ -54,6 +54,82 @@ var authenticationResult = new HeaderAuthenticationResult
 return authenticationResult;
 ```
 
+In application code, throw only `ExceptionWithParameters` or `HttpStatusCodeException` subclasses.
+Do not throw plain framework exceptions such as `InvalidOperationException`, `KeyNotFoundException`, `NotSupportedException`, or `AuthenticationException`.
+
+For application exceptions that should be logged with structured parameters, create the exception in a local variable, log that same instance with `_logger.Error(exception)`, then throw it.
+
+Preferred:
+
+```csharp
+var exception = new ExceptionWithParameters(
+    "User with personal id or military id already exists.",
+    new Dictionary<string, object?>()
+    {
+        { "personalId", registerUserModel.PersonalId! },
+        { "militaryId", registerUserModel.MilitaryId! }
+    });
+
+_logger.Error(exception);
+
+throw exception;
+```
+
+Preferred:
+
+```csharp
+var exception = new DataConflictException(
+    "A task cannot depend on itself.",
+    parameters: new Dictionary<string, object?>
+    {
+        { "taskId", taskId }
+    }
+);
+
+_logger.Error(exception);
+
+throw exception;
+```
+
+Preferred:
+
+```csharp
+var exception = new HttpStatusCodeException(
+    "ManagerUserId must be a valid GUID string.",
+    new Dictionary<string, object?>
+    {
+        { "managerUserId", managerUserId }
+    },
+    HttpStatusCode.BadRequest
+);
+
+_logger.Error(exception);
+
+throw exception;
+```
+
+Avoid:
+
+```csharp
+throw new ExceptionWithParameters(
+    "User with personal id or military id already exists.",
+    new Dictionary<string, object?>()
+    {
+        { "personalId", registerUserModel.PersonalId! },
+        { "militaryId", registerUserModel.MilitaryId! }
+    });
+```
+
+Avoid:
+
+```csharp
+var exception = new InvalidOperationException("...");
+
+_logger.Error(exception.Message.TrimEnd('.'), exception);
+
+throw exception;
+```
+
 Always leave an empty line before `return`.
 
 Preferred:
@@ -96,6 +172,8 @@ var entities = dbContext.Set<UserNotification>();
 - Make formatting decisions that optimize scanability, not terseness.
 - In service/repository methods, visually split distinct phases with blank lines instead of packing them into one block.
 - For `if` statements with only one following statement, omit braces.
+- When an `if` appears in the middle of a method body instead of immediately after the opening `{`, leave an empty line before it.
+- When an `if` appears in the middle of a method body instead of immediately after the opening `{`, leave an empty line before it.
 - For simple collection filtering, projection, or materialization, prefer LINQ over `foreach`.
 
 Preferred:
