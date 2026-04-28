@@ -293,7 +293,7 @@ public async Task<ActionResult<Exercise>> UpdateStatusAsync(
 Also prefer:
 
 ```csharp
-[HttpPost("{id:guid}/add-participant")]
+[HttpPost("{id:guid}/add-participants")]
 public async Task<ActionResult<ExerciseParticipant>> AddParticipantAsync(
     Guid id,
     [FromBody] string userId,

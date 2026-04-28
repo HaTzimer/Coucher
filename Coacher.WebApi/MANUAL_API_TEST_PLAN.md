@@ -393,7 +393,7 @@ Expected:
 ### E6. Add participant
 
 Call:
-- `POST /api/exercise/{id}/add-participant`
+- `POST /api/exercise/{id}/add-participants`
 - raw string body of target user id
 
 Expected:
@@ -429,8 +429,8 @@ Verify:
 ### E9. Add and remove section
 
 Calls:
-- `POST /api/exercise/{id}/add-section`
-- `DELETE /api/exercise/remove-section/{sectionLinkId}`
+- `POST /api/exercise/{id}/add-sections`
+- `DELETE /api/exercise/{id}/remove-sections`
 
 Expected:
 - manager/admin allowed
@@ -439,8 +439,8 @@ Expected:
 ### E10. Add and remove influencer
 
 Calls:
-- `POST /api/exercise/{id}/add-influencer`
-- `DELETE /api/exercise/remove-influencer/{influencerLinkId}`
+- `POST /api/exercise/{id}/add-influencers`
+- `DELETE /api/exercise/{id}/remove-influencers`
 
 Expected:
 - manager/admin allowed
@@ -449,9 +449,9 @@ Expected:
 ### E11. Add, update, and remove contact
 
 Calls:
-- `POST /api/exercise/{id}/add-contact`
+- `POST /api/exercise/{id}/add-contacts`
 - `PUT /api/exercise/update-contact/{contactId}`
-- `DELETE /api/exercise/remove-contact/{contactId}`
+- `DELETE /api/exercise/{id}/remove-contacts`
 
 Expected:
 - manager/admin allowed
@@ -680,10 +680,10 @@ Body scenarios:
 
 Calls:
 - `POST /api/admin/task-template/{id}/add-child`
-- `POST /api/admin/task-template/{id}/add-dependency`
-- `DELETE /api/admin/task-template/remove-dependency/{dependencyId}`
+- `POST /api/admin/task-template/{id}/add-dependencies`
+- `DELETE /api/admin/task-template/{id}/remove-dependencies`
 - `POST /api/admin/task-template/{id}/add-influencers`
-- `DELETE /api/admin/task-template/remove-influencer/{influencerLinkId}`
+- `DELETE /api/admin/task-template/{id}/remove-influencers`
 
 Expected:
 - admin allowed

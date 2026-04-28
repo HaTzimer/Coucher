@@ -23,9 +23,9 @@ public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
         CreateTaskTemplateChildRequest request,
         CancellationToken cancellationToken = default
     );
-    Task<TaskTemplateDependency> AddTaskTemplateDependencyAsync(
+    Task<List<TaskTemplateDependency>> AddTaskTemplateDependenciesAsync(
         Guid taskTemplateId,
-        Guid dependsOnId,
+        List<Guid> dependsOnIds,
         CancellationToken cancellationToken = default
     );
     Task<List<TaskTemplateInfluencer>> AddTaskTemplateInfluencersAsync(
@@ -33,8 +33,16 @@ public interface ITaskTemplateService : IServiceBase<TaskTemplate, Guid>
         List<Guid> influencerIds,
         CancellationToken cancellationToken = default
     );
-    Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default);
-    Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);
+    Task DeleteTaskTemplateDependenciesAsync(
+        Guid taskTemplateId,
+        List<Guid> dependencyIds,
+        CancellationToken cancellationToken = default
+    );
+    Task DeleteTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken = default
+    );
     Task<TaskTemplate> SetTaskTemplateArchiveStateAsync(
         Guid taskTemplateId,
         bool isArchived,

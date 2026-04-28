@@ -185,43 +185,54 @@ public sealed class TaskTemplateService : ITaskTemplateService
         return createdEntity;
     }
 
-    public async Task<TaskTemplateDependency> AddTaskTemplateDependencyAsync(
+    public async Task<List<TaskTemplateDependency>> AddTaskTemplateDependenciesAsync(
         Guid taskTemplateId,
-        Guid dependsOnId,
+        List<Guid> dependsOnIds,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
+
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
-        _ = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
+        var normalizedDependsOnIds = dependsOnIds.Distinct().ToList();
+        if (normalizedDependsOnIds.Count == 0)
+            return new List<TaskTemplateDependency>();
 
-        if (taskTemplateId == dependsOnId)
-            ThrowConflict(
-                "A task template cannot depend on itself.",
-                ("taskTemplateId", taskTemplateId),
-                ("dependsOnId", dependsOnId)
-            );
-
-        var entity = new TaskTemplateDependency
+        foreach (var dependsOnId in normalizedDependsOnIds)
         {
-            Id = Guid.NewGuid(),
-            TemplateId = taskTemplateId,
-            DependsOnId = dependsOnId,
-            CreationTime = DateTime.UtcNow
-        };
-        var createdEntity = await _repository.CreateTaskTemplateDependencyAsync(entity, cancellationToken);
+            _ = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
+            if (taskTemplateId == dependsOnId)
+                ThrowConflict(
+                    "A task template cannot depend on itself.",
+                    ("taskTemplateId", taskTemplateId),
+                    ("dependsOnId", dependsOnId)
+                );
+        }
 
-        _logger.Info("Task template dependency added", new Dictionary<string, object>
+        var now = DateTime.UtcNow;
+        var entities = normalizedDependsOnIds.Select(dependsOnId => new TaskTemplateDependency
+            {
+                Id = Guid.NewGuid(),
+                TemplateId = taskTemplateId,
+                DependsOnId = dependsOnId,
+                CreationTime = now
+            })
+            .ToList();
+        var createdEntities = await _repository.CreateTaskTemplateDependenciesAsync(
+            entities,
+            cancellationToken
+        );
+
+        _logger.Info("Task template dependencies added", new Dictionary<string, object>
         {
             { "userId", currentUserId },
             { "taskTemplateId", taskTemplateId },
-            { "dependsOnId", dependsOnId },
-            { "dependencyId", createdEntity.Id },
+            { "count", createdEntities.Count },
             { "result", "success" }
         });
 
-        return createdEntity;
+        return createdEntities;
     }
 
     public async Task<List<TaskTemplateInfluencer>> AddTaskTemplateInfluencersAsync(
@@ -250,36 +261,58 @@ public sealed class TaskTemplateService : ITaskTemplateService
         return createdEntities;
     }
 
-    public async Task DeleteTaskTemplateDependencyAsync(
-        Guid dependencyId,
+    public async Task DeleteTaskTemplateDependenciesAsync(
+        Guid taskTemplateId,
+        List<Guid> dependencyIds,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        await _repository.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
 
-        _logger.Info("Task template dependency removed", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var normalizedDependencyIds = dependencyIds.Distinct().ToList();
+        if (normalizedDependencyIds.Count == 0)
+            return;
+
+        await _repository.DeleteTaskTemplateDependenciesAsync(
+            taskTemplateId,
+            normalizedDependencyIds,
+            cancellationToken
+        );
+
+        _logger.Info("Task template dependencies removed", new Dictionary<string, object>
         {
             { "userId", currentUserId },
-            { "dependencyId", dependencyId },
+            { "taskTemplateId", taskTemplateId },
+            { "count", normalizedDependencyIds.Count },
             { "result", "success" }
         });
     }
 
-    public async Task DeleteTaskTemplateInfluencerAsync(
-        Guid influencerLinkId,
+    public async Task DeleteTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerLinkIds,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        await _repository.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
 
-        _logger.Info("Task template influencer removed", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var normalizedInfluencerLinkIds = influencerLinkIds.Distinct().ToList();
+        if (normalizedInfluencerLinkIds.Count == 0)
+            return;
+
+        await _repository.DeleteTaskTemplateInfluencersAsync(
+            taskTemplateId,
+            normalizedInfluencerLinkIds,
+            cancellationToken
+        );
+
+        _logger.Info("Task template influencers removed", new Dictionary<string, object>
         {
             { "userId", currentUserId },
-            { "influencerLinkId", influencerLinkId },
+            { "taskTemplateId", taskTemplateId },
+            { "count", normalizedInfluencerLinkIds.Count },
             { "result", "success" }
         });
     }

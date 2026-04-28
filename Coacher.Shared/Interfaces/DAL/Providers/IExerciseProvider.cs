@@ -8,17 +8,20 @@ public interface IExerciseProvider : IProviderBase<Exercise, Guid>
     Task<Exercise> UpdateExerciseAsync(Exercise entity, CancellationToken cancellationToken = default);
     Task<Exercise> ArchiveExerciseAsync(Exercise entity, CancellationToken cancellationToken = default);
     Task<Exercise> UnarchiveExerciseAsync(Exercise entity, CancellationToken cancellationToken = default);
-    Task<ExerciseParticipant> CreateExerciseParticipantAsync(
-        ExerciseParticipant entity,
+    Task<List<ExerciseParticipant>> CreateExerciseParticipantsAsync(
+        List<ExerciseParticipant> entities,
         CancellationToken cancellationToken = default
     );
-    Task<ExerciseSection> CreateExerciseSectionAsync(ExerciseSection entity, CancellationToken cancellationToken = default);
-    Task<ExerciseInfluencer> CreateExerciseInfluencerAsync(
-        ExerciseInfluencer entity,
+    Task<List<ExerciseSection>> CreateExerciseSectionsAsync(
+        List<ExerciseSection> entities,
         CancellationToken cancellationToken = default
     );
-    Task<ExerciseUnitContact> CreateExerciseUnitContactAsync(
-        ExerciseUnitContact entity,
+    Task<List<ExerciseInfluencer>> CreateExerciseInfluencersAsync(
+        List<ExerciseInfluencer> entities,
+        CancellationToken cancellationToken = default
+    );
+    Task<List<ExerciseUnitContact>> CreateExerciseUnitContactsAsync(
+        List<ExerciseUnitContact> entities,
         CancellationToken cancellationToken = default
     );
     Task<ExerciseParticipant?> GetExerciseParticipantByIdAsync(Guid participantId, CancellationToken cancellationToken = default);
@@ -43,11 +46,27 @@ public interface IExerciseProvider : IProviderBase<Exercise, Guid>
         ExerciseUnitContact entity,
         CancellationToken cancellationToken = default
     );
-    Task DeleteExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default);
+    Task DeleteExerciseParticipantsAsync(
+        Guid exerciseId,
+        List<Guid> participantIds,
+        CancellationToken cancellationToken = default
+    );
     Task<bool> ExerciseSectionExistsAsync(Guid sectionLinkId, CancellationToken cancellationToken = default);
-    Task DeleteExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default);
+    Task DeleteExerciseSectionsAsync(
+        Guid exerciseId,
+        List<Guid> sectionLinkIds,
+        CancellationToken cancellationToken = default
+    );
     Task<bool> ExerciseInfluencerExistsAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);
-    Task DeleteExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);
+    Task DeleteExerciseInfluencersAsync(
+        Guid exerciseId,
+        List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken = default
+    );
     Task<bool> ExerciseUnitContactExistsAsync(Guid contactId, CancellationToken cancellationToken = default);
-    Task DeleteExerciseUnitContactAsync(Guid contactId, CancellationToken cancellationToken = default);
+    Task DeleteExerciseUnitContactsAsync(
+        Guid exerciseId,
+        List<Guid> contactIds,
+        CancellationToken cancellationToken = default
+    );
 }

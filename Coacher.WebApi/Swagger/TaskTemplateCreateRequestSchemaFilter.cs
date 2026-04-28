@@ -83,8 +83,17 @@ public sealed class TaskTemplateCreateRequestSchemaFilter : ISchemaFilter
         var example = new OpenApiObject
         {
             ["templateKey"] = new OpenApiString(templateKey),
+            ["seriesId"] = new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+            ["categoryId"] = new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afb0"),
             ["name"] = new OpenApiString(name),
+            ["description"] = new OpenApiString("Child task template description"),
+            ["notes"] = new OpenApiString("Optional child task template notes"),
             ["defaultWeeksBeforeExerciseStart"] = new OpenApiInteger(defaultWeeksBeforeExerciseStart)
+        };
+
+        example["influencerIds"] = new OpenApiArray
+        {
+            new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afc1")
         };
 
         if (dependsOnTemplateKeys is not null)

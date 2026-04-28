@@ -35,11 +35,22 @@ public sealed class CoacherAuthorizationService : ICoacherAuthorizationService
         CancellationToken cancellationToken = default
     )
     {
-        var userId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var roles = await _userRoleRepository.ListByUserIdAsync(userId, cancellationToken);
+        var userId = await _currentUserService.TryGetCurrentUserIdAsync(cancellationToken);
+        if (!userId.HasValue)
+        {
+            var anonymousSnapshot = new CurrentAuthorizationSnapshot
+            {
+                UserId = Guid.Empty,
+                GlobalRoles = new List<Coacher.Shared.Models.Enums.GlobalRole>()
+            };
+
+            return anonymousSnapshot;
+        }
+
+        var roles = await _userRoleRepository.ListByUserIdAsync(userId.Value, cancellationToken);
         var snapshot = new CurrentAuthorizationSnapshot
         {
-            UserId = userId,
+            UserId = userId.Value,
             GlobalRoles = roles.Select(item => item.Role).Distinct().ToList()
         };
 

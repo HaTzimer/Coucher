@@ -79,14 +79,14 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
         return updatedEntity;
     }
 
-    public async Task<TaskTemplateDependency> CreateTaskTemplateDependencyAsync(
-        TaskTemplateDependency entity,
+    public async Task<List<TaskTemplateDependency>> CreateTaskTemplateDependenciesAsync(
+        List<TaskTemplateDependency> entities,
         CancellationToken cancellationToken = default
     )
     {
-        var createdEntity = await _provider.CreateTaskTemplateDependencyAsync(entity, cancellationToken);
+        var createdEntities = await _provider.CreateTaskTemplateDependenciesAsync(entities, cancellationToken);
 
-        return createdEntity;
+        return createdEntities;
     }
 
     public async Task<List<TaskTemplateInfluencer>> CreateTaskTemplateInfluencersAsync(
@@ -107,18 +107,24 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
         return createdEntities;
     }
 
-    public async Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default)
+    public async Task DeleteTaskTemplateDependenciesAsync(
+        Guid taskTemplateId,
+        List<Guid> dependencyIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        await _provider.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
+        _ = await GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        await _provider.DeleteTaskTemplateDependenciesAsync(taskTemplateId, dependencyIds, cancellationToken);
     }
 
-    public async Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    public async Task DeleteTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        var entity = await _provider.GetTaskTemplateInfluencerByIdAsync(influencerLinkId, cancellationToken);
-        if (entity is null)
-            ThrowNotFound(nameof(TaskTemplateInfluencer), influencerLinkId);
-
-        await _provider.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
+        _ = await GetRequiredByIdAsync(taskTemplateId, cancellationToken);
+        await _provider.DeleteTaskTemplateInfluencersAsync(taskTemplateId, influencerLinkIds, cancellationToken);
     }
 
     public async Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)

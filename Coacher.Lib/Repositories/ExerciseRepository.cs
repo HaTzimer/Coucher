@@ -70,48 +70,48 @@ public sealed class ExerciseRepository : IExerciseRepository
         return unarchivedEntity;
     }
 
-    public async Task<ExerciseParticipant> CreateExerciseParticipantAsync(
-        ExerciseParticipant entity,
+    public async Task<List<ExerciseParticipant>> CreateExerciseParticipantsAsync(
+        List<ExerciseParticipant> entities,
         CancellationToken cancellationToken = default
     )
     {
-        _ = await GetRequiredByIdAsync(entity.ExerciseId ?? Guid.Empty, cancellationToken);
-        var createdEntity = await _provider.CreateExerciseParticipantAsync(entity, cancellationToken);
+        _ = await GetRequiredByIdAsync(entities.FirstOrDefault()?.ExerciseId ?? Guid.Empty, cancellationToken);
+        var createdEntities = await _provider.CreateExerciseParticipantsAsync(entities, cancellationToken);
 
-        return createdEntity;
+        return createdEntities;
     }
 
-    public async Task<ExerciseSection> CreateExerciseSectionAsync(
-        ExerciseSection entity,
+    public async Task<List<ExerciseSection>> CreateExerciseSectionsAsync(
+        List<ExerciseSection> entities,
         CancellationToken cancellationToken = default
     )
     {
-        _ = await GetRequiredByIdAsync(entity.ExerciseId ?? Guid.Empty, cancellationToken);
-        var createdEntity = await _provider.CreateExerciseSectionAsync(entity, cancellationToken);
+        _ = await GetRequiredByIdAsync(entities.FirstOrDefault()?.ExerciseId ?? Guid.Empty, cancellationToken);
+        var createdEntities = await _provider.CreateExerciseSectionsAsync(entities, cancellationToken);
 
-        return createdEntity;
+        return createdEntities;
     }
 
-    public async Task<ExerciseInfluencer> CreateExerciseInfluencerAsync(
-        ExerciseInfluencer entity,
+    public async Task<List<ExerciseInfluencer>> CreateExerciseInfluencersAsync(
+        List<ExerciseInfluencer> entities,
         CancellationToken cancellationToken = default
     )
     {
-        _ = await GetRequiredByIdAsync(entity.ExerciseId ?? Guid.Empty, cancellationToken);
-        var createdEntity = await _provider.CreateExerciseInfluencerAsync(entity, cancellationToken);
+        _ = await GetRequiredByIdAsync(entities.FirstOrDefault()?.ExerciseId ?? Guid.Empty, cancellationToken);
+        var createdEntities = await _provider.CreateExerciseInfluencersAsync(entities, cancellationToken);
 
-        return createdEntity;
+        return createdEntities;
     }
 
-    public async Task<ExerciseUnitContact> CreateExerciseUnitContactAsync(
-        ExerciseUnitContact entity,
+    public async Task<List<ExerciseUnitContact>> CreateExerciseUnitContactsAsync(
+        List<ExerciseUnitContact> entities,
         CancellationToken cancellationToken = default
     )
     {
-        _ = await GetRequiredByIdAsync(entity.ExerciseId ?? Guid.Empty, cancellationToken);
-        var createdEntity = await _provider.CreateExerciseUnitContactAsync(entity, cancellationToken);
+        _ = await GetRequiredByIdAsync(entities.FirstOrDefault()?.ExerciseId ?? Guid.Empty, cancellationToken);
+        var createdEntities = await _provider.CreateExerciseUnitContactsAsync(entities, cancellationToken);
 
-        return createdEntity;
+        return createdEntities;
     }
 
     public async Task<ExerciseParticipant> GetRequiredExerciseParticipantByIdAsync(
@@ -225,37 +225,44 @@ public sealed class ExerciseRepository : IExerciseRepository
         return updatedEntity;
     }
 
-    public async Task DeleteExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default)
+    public async Task DeleteExerciseParticipantsAsync(
+        Guid exerciseId,
+        List<Guid> participantIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        _ = await GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
-        await _provider.DeleteExerciseParticipantAsync(participantId, cancellationToken);
+        _ = await GetRequiredByIdAsync(exerciseId, cancellationToken);
+        await _provider.DeleteExerciseParticipantsAsync(exerciseId, participantIds, cancellationToken);
     }
 
-    public async Task DeleteExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default)
+    public async Task DeleteExerciseSectionsAsync(
+        Guid exerciseId,
+        List<Guid> sectionLinkIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        var exists = await _provider.ExerciseSectionExistsAsync(sectionLinkId, cancellationToken);
-        if (!exists)
-            ThrowNotFound(nameof(ExerciseSection), sectionLinkId);
-
-        await _provider.DeleteExerciseSectionAsync(sectionLinkId, cancellationToken);
+        _ = await GetRequiredByIdAsync(exerciseId, cancellationToken);
+        await _provider.DeleteExerciseSectionsAsync(exerciseId, sectionLinkIds, cancellationToken);
     }
 
-    public async Task DeleteExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    public async Task DeleteExerciseInfluencersAsync(
+        Guid exerciseId,
+        List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        var exists = await _provider.ExerciseInfluencerExistsAsync(influencerLinkId, cancellationToken);
-        if (!exists)
-            ThrowNotFound(nameof(ExerciseInfluencer), influencerLinkId);
-
-        await _provider.DeleteExerciseInfluencerAsync(influencerLinkId, cancellationToken);
+        _ = await GetRequiredByIdAsync(exerciseId, cancellationToken);
+        await _provider.DeleteExerciseInfluencersAsync(exerciseId, influencerLinkIds, cancellationToken);
     }
 
-    public async Task DeleteExerciseUnitContactAsync(Guid contactId, CancellationToken cancellationToken = default)
+    public async Task DeleteExerciseUnitContactsAsync(
+        Guid exerciseId,
+        List<Guid> contactIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        var exists = await _provider.ExerciseUnitContactExistsAsync(contactId, cancellationToken);
-        if (!exists)
-            ThrowNotFound(nameof(ExerciseUnitContact), contactId);
-
-        await _provider.DeleteExerciseUnitContactAsync(contactId, cancellationToken);
+        _ = await GetRequiredByIdAsync(exerciseId, cancellationToken);
+        await _provider.DeleteExerciseUnitContactsAsync(exerciseId, contactIds, cancellationToken);
     }
 
     public async Task<Exercise> AddAsync(Exercise entity, CancellationToken cancellationToken = default)

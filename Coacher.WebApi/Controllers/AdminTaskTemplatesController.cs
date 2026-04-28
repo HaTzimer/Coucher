@@ -64,16 +64,20 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(taskTemplate);
     }
 
-    [HttpPost("{id:guid}/add-dependency")]
-    public async Task<ActionResult<TaskTemplateDependency>> AddDependencyAsync(
+    [HttpPost("{id:guid}/add-dependencies")]
+    public async Task<ActionResult<List<TaskTemplateDependency>>> AddDependenciesAsync(
         Guid id,
-        [FromBody] Guid dependsOnId,
+        [FromBody] List<Guid> dependsOnIds,
         CancellationToken cancellationToken
     )
     {
-        var dependency = await _taskTemplateService.AddTaskTemplateDependencyAsync(id, dependsOnId, cancellationToken);
+        var dependencies = await _taskTemplateService.AddTaskTemplateDependenciesAsync(
+            id,
+            dependsOnIds,
+            cancellationToken
+        );
 
-        return Ok(dependency);
+        return Ok(dependencies);
     }
 
     [HttpPost("{id:guid}/add-influencers")]
@@ -92,18 +96,26 @@ public sealed class AdminTaskTemplatesController : ControllerBase
         return Ok(influencers);
     }
 
-    [HttpDelete("remove-dependency/{dependencyId:guid}")]
-    public async Task<IActionResult> DeleteDependencyAsync(Guid dependencyId, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}/remove-dependencies")]
+    public async Task<IActionResult> DeleteDependenciesAsync(
+        Guid id,
+        [FromBody] List<Guid> dependencyIds,
+        CancellationToken cancellationToken
+    )
     {
-        await _taskTemplateService.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
+        await _taskTemplateService.DeleteTaskTemplateDependenciesAsync(id, dependencyIds, cancellationToken);
 
         return NoContent();
     }
 
-    [HttpDelete("remove-influencer/{influencerLinkId:guid}")]
-    public async Task<IActionResult> DeleteInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}/remove-influencers")]
+    public async Task<IActionResult> DeleteInfluencersAsync(
+        Guid id,
+        [FromBody] List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken
+    )
     {
-        await _taskTemplateService.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
+        await _taskTemplateService.DeleteTaskTemplateInfluencersAsync(id, influencerLinkIds, cancellationToken);
 
         return NoContent();
     }

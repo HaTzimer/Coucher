@@ -104,17 +104,17 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         return entity;
     }
 
-    public async Task<TaskTemplateDependency> CreateTaskTemplateDependencyAsync(
-        TaskTemplateDependency entity,
+    public async Task<List<TaskTemplateDependency>> CreateTaskTemplateDependenciesAsync(
+        List<TaskTemplateDependency> entitiesToCreate,
         CancellationToken cancellationToken = default
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        await dbContext.Set<TaskTemplateDependency>().AddAsync(entity, cancellationToken);
+        await dbContext.Set<TaskTemplateDependency>().AddRangeAsync(entitiesToCreate, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return entity;
+        return entitiesToCreate;
     }
 
     public async Task<List<TaskTemplateInfluencer>> CreateTaskTemplateInfluencersAsync(
@@ -166,30 +166,30 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         return entity;
     }
 
-    public async Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default)
+    public async Task DeleteTaskTemplateDependenciesAsync(
+        Guid taskTemplateId,
+        List<Guid> dependencyIds,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var entity = await dbContext.Set<TaskTemplateDependency>()
-            .FirstOrDefaultAsync(item => item.Id == dependencyId, cancellationToken);
-        if (entity is null)
-            ThrowNotFound(nameof(TaskTemplateDependency), dependencyId);
-
-        dbContext.Set<TaskTemplateDependency>().Remove(entity);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Set<TaskTemplateDependency>()
+            .Where(item => item.TemplateId == taskTemplateId && dependencyIds.Contains(item.Id))
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    public async Task DeleteTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var entity = await dbContext.Set<TaskTemplateInfluencer>()
-            .FirstOrDefaultAsync(item => item.Id == influencerLinkId, cancellationToken);
-        if (entity is null)
-            ThrowNotFound(nameof(TaskTemplateInfluencer), influencerLinkId);
-
-        dbContext.Set<TaskTemplateInfluencer>().Remove(entity);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Set<TaskTemplateInfluencer>()
+            .Where(item => item.TemplateId == taskTemplateId && influencerLinkIds.Contains(item.Id))
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
     public async Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default)

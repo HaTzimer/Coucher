@@ -1,4 +1,3 @@
-using Augustus.Infra.Core.Gql;
 using Augustus.Infra.Core.Logging.CorrelationId;
 using Augustus.Infra.Core.Shared.Extensions;
 using Augustus.Infra.Core.Shared.Interfaces;
@@ -75,7 +74,6 @@ public sealed class Startup
             .AddProjections()
             .AddFiltering()
             .AddSorting()
-            .AddErrorFilter<GqlErrorFilter>()
             .AddErrorFilter<CoacherGraphQlErrorFilter>();
 
         services.AddControllers(options =>

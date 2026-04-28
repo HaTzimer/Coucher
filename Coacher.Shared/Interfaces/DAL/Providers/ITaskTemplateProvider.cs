@@ -11,8 +11,8 @@ public interface ITaskTemplateProvider : IProviderBase<TaskTemplate, Guid>
         CancellationToken cancellationToken = default
     );
     Task<TaskTemplate> UpdateTaskTemplateAsync(TaskTemplate entity, CancellationToken cancellationToken = default);
-    Task<TaskTemplateDependency> CreateTaskTemplateDependencyAsync(
-        TaskTemplateDependency entity,
+    Task<List<TaskTemplateDependency>> CreateTaskTemplateDependenciesAsync(
+        List<TaskTemplateDependency> entities,
         CancellationToken cancellationToken = default
     );
     Task<List<TaskTemplateInfluencer>> CreateTaskTemplateInfluencersAsync(
@@ -25,8 +25,16 @@ public interface ITaskTemplateProvider : IProviderBase<TaskTemplate, Guid>
         Guid influencerLinkId,
         CancellationToken cancellationToken = default
     );
-    Task DeleteTaskTemplateDependencyAsync(Guid dependencyId, CancellationToken cancellationToken = default);
-    Task DeleteTaskTemplateInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default);
+    Task DeleteTaskTemplateDependenciesAsync(
+        Guid taskTemplateId,
+        List<Guid> dependencyIds,
+        CancellationToken cancellationToken = default
+    );
+    Task DeleteTaskTemplateInfluencersAsync(
+        Guid taskTemplateId,
+        List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken = default
+    );
     Task<TaskTemplate> ArchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default);
     Task<TaskTemplate> UnarchiveTaskTemplateAsync(Guid id, CancellationToken cancellationToken = default);
 }

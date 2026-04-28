@@ -142,35 +142,40 @@ public sealed class ExerciseService : IExerciseService
         return updatedEntity;
     }
 
-    public async Task<ExerciseParticipant> AddExerciseParticipantAsync(
+    public async Task<List<ExerciseParticipant>> AddExerciseParticipantsAsync(
         Guid exerciseId,
-        string userId,
+        List<string> userIds,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var parsedUserId = ParseManagerUserId(userId);
-        var entity = new ExerciseParticipant
-        {
-            Id = Guid.NewGuid(),
-            ExerciseId = exerciseId,
-            UserId = parsedUserId,
-            Role = ExerciseRole.ExerciseParticipant,
-            CreationTime = DateTime.UtcNow
-        };
-        var createdEntity = await _repository.CreateExerciseParticipantAsync(entity, cancellationToken);
 
-        _logger.Info("Exercise participant added", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var parsedUserIds = userIds.Select(ParseManagerUserId).Distinct().ToList();
+        if (parsedUserIds.Count == 0)
+            return new List<ExerciseParticipant>();
+
+        var now = DateTime.UtcNow;
+        var entities = parsedUserIds.Select(parsedUserId => new ExerciseParticipant
+            {
+                Id = Guid.NewGuid(),
+                ExerciseId = exerciseId,
+                UserId = parsedUserId,
+                Role = ExerciseRole.ExerciseParticipant,
+                CreationTime = now
+            })
+            .ToList();
+        var createdEntities = await _repository.CreateExerciseParticipantsAsync(entities, cancellationToken);
+
+        _logger.Info("Exercise participants added", new Dictionary<string, object>
         {
             { "userId", currentUserId },
             { "exerciseId", exerciseId },
-            { "targetUserId", parsedUserId },
-            { "role", ExerciseRole.ExerciseParticipant.ToString() },
+            { "count", createdEntities.Count },
             { "result", "success" }
         });
 
-        return createdEntity;
+        return createdEntities;
     }
 
     public async Task<ExerciseParticipant> UpdateExerciseParticipantRoleAsync(
@@ -258,7 +263,10 @@ public sealed class ExerciseService : IExerciseService
             Role = ExerciseRole.ExerciseManager,
             CreationTime = DateTime.UtcNow
         };
-        var createdParticipant = await _repository.CreateExerciseParticipantAsync(entity, cancellationToken);
+        var createdParticipant = (await _repository.CreateExerciseParticipantsAsync(
+            new List<ExerciseParticipant> { entity },
+            cancellationToken
+        )).Single();
 
         _logger.Info("Exercise manager reassigned", new Dictionary<string, object>
         {
@@ -272,91 +280,108 @@ public sealed class ExerciseService : IExerciseService
         return createdParticipant;
     }
 
-    public async Task<ExerciseSection> AddExerciseSectionAsync(
+    public async Task<List<ExerciseSection>> AddExerciseSectionsAsync(
         Guid exerciseId,
-        Guid sectionId,
+        List<Guid> sectionIds,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = new ExerciseSection
-        {
-            Id = Guid.NewGuid(),
-            ExerciseId = exerciseId,
-            SectionId = sectionId
-        };
-        var createdEntity = await _repository.CreateExerciseSectionAsync(entity, cancellationToken);
 
-        _logger.Info("Exercise section added", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var normalizedSectionIds = sectionIds.Distinct().ToList();
+        if (normalizedSectionIds.Count == 0)
+            return new List<ExerciseSection>();
+
+        var entities = normalizedSectionIds.Select(sectionId => new ExerciseSection
+            {
+                Id = Guid.NewGuid(),
+                ExerciseId = exerciseId,
+                SectionId = sectionId
+            })
+            .ToList();
+        var createdEntities = await _repository.CreateExerciseSectionsAsync(entities, cancellationToken);
+
+        _logger.Info("Exercise sections added", new Dictionary<string, object>
         {
             { "userId", currentUserId },
             { "exerciseId", exerciseId },
-            { "sectionId", sectionId },
+            { "count", createdEntities.Count },
             { "result", "success" }
         });
 
-        return createdEntity;
+        return createdEntities;
     }
 
-    public async Task<ExerciseInfluencer> AddExerciseInfluencerAsync(
+    public async Task<List<ExerciseInfluencer>> AddExerciseInfluencersAsync(
         Guid exerciseId,
-        Guid influencerId,
+        List<Guid> influencerIds,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = new ExerciseInfluencer
-        {
-            Id = Guid.NewGuid(),
-            ExerciseId = exerciseId,
-            InfluencerId = influencerId
-        };
-        var createdEntity = await _repository.CreateExerciseInfluencerAsync(entity, cancellationToken);
 
-        _logger.Info("Exercise influencer added", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var normalizedInfluencerIds = influencerIds.Distinct().ToList();
+        if (normalizedInfluencerIds.Count == 0)
+            return new List<ExerciseInfluencer>();
+
+        var entities = normalizedInfluencerIds.Select(influencerId => new ExerciseInfluencer
+            {
+                Id = Guid.NewGuid(),
+                ExerciseId = exerciseId,
+                InfluencerId = influencerId
+            })
+            .ToList();
+        var createdEntities = await _repository.CreateExerciseInfluencersAsync(entities, cancellationToken);
+
+        _logger.Info("Exercise influencers added", new Dictionary<string, object>
         {
             { "userId", currentUserId },
             { "exerciseId", exerciseId },
-            { "influencerId", influencerId },
+            { "count", createdEntities.Count },
             { "result", "success" }
         });
 
-        return createdEntity;
+        return createdEntities;
     }
 
-    public async Task<ExerciseUnitContact> AddExerciseUnitContactAsync(
+    public async Task<List<ExerciseUnitContact>> AddExerciseUnitContactsAsync(
         Guid exerciseId,
-        AddExerciseUnitContactRequest request,
+        List<AddExerciseUnitContactRequest> requests,
         CancellationToken cancellationToken = default
     )
     {
         await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var entity = new ExerciseUnitContact
-        {
-            Id = Guid.NewGuid(),
-            ExerciseId = exerciseId,
-            ContactType = request.ContactType,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            PhoneNumber = request.PhoneNumber,
-            ProfileImageUrl = request.ProfileImageUrl,
-            CreationTime = DateTime.UtcNow
-        };
-        var createdEntity = await _repository.CreateExerciseUnitContactAsync(entity, cancellationToken);
 
-        _logger.Info("Exercise contact added", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        if (requests.Count == 0)
+            return new List<ExerciseUnitContact>();
+
+        var now = DateTime.UtcNow;
+        var entities = requests.Select(request => new ExerciseUnitContact
+            {
+                Id = Guid.NewGuid(),
+                ExerciseId = exerciseId,
+                ContactType = request.ContactType,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                PhoneNumber = request.PhoneNumber,
+                ProfileImageUrl = request.ProfileImageUrl,
+                CreationTime = now
+            })
+            .ToList();
+        var createdEntities = await _repository.CreateExerciseUnitContactsAsync(entities, cancellationToken);
+
+        _logger.Info("Exercise contacts added", new Dictionary<string, object>
         {
             { "userId", currentUserId },
             { "exerciseId", exerciseId },
-            { "contactId", createdEntity.Id },
-            { "contactType", request.ContactType.ToString() },
+            { "count", createdEntities.Count },
             { "result", "success" }
         });
 
-        return createdEntity;
+        return createdEntities;
     }
 
     public async Task<ExerciseUnitContact> UpdateExerciseUnitContactAsync(
@@ -448,27 +473,39 @@ public sealed class ExerciseService : IExerciseService
         return unarchivedEntity;
     }
 
-    public async Task RemoveExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default)
+    public async Task RemoveExerciseParticipantsAsync(
+        Guid exerciseId,
+        List<Guid> participantIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        await _authorizationService.EnsureCanManageExerciseByParticipantIdAsync(participantId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var participant = await _repository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
-        if (participant.ExerciseId is null)
-            ThrowConflict("Exercise participant is not linked to an exercise.", ("participantId", participantId));
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
 
-        if (participant.Role == ExerciseRole.ExerciseManager)
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var normalizedParticipantIds = participantIds.Distinct().ToList();
+        if (normalizedParticipantIds.Count == 0)
+            return;
+
+        var participants = new List<ExerciseParticipant>(normalizedParticipantIds.Count);
+        foreach (var participantId in normalizedParticipantIds)
+            participants.Add(await _repository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken));
+
+        foreach (var participant in participants.Where(item => item.ExerciseId is null))
+            ThrowConflict("Exercise participant is not linked to an exercise.", ("participantId", participant.Id));
+
+        foreach (var participant in participants.Where(item => item.Role == ExerciseRole.ExerciseManager))
         {
             var replacementParticipant = (await _repository
-                    .ListExerciseParticipantsByExerciseIdAsync(participant.ExerciseId.Value, cancellationToken))
-                .Where(item => item.Id != participantId)
+                    .ListExerciseParticipantsByExerciseIdAsync(participant.ExerciseId!.Value, cancellationToken))
+                .Where(item => item.Id != participant.Id && !normalizedParticipantIds.Contains(item.Id))
                 .OrderBy(item => item.CreationTime)
                 .ThenBy(item => item.Id)
                 .FirstOrDefault();
             if (replacementParticipant is null)
                 ThrowConflict(
                     "Cannot remove the exercise manager when no replacement participant exists.",
-                    ("participantId", participantId),
-                    ("exerciseId", participant.ExerciseId.Value)
+                    ("participantId", participant.Id),
+                    ("exerciseId", participant.ExerciseId!.Value)
                 );
 
             replacementParticipant.Role = ExerciseRole.ExerciseManager;
@@ -477,76 +514,96 @@ public sealed class ExerciseService : IExerciseService
             _logger.Info("Exercise manager reassigned during participant removal", new Dictionary<string, object>
             {
                 { "userId", currentUserId },
-                { "exerciseId", participant.ExerciseId.Value },
-                { "removedParticipantId", participantId },
+                { "exerciseId", participant.ExerciseId!.Value },
+                { "removedParticipantId", participant.Id },
                 { "replacementUserId", replacementParticipant.UserId ?? Guid.Empty },
                 { "result", "success" }
             });
         }
 
-        await _repository.DeleteExerciseParticipantAsync(participantId, cancellationToken);
+        await _repository.DeleteExerciseParticipantsAsync(exerciseId, normalizedParticipantIds, cancellationToken);
 
-        _logger.Info("Exercise participant removed", new Dictionary<string, object>
+        _logger.Info("Exercise participants removed", new Dictionary<string, object>
         {
             { "userId", currentUserId },
-            { "exerciseId", participant.ExerciseId ?? Guid.Empty },
-            { "participantId", participantId },
-            { "targetUserId", participant.UserId ?? Guid.Empty },
-            { "role", participant.Role.ToString() },
+            { "exerciseId", exerciseId },
+            { "count", normalizedParticipantIds.Count },
             { "result", "success" }
         });
     }
 
-    public async Task RemoveExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default)
+    public async Task RemoveExerciseSectionsAsync(
+        Guid exerciseId,
+        List<Guid> sectionLinkIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        await _authorizationService.EnsureCanManageExerciseBySectionLinkIdAsync(sectionLinkId, cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
+
         var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var section = await _repository.GetRequiredExerciseSectionByIdAsync(sectionLinkId, cancellationToken);
-        await _repository.DeleteExerciseSectionAsync(sectionLinkId, cancellationToken);
+        var normalizedSectionLinkIds = sectionLinkIds.Distinct().ToList();
+        if (normalizedSectionLinkIds.Count == 0)
+            return;
 
-        _logger.Info("Exercise section removed", new Dictionary<string, object>
+        await _repository.DeleteExerciseSectionsAsync(exerciseId, normalizedSectionLinkIds, cancellationToken);
+
+        _logger.Info("Exercise sections removed", new Dictionary<string, object>
         {
             { "userId", currentUserId },
-            { "exerciseId", section.ExerciseId ?? Guid.Empty },
-            { "sectionLinkId", sectionLinkId },
-            { "sectionId", section.SectionId ?? Guid.Empty },
+            { "exerciseId", exerciseId },
+            { "count", normalizedSectionLinkIds.Count },
             { "result", "success" }
         });
     }
 
-    public async Task RemoveExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    public async Task RemoveExerciseInfluencersAsync(
+        Guid exerciseId,
+        List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        await _authorizationService.EnsureCanManageExerciseByInfluencerLinkIdAsync(
-            influencerLinkId,
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
+
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var normalizedInfluencerLinkIds = influencerLinkIds.Distinct().ToList();
+        if (normalizedInfluencerLinkIds.Count == 0)
+            return;
+
+        await _repository.DeleteExerciseInfluencersAsync(
+            exerciseId,
+            normalizedInfluencerLinkIds,
             cancellationToken
         );
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var influencer = await _repository.GetRequiredExerciseInfluencerByIdAsync(influencerLinkId, cancellationToken);
-        await _repository.DeleteExerciseInfluencerAsync(influencerLinkId, cancellationToken);
 
-        _logger.Info("Exercise influencer removed", new Dictionary<string, object>
+        _logger.Info("Exercise influencers removed", new Dictionary<string, object>
         {
             { "userId", currentUserId },
-            { "exerciseId", influencer.ExerciseId ?? Guid.Empty },
-            { "influencerLinkId", influencerLinkId },
-            { "influencerId", influencer.InfluencerId ?? Guid.Empty },
+            { "exerciseId", exerciseId },
+            { "count", normalizedInfluencerLinkIds.Count },
             { "result", "success" }
         });
     }
 
-    public async Task RemoveExerciseUnitContactAsync(Guid contactId, CancellationToken cancellationToken = default)
+    public async Task RemoveExerciseUnitContactsAsync(
+        Guid exerciseId,
+        List<Guid> contactIds,
+        CancellationToken cancellationToken = default
+    )
     {
-        await _authorizationService.EnsureCanManageExerciseByContactIdAsync(contactId, cancellationToken);
-        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
-        var contact = await _repository.GetRequiredExerciseUnitContactByIdAsync(contactId, cancellationToken);
-        await _repository.DeleteExerciseUnitContactAsync(contactId, cancellationToken);
+        await _authorizationService.EnsureCanManageExerciseAsync(exerciseId, cancellationToken);
 
-        _logger.Info("Exercise contact removed", new Dictionary<string, object>
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var normalizedContactIds = contactIds.Distinct().ToList();
+        if (normalizedContactIds.Count == 0)
+            return;
+
+        await _repository.DeleteExerciseUnitContactsAsync(exerciseId, normalizedContactIds, cancellationToken);
+
+        _logger.Info("Exercise contacts removed", new Dictionary<string, object>
         {
             { "userId", currentUserId },
-            { "exerciseId", contact.ExerciseId ?? Guid.Empty },
-            { "contactId", contactId },
-            { "contactType", contact.ContactType.ToString() },
+            { "exerciseId", exerciseId },
+            { "count", normalizedContactIds.Count },
             { "result", "success" }
         });
     }

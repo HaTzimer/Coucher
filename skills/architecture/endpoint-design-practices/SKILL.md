@@ -30,6 +30,14 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
   - children
 - For attached entities and relation links, allow add or remove operations, not replace-all overrides.
 - When the operation naturally targets a collection of relation links, prefer plural add/remove endpoints with raw list bodies:
+  - `POST /api/<resource>/{id}/add-participants`
+  - `DELETE /api/<resource>/{id}/remove-participants`
+  - `POST /api/<resource>/{id}/add-sections`
+  - `DELETE /api/<resource>/{id}/remove-sections`
+  - `POST /api/<resource>/{id}/add-influencers`
+  - `DELETE /api/<resource>/{id}/remove-influencers`
+  - `POST /api/<resource>/{id}/add-contacts`
+  - `DELETE /api/<resource>/{id}/remove-contacts`
   - `POST /api/<resource>/{id}/add-dependencies`
   - `DELETE /api/<resource>/{id}/remove-dependencies`
   - `POST /api/<resource>/{id}/add-responsible-users`
@@ -52,9 +60,9 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
   - `PUT /api/<resource>/update/{id}` for unified root-field update
   - `DELETE /api/<resource>/delete/{id}` for explicit root deletes when the aggregate supports delete
   - explicit verb routes for relation changes such as:
-    - `POST /api/<resource>/{id}/add-participant`
+    - `POST /api/<resource>/{id}/add-participants`
     - `POST /api/<resource>/{id}/add-responsible-users`
-    - `DELETE /api/<resource>/remove-participant/{participantId}`
+    - `DELETE /api/<resource>/{id}/remove-participants`
     - `DELETE /api/<resource>/{id}/remove-dependencies`
     - `PUT /api/<resource>/update-contact/{contactId}` when an attached entity itself needs field edits
   - `PUT /api/<resource>/archive/{id}` with a raw `bool` body for archive state changes
@@ -157,9 +165,10 @@ Do prefer:
 Do not prefer:
 
 ```csharp
+[HttpPost("{id:guid}/add-participant")]
+[HttpDelete("remove-participant/{participantId:guid}")]
 [HttpPost("{id:guid}/add-responsible-user")]
 [HttpDelete("remove-responsible-user/{responsibilityId:guid}")]
-[HttpPost("{id:guid}/remove-responsible-users")]
 ```
 
 ## Review Checklist

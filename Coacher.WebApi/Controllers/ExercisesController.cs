@@ -42,16 +42,16 @@ public sealed class ExercisesController : ControllerBase
         return Ok(exercise);
     }
 
-    [HttpPost("{id:guid}/add-participant")]
-    public async Task<ActionResult<ExerciseParticipant>> AddParticipantAsync(
+    [HttpPost("{id:guid}/add-participants")]
+    public async Task<ActionResult<List<ExerciseParticipant>>> AddParticipantsAsync(
         Guid id,
-        [FromBody] string userId,
+        [FromBody] List<string> userIds,
         CancellationToken cancellationToken
     )
     {
-        var participant = await _exerciseService.AddExerciseParticipantAsync(id, userId, cancellationToken);
+        var participants = await _exerciseService.AddExerciseParticipantsAsync(id, userIds, cancellationToken);
 
-        return Ok(participant);
+        return Ok(participants);
     }
 
     [HttpPut("update-participant-role/{participantId:guid}")]
@@ -82,40 +82,44 @@ public sealed class ExercisesController : ControllerBase
         return Ok(participant);
     }
 
-    [HttpPost("{id:guid}/add-section")]
-    public async Task<ActionResult<ExerciseSection>> AddSectionAsync(
+    [HttpPost("{id:guid}/add-sections")]
+    public async Task<ActionResult<List<ExerciseSection>>> AddSectionsAsync(
         Guid id,
-        [FromBody] Guid sectionId,
+        [FromBody] List<Guid> sectionIds,
         CancellationToken cancellationToken
     )
     {
-        var section = await _exerciseService.AddExerciseSectionAsync(id, sectionId, cancellationToken);
+        var sections = await _exerciseService.AddExerciseSectionsAsync(id, sectionIds, cancellationToken);
 
-        return Ok(section);
+        return Ok(sections);
     }
 
-    [HttpPost("{id:guid}/add-influencer")]
-    public async Task<ActionResult<ExerciseInfluencer>> AddInfluencerAsync(
+    [HttpPost("{id:guid}/add-influencers")]
+    public async Task<ActionResult<List<ExerciseInfluencer>>> AddInfluencersAsync(
         Guid id,
-        [FromBody] Guid influencerId,
+        [FromBody] List<Guid> influencerIds,
         CancellationToken cancellationToken
     )
     {
-        var influencer = await _exerciseService.AddExerciseInfluencerAsync(id, influencerId, cancellationToken);
+        var influencers = await _exerciseService.AddExerciseInfluencersAsync(
+            id,
+            influencerIds,
+            cancellationToken
+        );
 
-        return Ok(influencer);
+        return Ok(influencers);
     }
 
-    [HttpPost("{id:guid}/add-contact")]
-    public async Task<ActionResult<ExerciseUnitContact>> AddContactAsync(
+    [HttpPost("{id:guid}/add-contacts")]
+    public async Task<ActionResult<List<ExerciseUnitContact>>> AddContactsAsync(
         Guid id,
-        [FromBody] AddExerciseUnitContactRequest request,
+        [FromBody] List<AddExerciseUnitContactRequest> requests,
         CancellationToken cancellationToken
     )
     {
-        var contact = await _exerciseService.AddExerciseUnitContactAsync(id, request, cancellationToken);
+        var contacts = await _exerciseService.AddExerciseUnitContactsAsync(id, requests, cancellationToken);
 
-        return Ok(contact);
+        return Ok(contacts);
     }
 
     [HttpPut("update-contact/{contactId:guid}")]
@@ -142,34 +146,50 @@ public sealed class ExercisesController : ControllerBase
         return Ok(exercise);
     }
 
-    [HttpDelete("remove-participant/{participantId:guid}")]
-    public async Task<IActionResult> RemoveParticipantAsync(Guid participantId, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}/remove-participants")]
+    public async Task<IActionResult> RemoveParticipantsAsync(
+        Guid id,
+        [FromBody] List<Guid> participantIds,
+        CancellationToken cancellationToken
+    )
     {
-        await _exerciseService.RemoveExerciseParticipantAsync(participantId, cancellationToken);
+        await _exerciseService.RemoveExerciseParticipantsAsync(id, participantIds, cancellationToken);
 
         return NoContent();
     }
 
-    [HttpDelete("remove-section/{sectionLinkId:guid}")]
-    public async Task<IActionResult> RemoveSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}/remove-sections")]
+    public async Task<IActionResult> RemoveSectionsAsync(
+        Guid id,
+        [FromBody] List<Guid> sectionLinkIds,
+        CancellationToken cancellationToken
+    )
     {
-        await _exerciseService.RemoveExerciseSectionAsync(sectionLinkId, cancellationToken);
+        await _exerciseService.RemoveExerciseSectionsAsync(id, sectionLinkIds, cancellationToken);
 
         return NoContent();
     }
 
-    [HttpDelete("remove-influencer/{influencerLinkId:guid}")]
-    public async Task<IActionResult> RemoveInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}/remove-influencers")]
+    public async Task<IActionResult> RemoveInfluencersAsync(
+        Guid id,
+        [FromBody] List<Guid> influencerLinkIds,
+        CancellationToken cancellationToken
+    )
     {
-        await _exerciseService.RemoveExerciseInfluencerAsync(influencerLinkId, cancellationToken);
+        await _exerciseService.RemoveExerciseInfluencersAsync(id, influencerLinkIds, cancellationToken);
 
         return NoContent();
     }
 
-    [HttpDelete("remove-contact/{contactId:guid}")]
-    public async Task<IActionResult> RemoveContactAsync(Guid contactId, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}/remove-contacts")]
+    public async Task<IActionResult> RemoveContactsAsync(
+        Guid id,
+        [FromBody] List<Guid> contactIds,
+        CancellationToken cancellationToken
+    )
     {
-        await _exerciseService.RemoveExerciseUnitContactAsync(contactId, cancellationToken);
+        await _exerciseService.RemoveExerciseUnitContactsAsync(id, contactIds, cancellationToken);
 
         return NoContent();
     }
