@@ -1,0 +1,336 @@
+using Coacher.Shared.Interfaces.DAL.Providers;
+using Coacher.Shared.Models.DAL.Exercises;
+using Microsoft.EntityFrameworkCore;
+
+namespace Coacher.Lib.DAL.Providers;
+
+public sealed class ExerciseProvider : IExerciseProvider
+{
+    private readonly IDbContextFactory<CoacherDbContext> _dbContextFactory;
+
+    public ExerciseProvider(IDbContextFactory<CoacherDbContext> dbContextFactory)
+    {
+        _dbContextFactory = dbContextFactory;
+    }
+
+    public async Task<List<Exercise>> ListAsync(CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<Exercise>();
+        var items = await entities.ToListAsync(cancellationToken);
+
+        return items;
+    }
+
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<Exercise>();
+        var exists = await entities.AnyAsync(item => item.Id == id, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task<Exercise?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<Exercise>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<Exercise> CreateExerciseAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<Exercise>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<Exercise> UpdateExerciseAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<Exercise>();
+        entities.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<Exercise> ArchiveExerciseAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        var updatedEntity = await UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<Exercise> UnarchiveExerciseAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        var updatedEntity = await UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task<ExerciseParticipant> CreateExerciseParticipantAsync(
+        ExerciseParticipant entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseParticipant>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseSection> CreateExerciseSectionAsync(
+        ExerciseSection entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseSection>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseInfluencer> CreateExerciseInfluencerAsync(
+        ExerciseInfluencer entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseInfluencer>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseUnitContact> CreateExerciseUnitContactAsync(
+        ExerciseUnitContact entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseUnitContact>();
+        await entities.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseParticipant?> GetExerciseParticipantByIdAsync(
+        Guid participantId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseParticipant>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == participantId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<List<ExerciseParticipant>> ListExerciseParticipantsByExerciseIdAsync(
+        Guid exerciseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseParticipant>();
+        var items = await entities.Where(item => item.ExerciseId == exerciseId).ToListAsync(cancellationToken);
+
+        return items;
+    }
+
+    public async Task<bool> IsExerciseCreatedByUserAsync(
+        Guid exerciseId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var exists = await dbContext.Set<Exercise>()
+            .AnyAsync(item => item.Id == exerciseId && item.CreatedByUserId == userId, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task<bool> IsExerciseParticipantAsync(
+        Guid exerciseId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var exists = await dbContext.Set<ExerciseParticipant>()
+            .AnyAsync(item => item.ExerciseId == exerciseId && item.UserId == userId, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task<bool> IsExerciseManagerAsync(
+        Guid exerciseId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var exists = await dbContext.Set<ExerciseParticipant>()
+            .AnyAsync(
+                item =>
+                    item.ExerciseId == exerciseId
+                    && item.UserId == userId
+                    && item.Role == Shared.Models.Enums.ExerciseRole.ExerciseManager,
+                cancellationToken
+            );
+
+        return exists;
+    }
+
+    public async Task<ExerciseParticipant> UpdateExerciseParticipantAsync(
+        ExerciseParticipant entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseParticipant>();
+        entities.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseSection?> GetExerciseSectionByIdAsync(
+        Guid sectionLinkId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entity = await dbContext.Set<ExerciseSection>()
+            .FirstOrDefaultAsync(item => item.Id == sectionLinkId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseInfluencer?> GetExerciseInfluencerByIdAsync(
+        Guid influencerLinkId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entity = await dbContext.Set<ExerciseInfluencer>()
+            .FirstOrDefaultAsync(item => item.Id == influencerLinkId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseUnitContact?> GetExerciseUnitContactByIdAsync(
+        Guid contactId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseUnitContact>();
+        var entity = await entities.FirstOrDefaultAsync(item => item.Id == contactId, cancellationToken);
+
+        return entity;
+    }
+
+    public async Task<ExerciseUnitContact> UpdateExerciseUnitContactAsync(
+        ExerciseUnitContact entity,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseUnitContact>();
+        entities.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return entity;
+    }
+
+    public async Task DeleteExerciseParticipantAsync(Guid participantId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseParticipant>();
+        await entities.Where(item => item.Id == participantId).ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<bool> ExerciseSectionExistsAsync(Guid sectionLinkId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseSection>();
+        var exists = await entities.AnyAsync(item => item.Id == sectionLinkId, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task DeleteExerciseSectionAsync(Guid sectionLinkId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseSection>();
+        await entities.Where(item => item.Id == sectionLinkId).ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<bool> ExerciseInfluencerExistsAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseInfluencer>();
+        var exists = await entities.AnyAsync(item => item.Id == influencerLinkId, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task DeleteExerciseInfluencerAsync(Guid influencerLinkId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseInfluencer>();
+        await entities.Where(item => item.Id == influencerLinkId).ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<bool> ExerciseUnitContactExistsAsync(Guid contactId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseUnitContact>();
+        var exists = await entities.AnyAsync(item => item.Id == contactId, cancellationToken);
+
+        return exists;
+    }
+
+    public async Task DeleteExerciseUnitContactAsync(Guid contactId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<ExerciseUnitContact>();
+        await entities.Where(item => item.Id == contactId).ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<Exercise> AddAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        var createdEntity = await CreateExerciseAsync(entity, cancellationToken);
+
+        return createdEntity;
+    }
+
+    public async Task<Exercise> UpdateAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        var updatedEntity = await UpdateExerciseAsync(entity, cancellationToken);
+
+        return updatedEntity;
+    }
+
+    public async Task DeleteAsync(Exercise entity, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var entities = dbContext.Set<Exercise>();
+        entities.Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}

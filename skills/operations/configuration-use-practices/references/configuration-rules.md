@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-Use `ConfigurationKeys.cs` in `Coucher.Shared` as the source of truth for JSON key names.
+Use `ConfigurationKeys.cs` in `Coacher.Shared` as the source of truth for JSON key names.
 
 Structure:
 

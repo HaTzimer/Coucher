@@ -4,22 +4,22 @@
 
 The repository is organized into these projects:
 
-- `Coucher.WebApi` = API host and transport layer.
-- `Coucher.Lib` = business logic and DAL orchestration.
-- `Coucher.Shared` = canonical domain and DAL entities, enums, all DI-facing interfaces, and shared extensions.
+- `Coacher.WebApi` = API host and transport layer.
+- `Coacher.Lib` = business logic and DAL orchestration.
+- `Coacher.Shared` = canonical domain and DAL entities, enums, all DI-facing interfaces, and shared extensions.
 
 Dependency direction:
 
-- `Coucher.WebApi` depends on `Coucher.Lib`.
-- `Coucher.Lib` depends on `Coucher.Shared`.
+- `Coacher.WebApi` depends on `Coacher.Lib`.
+- `Coacher.Lib` depends on `Coacher.Shared`.
 
 Treat that direction as a hard boundary.
 
 ## What belongs in each project
 
-### `Coucher.WebApi`
+### `Coacher.WebApi`
 
-Put this in `Coucher.WebApi`:
+Put this in `Coacher.WebApi`:
 
 - Program and startup wiring.
 - DI composition root.
@@ -30,9 +30,9 @@ Put this in `Coucher.WebApi`:
 
 Do not put core business logic or reusable DAL logic here.
 
-### `Coucher.Lib`
+### `Coacher.Lib`
 
-Put this in `Coucher.Lib`:
+Put this in `Coacher.Lib`:
 
 - DbContext.
 - Providers.
@@ -43,22 +43,22 @@ Put this in `Coucher.Lib`:
 - Business orchestration and use-case logic.
 
 GraphQL rule:
-Keep `Coucher.Lib/Gql/CoucherQuery` in sync with `CoucherDbContext` and expose query fields for every table-backed `DbSet<>` (projection/filter/sort enabled by default). See `AGENTS.md` for the canonical requirement.
+Keep `Coacher.Lib/Gql/CoacherQuery` in sync with `CoacherDbContext` and expose query fields for every table-backed `DbSet<>` (projection/filter/sort enabled by default). See `AGENTS.md` for the canonical requirement.
 
-### `Coucher.Shared`
+### `Coacher.Shared`
 
-Put this in `Coucher.Shared`:
+Put this in `Coacher.Shared`:
 
 - EF-ready DAL/domain entities.
 - Shared enums.
 - All DI-facing interfaces and other shared contracts.
 - Shared extensions in `Extensions`.
 
-Keep API request DTOs under `Coucher.Shared/Models/WebApi/Requests/...`.
+Keep API request DTOs under `Coacher.Shared/Models/WebApi/Requests/...`.
 
 ## DTO placement
 
-Web API request models belong in `Coucher.Shared` so they can be reused and kept stable.
+Web API request models belong in `Coacher.Shared` so they can be reused and kept stable.
 
 Use the request folders already established in the repository:
 
@@ -127,25 +127,25 @@ Do not move reusable access logic into services just because a service is alread
 
 When adding categorized classes, keep the folder structure consistent:
 
-- Provider implementations go in `Coucher.Lib/DAL/Providers`.
-- Repository implementations go in `Coucher.Lib/Repositories`.
-- Service implementations go in `Coucher.Lib/Services`.
-- Factory implementations go in `Coucher.Lib/Factories` when that category exists.
-- All DI-facing interfaces go in `Coucher.Shared/Interfaces`.
+- Provider implementations go in `Coacher.Lib/DAL/Providers`.
+- Repository implementations go in `Coacher.Lib/Repositories`.
+- Service implementations go in `Coacher.Lib/Services`.
+- Factory implementations go in `Coacher.Lib/Factories` when that category exists.
+- All DI-facing interfaces go in `Coacher.Shared/Interfaces`.
 - Keep shared interfaces organized by category, for example `Interfaces/DAL/Providers`, `Interfaces/Repositories`, `Interfaces/Services`, and `Interfaces/Factories`.
 - Apply the same structure to similar categories instead of mixing unrelated types into one folder.
 
 ## DI pattern
 
-When adding injectable types in `Coucher.Lib`, use the DI pattern consistently:
+When adding injectable types in `Coacher.Lib`, use the DI pattern consistently:
 
-- Create the interface in `Coucher.Shared/Interfaces/...`.
-- Create the implementation in the matching category folder in `Coucher.Lib`.
+- Create the interface in `Coacher.Shared/Interfaces/...`.
+- Create the implementation in the matching category folder in `Coacher.Lib`.
 - Inject repositories and other services through the constructor.
 - Reuse `Augustus.Infra.Core` DI entry points before writing local replacements.
 - Use `services.AddGenericAugustusServices()` in `Startup.ConfigureServices(...)` to register shared Augustus infrastructure such as `IAugustusLogger`, `IAugustusConfiguration`, correlation services, and common helpers.
-- `services.AddPooledDbContextFactory<CoucherDbContext>(...)` registers `IDbContextFactory<CoucherDbContext>`, not a scoped `CoucherDbContext`.
-- Prefer consuming `IDbContextFactory<CoucherDbContext>` (or HotChocolate pooled DbContext wiring) instead of adding a scoped bridge from the factory.
+- `services.AddPooledDbContextFactory<CoacherDbContext>(...)` registers `IDbContextFactory<CoacherDbContext>`, not a scoped `CoacherDbContext`.
+- Prefer consuming `IDbContextFactory<CoacherDbContext>` (or HotChocolate pooled DbContext wiring) instead of adding a scoped bridge from the factory.
 - Register the interface and implementation in `Startup.ConfigureServices(...)`.
 
 Preferred pattern:
@@ -195,12 +195,12 @@ Use this decision rule when adding code:
 
 Treat these as architecture violations:
 
-- A request DTO placed outside `Coucher.Shared/Models/WebApi/Requests/...`.
-- A shared entity placed outside `Coucher.Shared`.
+- A request DTO placed outside `Coacher.Shared/Models/WebApi/Requests/...`.
+- A shared entity placed outside `Coacher.Shared`.
 - Business logic placed in controllers or startup code instead of `Lib`.
-- Services placed outside `Coucher.Lib/Services`.
+- Services placed outside `Coacher.Lib/Services`.
 - Missing DI interfaces for injectable classes that are intended to be resolved through DI.
-- DI-facing interfaces placed in `Coucher.Lib` instead of `Coucher.Shared/Interfaces`.
+- DI-facing interfaces placed in `Coacher.Lib` instead of `Coacher.Shared/Interfaces`.
 - Shared Augustus infrastructure re-registered manually when `AddGenericAugustusServices()` should have been reused.
 - A Lib DI module class introduced even though `Startup` should hold the composition root.
 - A redundant scoped DbContext bridge added on top of `AddPooledDbContextFactory` when factory-based consumption would be sufficient.

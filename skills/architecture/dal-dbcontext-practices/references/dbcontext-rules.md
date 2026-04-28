@@ -14,9 +14,9 @@ Keep it responsible for:
 Preferred shape:
 
 ```csharp
-public sealed class CoucherDbContext : DbContext
+public sealed class CoacherDbContext : DbContext
 {
-    public CoucherDbContext(DbContextOptions<CoucherDbContext> options)
+    public CoacherDbContext(DbContextOptions<CoacherDbContext> options)
         : base(options)
     {
     }
@@ -72,7 +72,7 @@ Do not:
 Preferred approach:
 
 1. Define a dedicated internal DAL model for the needed shape.
-2. Put that model under `Coucher.Shared/Models/DAL/Internal`.
+2. Put that model under `Coacher.Shared/Models/DAL/Internal`.
 3. Use `Select(...)` to project directly into that model.
 4. Return only that model or a list of that model from the provider.
 
@@ -103,14 +103,14 @@ if the caller only needs `Id`, `Name`, and `Status`.
 
 ## Provider DbContext access
 
-In this repository, providers should access EF through `IDbContextFactory<CoucherDbContext>`.
+In this repository, providers should access EF through `IDbContextFactory<CoacherDbContext>`.
 
 Preferred provider pattern:
 
 ```csharp
-private readonly IDbContextFactory<CoucherDbContext> _dbContextFactory;
+private readonly IDbContextFactory<CoacherDbContext> _dbContextFactory;
 
-public ExerciseProvider(IDbContextFactory<CoucherDbContext> dbContextFactory)
+public ExerciseProvider(IDbContextFactory<CoacherDbContext> dbContextFactory)
 {
     _dbContextFactory = dbContextFactory;
 }
@@ -132,7 +132,7 @@ public async Task<List<ExerciseListItemInternalModel>> ListAsync(CancellationTok
 }
 ```
 
-Avoid direct provider injection of `CoucherDbContext` when using pooled factory registration.
+Avoid direct provider injection of `CoacherDbContext` when using pooled factory registration.
 Prefer `CreateDbContextAsync(cancellationToken)` with `await using`.
 After the `await using` line, leave an empty line.
 Keep provider constructors minimal: only assign `_dbContextFactory`.
@@ -149,7 +149,7 @@ If only a subset is needed, project directly to the required model and avoid eag
 
 ## Internal DAL models
 
-Use `Coucher.Shared/Models/DAL/Internal` for SQL-only projection shapes that are not public domain entities.
+Use `Coacher.Shared/Models/DAL/Internal` for SQL-only projection shapes that are not public domain entities.
 
 Use them for:
 
@@ -175,7 +175,7 @@ Avoid loading entities just to delete or update them row by row when a set-based
 
 ## Entity ownership
 
-- DAL entities live in `Coucher.Shared`.
+- DAL entities live in `Coacher.Shared`.
 - EF-ready shape belongs on the entity itself through attributes.
 - The Lib layer owns the `DbContext` and persistence orchestration.
 - The Web API layer must not own DAL mapping.
@@ -191,7 +191,7 @@ Treat these as violations:
 - SQL reads that fetch more columns or entities than the caller needs.
 - Missing internal projection models for repeated partial-read shapes.
 - Row-by-row delete or update logic where `ExecuteDeleteAsync(...)` or `ExecuteUpdateAsync(...)` should be used.
-- Providers that inject `CoucherDbContext` directly instead of using `IDbContextFactory<CoucherDbContext>`.
+- Providers that inject `CoacherDbContext` directly instead of using `IDbContextFactory<CoacherDbContext>`.
 - Providers that use synchronous factory creation when async factory creation with cancellation can be used.
 - Providers with constructors that do more than assigning `_dbContextFactory`.
 - Missing empty lines after `await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);`.

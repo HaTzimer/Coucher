@@ -1,4 +1,4 @@
 interface:
   display_name: "Redis Usage"
-  short_description: "Use Coucher Redis patterns and session cache auth."
-  default_prompt: "Use $redis-session-authentication to add or update Redis usage in Coucher, especially the Redis-backed session cache flow for REST and GraphQL."
+  short_description: "Use Coacher Redis patterns and session cache auth."
+  default_prompt: "Use $redis-session-authentication to add or update Redis usage in Coacher, especially the Redis-backed session cache flow for REST and GraphQL."

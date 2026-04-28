@@ -14,7 +14,7 @@ Read [references/rules.md](references/rules.md) before making structural or form
 ## Core Rules
 
 - Keep code in the correct layer and folder for its responsibility.
-- Shared constant values belong in `Coucher.Shared/ConstantValues.cs` (do not add file-local `const` values for shared semantics).
+- Shared constant values belong in `Coacher.Shared/ConstantValues.cs` (do not add file-local `const` values for shared semantics).
 - Prefer small, readable methods over condensed expressions.
 - In model files, if at least one property uses attributes, add an empty line after every property in that model, including properties without attributes.
 - For Web API request bodies, if the payload is a single scalar value, do not create a one-property request model; accept the raw scalar body instead.

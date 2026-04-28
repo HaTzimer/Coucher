@@ -10,7 +10,7 @@
 
 ## Constants
 
-- Shared constant values must be defined in `Coucher.Shared/ConstantValues.cs`.
+- Shared constant values must be defined in `Coacher.Shared/ConstantValues.cs`.
 - Do not introduce file-local `const` values for shared semantics (for example closed-list keys); add them to `ConstantValues` instead.
 
 ## Return formatting

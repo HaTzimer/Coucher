@@ -9,7 +9,7 @@ Read [references/configuration-rules.md](references/configuration-rules.md) befo
 
 ## Core Rules
 
-- Define JSON key constants in `Coucher.Shared` in a dedicated `ConfigurationKeys.cs` file.
+- Define JSON key constants in `Coacher.Shared` in a dedicated `ConfigurationKeys.cs` file.
 - Read configuration through `IAugustusConfiguration` (not raw `IConfiguration` in runtime services).
 - Use Augustus throw-on-missing access with section + key constants (`config.GetOrThrow<T>(section, key)`).
 - Do not use raw string literals for configuration section names or keys in runtime code.
@@ -42,8 +42,8 @@ var value = configuration["HadrachaPageDuplicationService:resourceDuplicationPar
 
 ## Placement Rules
 
-- Keep configuration key constants in `Coucher.Shared` so all layers reuse the same contract.
-- Keep runtime configuration values in `Coucher.WebApi/appsettings*.json` unless a different host explicitly owns them.
+- Keep configuration key constants in `Coacher.Shared` so all layers reuse the same contract.
+- Keep runtime configuration values in `Coacher.WebApi/appsettings*.json` unless a different host explicitly owns them.
 - Keep defaults and fallback behavior explicit in code, but keep the actual tunable values in config files.
 
 ## Review Checklist

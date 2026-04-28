@@ -1,16 +1,16 @@
 ---
 name: create-update-workflows
-description: Implement explicit create/update request contracts and write flows in Coucher without changing DAL entities, DbContext shape, or migrations. Use when adding REST write endpoints, bulk-create flows, audit timestamp stamping, or aggregate-specific create/update methods across providers, repositories, and services.
+description: Implement explicit create/update request contracts and write flows in Coacher without changing DAL entities, DbContext shape, or migrations. Use when adding REST write endpoints, bulk-create flows, audit timestamp stamping, or aggregate-specific create/update methods across providers, repositories, and services.
 ---
 
 # Create And Update Workflows
 
-Use this skill when adding or reviewing write flows for Coucher.
+Use this skill when adding or reviewing write flows for Coacher.
 
 ## Core Rules
 
-- Do not change DAL entity shape, `CoucherDbContext`, or migrations as part of this skill's normal workflow.
-- Keep Web API request models under `Coucher.Shared/Models/WebApi/Requests/...`.
+- Do not change DAL entity shape, `CoacherDbContext`, or migrations as part of this skill's normal workflow.
+- Keep Web API request models under `Coacher.Shared/Models/WebApi/Requests/...`.
 - For route and request-contract shape, also read `skills/architecture/endpoint-design-practices/SKILL.md`.
 - Use explicit write methods such as `CreateExerciseAsync(...)`, `CreateExerciseTasksAsync(...)`, or `UpdateTaskTemplateAsync(...)` instead of routing new write endpoints through raw generic entity `AddAsync/UpdateAsync` calls.
 - Keep create/update request models limited to client-owned business fields. Never accept server-owned fields from clients.

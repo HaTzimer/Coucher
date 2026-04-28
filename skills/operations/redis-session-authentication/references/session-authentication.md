@@ -18,7 +18,7 @@ The important split is:
 
 ## What The Redis Provider Does
 
-`CacheRedisProvider` is the session store in Coucher. Its behavior is the part to preserve when changing Redis-backed session auth.
+`CacheRedisProvider` is the session store in Coacher. Its behavior is the part to preserve when changing Redis-backed session auth.
 
 It keeps two Redis keys:
 
@@ -51,23 +51,23 @@ HotChocolate queries are executed by the GraphQL middleware pipeline. MVC contro
 
 That is why Hadracha authenticates GraphQL queries directly in `GqlQueries` with a helper that calls `AuthenticateHeadersAsync(...)`.
 
-For Coucher, keep the same auth contract but reduce duplication:
+For Coacher, keep the same auth contract but reduce duplication:
 
 - Preferred: authenticate once in a GraphQL request interceptor or a shared current-user service and expose the resolved `UserId` to resolvers.
 - Acceptable parity with Hadracha: keep a single private helper or injected helper service that every protected query calls before reading data.
 
 Do not let individual resolvers parse header names themselves.
 
-## Coucher Implementation Plan
+## Coacher Implementation Plan
 
 ### Shared
 
-Add shared contracts and keys in `Coucher.Shared`.
+Add shared contracts and keys in `Coacher.Shared`.
 
 Suggested configuration keys in `ConfigurationKeys.cs`:
 
 - `AuthenticationSection`
-- `RedisSection` if Coucher does not already share the Augustus Redis section contract
+- `RedisSection` if Coacher does not already share the Augustus Redis section contract
 - `SessionIdHeader`
 - `ItemsUserIdKey`
 - `ServicePrefix`
@@ -89,15 +89,15 @@ Suggested shared interfaces:
 - `Interfaces/DAL/Providers/ICacheProvider.cs`
 - `Interfaces/Services/IAuthenticationService.cs`
 
-If login request DTOs are added, keep them in `Coucher.Shared/Models/WebApi/Requests/Auth`.
+If login request DTOs are added, keep them in `Coacher.Shared/Models/WebApi/Requests/Auth`.
 
 ### Lib
 
-Implement the reusable logic in `Coucher.Lib`.
+Implement the reusable logic in `Coacher.Lib`.
 
 Suggested files:
 
-- `Coucher.Shared/Interfaces/DAL/Providers/ICacheProvider.cs`
+- `Coacher.Shared/Interfaces/DAL/Providers/ICacheProvider.cs`
 - `DAL/Cache/CacheRedisProvider.cs`
 - `Services/AuthenticationService.cs`
 - `Services/GraphQlCurrentUserService.cs` or similar shared helper for GraphQL
@@ -121,7 +121,7 @@ Service rules:
 
 ### WebApi
 
-Keep transport-specific pieces in `Coucher.WebApi`.
+Keep transport-specific pieces in `Coacher.WebApi`.
 
 Suggested files:
 
@@ -145,11 +145,11 @@ Startup rules:
 
 ### GraphQL
 
-`Coucher.Lib/Gql/CoucherQuery.cs` is the current query entry point.
+`Coacher.Lib/Gql/CoacherQuery.cs` is the current query entry point.
 
 Protected GraphQL queries must not read data first and authenticate later. The resolver path must authenticate first.
 
-Recommended approach for Coucher:
+Recommended approach for Coacher:
 
 1. Add a shared GraphQL current-user resolver service that uses `IHttpContextAccessor` plus `IAuthenticationService`.
 2. Inject that service into protected query methods.
@@ -158,20 +158,20 @@ Recommended approach for Coucher:
 
 If an interceptor is added later, keep the same authentication service and shared models. Only move the point where the authenticated `UserId` is attached to the GraphQL request context.
 
-## Design Decisions For Coucher
+## Design Decisions For Coacher
 
 - Do not add a direct dependency on `Herum.Infra.Core`.
-  Recreate the small auth/session layer locally because Coucher already depends on `Augustus.Infra.Core`, which provides the Redis base classes needed for this pattern.
-- Do not put ASP.NET filter classes in `Coucher.Shared`.
-  They are transport concerns and belong to `Coucher.WebApi`.
+  Recreate the small auth/session layer locally because Coacher already depends on `Augustus.Infra.Core`, which provides the Redis base classes needed for this pattern.
+- Do not put ASP.NET filter classes in `Coacher.Shared`.
+  They are transport concerns and belong to `Coacher.WebApi`.
 - Do not let GraphQL rely on controller filters.
   The authentication service must be reachable from the GraphQL execution path itself.
 - Do not hard-code header names, Redis prefixes, or item keys.
-  All of those must come from configuration constants in `Coucher.Shared`.
+  All of those must come from configuration constants in `Coacher.Shared`.
 
 ## Review Checklist
 
-- Reject direct references to `Herum.Infra.Core` from the Coucher solution.
+- Reject direct references to `Herum.Infra.Core` from the Coacher solution.
 - Reject raw string literals for auth config keys in services, filters, or GraphQL code.
 - Reject GraphQL resolvers that return data without authenticating the session first.
 - Reject duplicated header parsing logic across multiple resolvers.

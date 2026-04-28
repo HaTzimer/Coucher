@@ -1,13 +1,13 @@
 ---
 name: endpoint-design-practices
-description: Design or refactor Coucher REST endpoints and request contracts. Use when adding or changing route shape, deciding whether an update should be unified or split, choosing scalar-vs-model request bodies, or separating root-field updates from relation operations.
+description: Design or refactor Coacher REST endpoints and request contracts. Use when adding or changing route shape, deciding whether an update should be unified or split, choosing scalar-vs-model request bodies, or separating root-field updates from relation operations.
 ---
 
 # Endpoint Design Practices
 
 ## Overview
 
-Use this skill to keep endpoint shape consistent across `Coucher.WebApi` and `Coucher.Shared` request models.
+Use this skill to keep endpoint shape consistent across `Coacher.WebApi` and `Coacher.Shared` request models.
 
 Read `AGENTS.md` first, then use this skill together with `skills/architecture/create-update-workflows` when the task also changes service write orchestration.
 
@@ -29,6 +29,11 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
   - influencers
   - children
 - For attached entities and relation links, allow add or remove operations, not replace-all overrides.
+- When the operation naturally targets a collection of relation links, prefer plural add/remove endpoints with raw list bodies:
+  - `POST /api/<resource>/{id}/add-dependencies`
+  - `DELETE /api/<resource>/{id}/remove-dependencies`
+  - `POST /api/<resource>/{id}/add-responsible-users`
+  - `DELETE /api/<resource>/{id}/remove-responsible-users`
 - Do not split root-field updates into `/name`, `/status`, `/details`, `/series`, or similar endpoints unless there is a real behavioral difference that cannot be expressed cleanly in one unified request.
 - If a request body is one scalar value, accept the raw scalar body instead of a wrapper DTO.
 - Keep bulk collection operations on dedicated endpoints instead of overloading the unified root update endpoint.
@@ -48,9 +53,9 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
   - `DELETE /api/<resource>/delete/{id}` for explicit root deletes when the aggregate supports delete
   - explicit verb routes for relation changes such as:
     - `POST /api/<resource>/{id}/add-participant`
-    - `POST /api/<resource>/{id}/add-responsible-user`
+    - `POST /api/<resource>/{id}/add-responsible-users`
     - `DELETE /api/<resource>/remove-participant/{participantId}`
-    - `DELETE /api/<resource>/remove-dependency/{dependencyId}`
+    - `DELETE /api/<resource>/{id}/remove-dependencies`
     - `PUT /api/<resource>/update-contact/{contactId}` when an attached entity itself needs field edits
   - `PUT /api/<resource>/archive/{id}` with a raw `bool` body for archive state changes
 - Do not create duplicate endpoint pairs where both routes only add/update the same root data in different shapes.
@@ -59,7 +64,7 @@ Read `AGENTS.md` first, then use this skill together with `skills/architecture/c
 
 ## Request Model Guidance
 
-- Put request DTOs under `Coucher.Shared/Models/WebApi/Requests/...`.
+- Put request DTOs under `Coacher.Shared/Models/WebApi/Requests/...`.
 - Keep unified update DTOs limited to mutable root business fields.
 - Do not include:
   - ids
@@ -145,16 +150,16 @@ Do not prefer:
 Do prefer:
 
 ```csharp
-[HttpPost("{id:guid}/add-responsible-user")]
-[HttpDelete("remove-responsible-user/{responsibilityId:guid}")]
+[HttpPost("{id:guid}/add-responsible-users")]
+[HttpDelete("{id:guid}/remove-responsible-users")]
 ```
 
 Do not prefer:
 
 ```csharp
-[HttpPost("{id:guid}/responsible-users")]
-[HttpPut("{id:guid}/responsible-users")]
-[HttpDelete("responsible-users/{responsibilityId:guid}")]
+[HttpPost("{id:guid}/add-responsible-user")]
+[HttpDelete("remove-responsible-user/{responsibilityId:guid}")]
+[HttpPost("{id:guid}/remove-responsible-users")]
 ```
 
 ## Review Checklist

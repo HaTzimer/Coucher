@@ -1,17 +1,17 @@
-# AGENTS Guide for `Coucher`
+# AGENTS Guide for `Coacher`
 
 ## Scope
-This repository (`Coucher`) is a .NET 7 solution with:
+This repository (`Coacher`) is a .NET 7 solution with:
 
-- `Coucher.WebApi` (API host + transport layer)
-- `Coucher.Lib` (business logic + DAL orchestration)
-- `Coucher.Shared` (canonical domain/DAL entities + enums + shared interfaces)
+- `Coacher.WebApi` (API host + transport layer)
+- `Coacher.Lib` (business logic + DAL orchestration)
+- `Coacher.Shared` (canonical domain/DAL entities + enums + shared interfaces)
 - `Augustus.Infra.Core` (sibling repo project path: `..\Infra.Core\Augustus.Infra.Core\Augustus.Infra.Core.csproj`)
 
 Dependency direction:
 
-- `Coucher.WebApi` -> `Coucher.Lib`
-- `Coucher.Lib` -> `Coucher.Shared`
+- `Coacher.WebApi` -> `Coacher.Lib`
+- `Coacher.Lib` -> `Coacher.Shared`
 
 ## Skill Routing
 - Treat this `AGENTS.md` file as the first routing layer for deciding which local repo skill to use.
@@ -34,7 +34,7 @@ Dependency direction:
   3. tooling/code-organization skill when the task changes formatting or structural style
 
 ## Model Architecture
-`Coucher.Shared`:
+`Coacher.Shared`:
 
 - Contains EF-ready DAL/domain entities
 - Entity model rules:
@@ -45,13 +45,13 @@ Dependency direction:
   - For DAL DateTime field names, prefer `...Time` (for example `CreationTime`, `LastUpdateTime`, `CompletionTime`) and avoid ending with `At` or `AtUtc`
 
 ## Constants Policy
-- Shared constant values must live in `Coucher.Shared/ConstantValues.cs`.
+- Shared constant values must live in `Coacher.Shared/ConstantValues.cs`.
 - Do not introduce file-local `const` values for cross-cutting semantics (for example closed-list keys); add them to `ConstantValues` instead.
 
-`Coucher.WebApi`:
+`Coacher.WebApi`:
 
-- WebApi request/transport models live in `Coucher.Shared` (so both WebApi and any external clients can share them).
-- DTO location (in `Coucher.Shared`):
+- WebApi request/transport models live in `Coacher.Shared` (so both WebApi and any external clients can share them).
+- DTO location (in `Coacher.Shared`):
   - `Models/WebApi/Requests/Auth`
   - `Models/WebApi/Requests/Exercises`
   - `Models/WebApi/Requests/Tasks`
@@ -60,7 +60,7 @@ Dependency direction:
 Mapping rule:
 
 - WebApi request DTOs are mapped to DAL/domain entities in WebApi/Lib layers.
-- Do not put API request DTOs in `Coucher.WebApi`.
+- Do not put API request DTOs in `Coacher.WebApi`.
 
 ## Canonical Requirements Source
 Source of truth is the user-provided COACHER spec DOCX in `C:\Users\Tasht\Downloads\` (file name contains `COACHER`).
@@ -79,7 +79,7 @@ This section is the implementation plan baseline. Do not treat it as already imp
 ### Out of Scope (current spec maturity)
 - Phase B items are placeholders only (knowledge library, gantt, external integrations, rich comments, etc.).
 
-## Domain Model Plan (`Coucher.Shared`)
+## Domain Model Plan (`Coacher.Shared`)
 Keep canonical entities under:
 - `Models/Enums`
 - `Models/DAL/Users`
@@ -90,7 +90,7 @@ Keep canonical entities under:
 - `Models/Internal/Projections` (read models only; do not place projections under `Models/DAL`)
 
 Projection rule:
-- Projection/read models (for example `Models/Internal/Projections/...`) are **not persisted** and must not be registered as `DbSet<>` in `CoucherDbContext`.
+- Projection/read models (for example `Models/Internal/Projections/...`) are **not persisted** and must not be registered as `DbSet<>` in `CoacherDbContext`.
 - Use `Select(...)` into projection models when querying, instead of mapping them as tables/views.
 
 ### Users + Access Models
@@ -148,7 +148,7 @@ Projection rule:
   - security questions
   - template categories/sub-categories (if not hard-enum)
 
-## Web API Request DTO Plan (`Coucher.WebApi`)
+## Web API Request DTO Plan (`Coacher.WebApi`)
 Request DTOs stay only under:
 - `Models/WebApi/Requests/Auth`
 - `Models/WebApi/Requests/Exercises`
@@ -165,15 +165,15 @@ Planned request families:
 Use the `provider-repository-service-pattern` skill as the architecture contract.
 
 ## GraphQL Coverage Rule
-- `Coucher.Lib/Gql/CoucherQuery` must expose query fields for **every** table-backed `DbSet<>` in `CoucherDbContext`.
+- `Coacher.Lib/Gql/CoacherQuery` must expose query fields for **every** table-backed `DbSet<>` in `CoacherDbContext`.
 - When a new table-backed entity is added (new `DbSet<>`), add the corresponding GraphQL query field in the same PR.
 - Queries must support projection/filter/sort (`UseProjection`, `UseFiltering`, `UseSorting`) unless there is an explicit reason not to.
 
-### Provider Responsibilities (`Coucher.Lib/DAL/Providers`)
+### Provider Responsibilities (`Coacher.Lib/DAL/Providers`)
 - Own EF Core mechanics only: query shapes, includes, existence checks, persistence commands, transactional save boundaries.
 - No workflow decisions, permission policy, or cross-aggregate orchestration logic.
 
-### Repository Responsibilities (`Coucher.Lib/Repositories`)
+### Repository Responsibilities (`Coacher.Lib/Repositories`)
 - Provide business-facing access contracts (not thin renames).
 - Translate missing data to domain/app exceptions.
 - Encapsulate reusable data semantics:
@@ -182,7 +182,7 @@ Use the `provider-repository-service-pattern` skill as the architecture contract
   - archive eligibility predicates
   - filtered task-board fetch semantics
 
-### Service Responsibilities (`Coucher.Lib/Services`)
+### Service Responsibilities (`Coacher.Lib/Services`)
 - Orchestrate use cases and side effects:
   - auth lifecycle (registration/first login/reset)
   - exercise wizard (create + task generation + participant assignment)
@@ -232,5 +232,5 @@ Primary Infra.Core DI entry points:
 - Phase B features remain non-blocking placeholders for current delivery.
 
 ## Verification
-- `dotnet restore Coucher.sln`
-- `dotnet build Coucher.sln`
+- `dotnet restore Coacher.sln`
+- `dotnet build Coacher.sln`

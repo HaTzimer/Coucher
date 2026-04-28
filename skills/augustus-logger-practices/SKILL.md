@@ -1,6 +1,6 @@
 ---
 name: augustus-logger-practices
-description: Use when adding or reviewing logging in `Coucher.WebApi`, `Coucher.Lib`, or shared infrastructure that relies on `Augustus.Infra.Core`. Covers `IAugustusLogger` injection, structured logging payloads, exception logging with `ExceptionWithParameters` and `HttpStatusCodeException`, log level selection, and logger configuration expectations.
+description: Use when adding or reviewing logging in `Coacher.WebApi`, `Coacher.Lib`, or shared infrastructure that relies on `Augustus.Infra.Core`. Covers `IAugustusLogger` injection, structured logging payloads, exception logging with `ExceptionWithParameters` and `HttpStatusCodeException`, log level selection, and logger configuration expectations.
 ---
 
 # Augustus Logger Practices
