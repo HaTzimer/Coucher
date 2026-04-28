@@ -2,11 +2,14 @@ using Coacher.Shared.Interfaces.Services;
 using Coacher.Shared.Models.Internal.Mocking;
 using Coacher.Shared.Models.WebApi.Requests.Common;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Coacher.WebApi.Controllers;
 
 [ApiController]
 [Route("api/mock")]
+[Produces("application/json")]
+[SwaggerTag("Development and local-only mock data seeding endpoints.")]
 public sealed class MockSeedController : ControllerBase
 {
     private readonly IMockSeedService _mockSeedService;
@@ -19,6 +22,14 @@ public sealed class MockSeedController : ControllerBase
     }
 
     [HttpPost("seed")]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(MockSeedSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MockSeedSummary), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerOperation(
+        Summary = "Seed local mock data.",
+        Description = "Seeds local or development environments with mock users, exercises, tasks, templates, and notifications."
+    )]
     public async Task<ActionResult<MockSeedSummary>> SeedAsync(
         [FromBody] SeedMocksRequest request,
         CancellationToken cancellationToken

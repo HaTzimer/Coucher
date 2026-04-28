@@ -5,11 +5,14 @@ using Coacher.Shared.Models.Internal.Authentication;
 using Coacher.Shared.Models.WebApi.Requests.Auth;
 using Coacher.WebApi.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Coacher.WebApi.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[Produces("application/json")]
+[SwaggerTag("Authentication and session lifecycle endpoints.")]
 public sealed class AuthenticationController : ControllerBase
 {
     private readonly IAuthenticationService _authenticationService;
@@ -30,6 +33,13 @@ public sealed class AuthenticationController : ControllerBase
     }
 
     [HttpPost("login")]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(AuthenticatedSession), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [SwaggerOperation(
+        Summary = "Create a user session.",
+        Description = "Authenticates the user by identity number and password or personal number, then returns the active session payload."
+    )]
     public async Task<ActionResult<AuthenticatedSession>> LoginAsync(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken
@@ -48,6 +58,12 @@ public sealed class AuthenticationController : ControllerBase
 
     [ServiceFilter(typeof(WebApiSessionAuthenticationFilter))]
     [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [SwaggerOperation(
+        Summary = "Close the current session.",
+        Description = "Invalidates the current session id from the request header."
+    )]
     public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
     {
         if (!Request.Headers.TryGetValue(_sessionIdHeader, out var sessionId) || string.IsNullOrWhiteSpace(sessionId))
@@ -60,6 +76,12 @@ public sealed class AuthenticationController : ControllerBase
 
     [ServiceFilter(typeof(WebApiSessionAuthenticationFilter))]
     [HttpGet("session")]
+    [ProducesResponseType(typeof(AuthenticatedSession), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [SwaggerOperation(
+        Summary = "Get the current session.",
+        Description = "Returns the authenticated user id together with the current session id header value."
+    )]
     public ActionResult<AuthenticatedSession> GetCurrentSession()
     {
         if (!Request.Headers.TryGetValue(_sessionIdHeader, out var sessionId) || string.IsNullOrWhiteSpace(sessionId))

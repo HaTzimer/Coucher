@@ -16,6 +16,7 @@ using Coacher.WebApi.Swagger;
 using Coacher.WebApi.Filters;
 using HotChocolate.Data;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json.Serialization;
 
 namespace Coacher.WebApi;
@@ -88,6 +89,7 @@ public sealed class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
+            options.EnableAnnotations();
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "Coacher Web API",
