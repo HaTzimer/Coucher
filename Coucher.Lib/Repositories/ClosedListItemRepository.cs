@@ -42,9 +42,7 @@ public sealed class ClosedListItemRepository : IClosedListItemRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(ClosedListItem)} '{id}' was not found.");
-        }
 
         return entity;
     }

@@ -31,9 +31,7 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(TaskTemplate)} '{id}' was not found.");
-        }
 
         return entity;
     }
@@ -130,9 +128,7 @@ public sealed class TaskTemplateRepository : ITaskTemplateRepository
     {
         var entity = await _provider.GetTaskTemplateInfluencerByIdAsync(influencerLinkId, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(TaskTemplateInfluencer)} '{influencerLinkId}' was not found.");
-        }
 
         await _provider.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
     }

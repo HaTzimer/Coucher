@@ -16,6 +16,7 @@
 ## Return formatting
 
 Always use a local variable before returning a computed value or awaited result.
+Also use a local variable before returning a newly created object.
 
 Preferred:
 
@@ -29,6 +30,28 @@ Avoid:
 
 ```csharp
 return await provider.ListAsync(cancellationToken);
+```
+
+Avoid:
+
+```csharp
+return new HeaderAuthenticationResult
+{
+    HeaderAuthentication = SessionAuthenticationResult.Valid,
+    SessionId = sessionId
+};
+```
+
+Preferred:
+
+```csharp
+var authenticationResult = new HeaderAuthenticationResult
+{
+    HeaderAuthentication = SessionAuthenticationResult.Valid,
+    SessionId = sessionId
+};
+
+return authenticationResult;
 ```
 
 Always leave an empty line before `return`.
@@ -71,6 +94,86 @@ var entities = dbContext.Set<UserNotification>();
 - Avoid compressing multiple ideas into one expression when named locals improve readability.
 - Keep control flow explicit.
 - Make formatting decisions that optimize scanability, not terseness.
+- In service/repository methods, visually split distinct phases with blank lines instead of packing them into one block.
+- For `if` statements with only one following statement, omit braces.
+
+Preferred:
+
+```csharp
+await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
+
+var entity = await _repository.GetRequiredByIdAsync(id, cancellationToken);
+entity.Description = description;
+entity.LastUpdateTime = DateTime.UtcNow;
+
+var updatedEntity = await _repository.UpdateAsync(entity, cancellationToken);
+
+return updatedEntity;
+```
+
+Also prefer:
+
+```csharp
+await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
+
+var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+var entity = await _repository.GetRequiredByIdAsync(id, cancellationToken);
+
+entity.Value = value;
+entity.LastUpdateTime = DateTime.UtcNow;
+
+var updatedEntity = await _repository.UpdateAsync(entity, cancellationToken);
+
+_logger.Info("Entity updated", new Dictionary<string, object>
+{
+    { "userId", currentUserId },
+    { "id", id }
+});
+
+return updatedEntity;
+```
+
+Avoid:
+
+```csharp
+await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
+var entity = await _repository.GetRequiredByIdAsync(id, cancellationToken);
+entity.Description = description;
+entity.LastUpdateTime = DateTime.UtcNow;
+var updatedEntity = await _repository.UpdateAsync(entity, cancellationToken);
+return updatedEntity;
+```
+
+Preferred:
+
+```csharp
+if (ShouldLogMockSeed())
+    _logger.Info("Mock seed started", new Dictionary<string, object>
+    {
+        { "resetExisting", options.ResetExisting },
+        { "result", "started" }
+    });
+```
+
+Also prefer:
+
+```csharp
+if (options.ResetExisting)
+    await ResetAsync(dbContext, cancellationToken);
+```
+
+Avoid:
+
+```csharp
+if (ShouldLogMockSeed())
+{
+    _logger.Info("Mock seed started", new Dictionary<string, object>
+    {
+        { "resetExisting", options.ResetExisting },
+        { "result", "started" }
+    });
+}
+```
 
 ## Single-scalar request bodies
 

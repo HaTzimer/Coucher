@@ -1,3 +1,4 @@
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Exceptions;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
@@ -7,18 +8,21 @@ namespace Coucher.Lib.Services;
 
 public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
 {
+    private readonly IAugustusLogger _logger;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserRoleRepository _userRoleRepository;
     private readonly IExerciseRepository _exerciseRepository;
     private readonly IExerciseTaskRepository _exerciseTaskRepository;
 
     public CoucherAuthorizationService(
+        IAugustusLogger logger,
         ICurrentUserService currentUserService,
         IUserRoleRepository userRoleRepository,
         IExerciseRepository exerciseRepository,
         IExerciseTaskRepository exerciseTaskRepository
     )
     {
+        _logger = logger;
         _currentUserService = currentUserService;
         _userRoleRepository = userRoleRepository;
         _exerciseRepository = exerciseRepository;
@@ -44,24 +48,29 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     {
         var snapshot = await GetCurrentAuthorizationSnapshotAsync(cancellationToken);
         if (snapshot.IsAdmin)
-        {
             return;
-        }
 
-        throw new CoucherAuthorizationException("Only admins can access this resource.");
+        ThrowAuthorizationException(
+            "Only admins can access this resource.",
+            snapshot.UserId,
+            ("scope", "admin")
+        );
     }
 
     public async Task EnsureCanCreateExerciseAsync(CancellationToken cancellationToken = default)
     {
         var snapshot = await GetCurrentAuthorizationSnapshotAsync(cancellationToken);
         if (snapshot.IsAdmin)
-        {
             return;
-        }
 
         if (snapshot.IsAuditor)
         {
-            throw new CoucherAuthorizationException("Auditors cannot create exercises.");
+            ThrowAuthorizationException(
+                "Auditors cannot create exercises.",
+                snapshot.UserId,
+                ("scope", "exercise"),
+                ("action", "create")
+            );
         }
     }
 
@@ -79,9 +88,7 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     {
         var participant = await _exerciseRepository.GetRequiredExerciseParticipantByIdAsync(participantId, cancellationToken);
         if (!participant.ExerciseId.HasValue)
-        {
             throw new KeyNotFoundException("Exercise participant is not linked to an exercise.");
-        }
 
         await EnsureCanManageExerciseAsync(participant.ExerciseId.Value, cancellationToken);
     }
@@ -93,9 +100,7 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     {
         var section = await _exerciseRepository.GetRequiredExerciseSectionByIdAsync(sectionLinkId, cancellationToken);
         if (!section.ExerciseId.HasValue)
-        {
             throw new KeyNotFoundException("Exercise section is not linked to an exercise.");
-        }
 
         await EnsureCanManageExerciseAsync(section.ExerciseId.Value, cancellationToken);
     }
@@ -110,9 +115,7 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
             cancellationToken
         );
         if (!influencer.ExerciseId.HasValue)
-        {
             throw new KeyNotFoundException("Exercise influencer is not linked to an exercise.");
-        }
 
         await EnsureCanManageExerciseAsync(influencer.ExerciseId.Value, cancellationToken);
     }
@@ -124,9 +127,7 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     {
         var contact = await _exerciseRepository.GetRequiredExerciseUnitContactByIdAsync(contactId, cancellationToken);
         if (!contact.ExerciseId.HasValue)
-        {
             throw new KeyNotFoundException("Exercise contact is not linked to an exercise.");
-        }
 
         await EnsureCanManageExerciseAsync(contact.ExerciseId.Value, cancellationToken);
     }
@@ -194,22 +195,30 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     )
     {
         if (snapshot.IsAdmin)
-        {
             return;
-        }
 
         if (snapshot.IsAuditor)
         {
-            throw new CoucherAuthorizationException("Auditors have read-only access.");
+            ThrowAuthorizationException(
+                "Auditors have read-only access.",
+                snapshot.UserId,
+                ("scope", "exercise"),
+                ("exerciseId", exerciseId),
+                ("action", "manage")
+            );
         }
 
         var isManager = await _exerciseRepository.IsExerciseManagerAsync(exerciseId, snapshot.UserId, cancellationToken);
         if (isManager)
-        {
             return;
-        }
 
-        throw new CoucherAuthorizationException("Only the exercise manager or an admin can modify this exercise.");
+        ThrowAuthorizationException(
+            "Only the exercise manager or an admin can modify this exercise.",
+            snapshot.UserId,
+            ("scope", "exercise"),
+            ("exerciseId", exerciseId),
+            ("action", "manage")
+        );
     }
 
     private async Task EnsureCanPartiallyEditExerciseAsync(
@@ -219,13 +228,17 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
     )
     {
         if (snapshot.IsAdmin)
-        {
             return;
-        }
 
         if (snapshot.IsAuditor)
         {
-            throw new CoucherAuthorizationException("Auditors have read-only access.");
+            ThrowAuthorizationException(
+                "Auditors have read-only access.",
+                snapshot.UserId,
+                ("scope", "task"),
+                ("exerciseId", exerciseId),
+                ("action", "partialEdit")
+            );
         }
 
         var isParticipant = await _exerciseRepository.IsExerciseParticipantAsync(
@@ -234,12 +247,36 @@ public sealed class CoucherAuthorizationService : ICoucherAuthorizationService
             cancellationToken
         );
         if (isParticipant)
-        {
             return;
+
+        ThrowAuthorizationException(
+            "Only exercise participants or admins can perform this task update.",
+            snapshot.UserId,
+            ("scope", "task"),
+            ("exerciseId", exerciseId),
+            ("action", "partialEdit")
+        );
+    }
+
+    private void ThrowAuthorizationException(
+        string message,
+        Guid userId,
+        params (string Key, object? Value)[] entries
+    )
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "result", "denied" },
+            { "userId", userId }
+        };
+
+        foreach (var (key, value) in entries)
+        {
+            if (value is not null)
+                parameters[key] = value;
         }
 
-        throw new CoucherAuthorizationException(
-            "Only exercise participants or admins can perform this task update."
-        );
+        _logger.Warn("Authorization denied", parameters);
+        throw new CoucherAuthorizationException(message);
     }
 }

@@ -31,9 +31,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(Exercise)} '{id}' was not found.");
-        }
 
         return entity;
     }
@@ -117,9 +115,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseParticipantByIdAsync(participantId, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseParticipant)} '{participantId}' was not found.");
-        }
 
         return entity;
     }
@@ -184,9 +180,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseSectionByIdAsync(sectionLinkId, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseSection)} '{sectionLinkId}' was not found.");
-        }
 
         return entity;
     }
@@ -198,9 +192,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseInfluencerByIdAsync(influencerLinkId, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseInfluencer)} '{influencerLinkId}' was not found.");
-        }
 
         return entity;
     }
@@ -212,9 +204,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var entity = await _provider.GetExerciseUnitContactByIdAsync(contactId, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseUnitContact)} '{contactId}' was not found.");
-        }
 
         return entity;
     }
@@ -239,9 +229,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var exists = await _provider.ExerciseSectionExistsAsync(sectionLinkId, cancellationToken);
         if (!exists)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseSection)} '{sectionLinkId}' was not found.");
-        }
 
         await _provider.DeleteExerciseSectionAsync(sectionLinkId, cancellationToken);
     }
@@ -250,9 +238,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var exists = await _provider.ExerciseInfluencerExistsAsync(influencerLinkId, cancellationToken);
         if (!exists)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseInfluencer)} '{influencerLinkId}' was not found.");
-        }
 
         await _provider.DeleteExerciseInfluencerAsync(influencerLinkId, cancellationToken);
     }
@@ -261,9 +247,7 @@ public sealed class ExerciseRepository : IExerciseRepository
     {
         var exists = await _provider.ExerciseUnitContactExistsAsync(contactId, cancellationToken);
         if (!exists)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseUnitContact)} '{contactId}' was not found.");
-        }
 
         await _provider.DeleteExerciseUnitContactAsync(contactId, cancellationToken);
     }

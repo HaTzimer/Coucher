@@ -9,9 +9,7 @@ public sealed class CoucherAuthorizationExceptionFilter : IExceptionFilter
     public void OnException(ExceptionContext context)
     {
         if (context.Exception is not CoucherAuthorizationException exception)
-        {
             return;
-        }
 
         context.Result = new ObjectResult(new { message = exception.Message })
         {

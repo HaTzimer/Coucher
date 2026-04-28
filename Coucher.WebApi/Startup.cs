@@ -1,3 +1,5 @@
+using Augustus.Infra.Core.Gql;
+using Augustus.Infra.Core.Logging.CorrelationId;
 using Augustus.Infra.Core.Shared.Extensions;
 using Augustus.Infra.Core.Shared.Interfaces;
 using Augustus.Infra.Core.DAL.Redis;
@@ -10,6 +12,7 @@ using Coucher.Lib.Services;
 using Coucher.Shared.Interfaces.DAL.Providers;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
+using Coucher.WebApi.GraphQl;
 using Coucher.WebApi.Swagger;
 using Coucher.WebApi.Filters;
 using HotChocolate.Data;
@@ -71,10 +74,13 @@ public sealed class Startup
             .AddQueryType<CoucherQuery>()
             .AddProjections()
             .AddFiltering()
-            .AddSorting();
+            .AddSorting()
+            .AddErrorFilter<GqlErrorFilter>()
+            .AddErrorFilter<CoucherGraphQlErrorFilter>();
 
         services.AddControllers(options =>
         {
+            options.Filters.AddService<CorrelationIdResourceFilter>();
             options.Filters.Add<CoucherAuthorizationExceptionFilter>();
         })
             .AddJsonOptions(options =>
@@ -84,6 +90,7 @@ public sealed class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
+            options.OperationFilter<CorrelationHeaderFilter>();
             options.SchemaFilter<TaskTemplateCreateRequestSchemaFilter>();
             options.OperationFilter<TaskTemplateCreateRequestOperationFilter>();
             options.AddSecurityDefinition("SessionId", new OpenApiSecurityScheme

@@ -111,9 +111,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
         var entities = dbContext.Set<TaskTemplateInfluencer>();
         var normalizedInfluencerIds = influencerIds.Distinct().ToList();
         if (normalizedInfluencerIds.Count == 0)
-        {
             return new List<TaskTemplateInfluencer>();
-        }
 
         var existingInfluencerIds = await entities
             .Where(item => item.TemplateId == taskTemplateId && item.InfluencerId.HasValue)
@@ -129,9 +127,7 @@ public sealed class TaskTemplateProvider : ITaskTemplateProvider
             .Where(item => !existingInfluencerIds.Contains(item.InfluencerId!.Value))
             .ToList();
         if (newEntities.Count == 0)
-        {
             return new List<TaskTemplateInfluencer>();
-        }
 
         await entities.AddRangeAsync(newEntities, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);

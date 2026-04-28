@@ -41,9 +41,7 @@ public sealed class AuthenticationController : ControllerBase
             cancellationToken
         );
         if (session is null)
-        {
             return Unauthorized("Invalid identity number or password/personal number.");
-        }
 
         return Ok(session);
     }
@@ -53,9 +51,7 @@ public sealed class AuthenticationController : ControllerBase
     public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
     {
         if (!Request.Headers.TryGetValue(_sessionIdHeader, out var sessionId) || string.IsNullOrWhiteSpace(sessionId))
-        {
             return Unauthorized("No session id sent.");
-        }
 
         await _authenticationService.LogoutAsync(sessionId.ToString(), cancellationToken);
 
@@ -67,14 +63,10 @@ public sealed class AuthenticationController : ControllerBase
     public ActionResult<AuthenticatedSession> GetCurrentSession()
     {
         if (!Request.Headers.TryGetValue(_sessionIdHeader, out var sessionId) || string.IsNullOrWhiteSpace(sessionId))
-        {
             return Unauthorized("No session id sent.");
-        }
 
         if (!TryGetCurrentUserId(out var userId))
-        {
             return Unauthorized("No authenticated user found on the request.");
-        }
 
         var session = new AuthenticatedSession
         {
@@ -89,9 +81,7 @@ public sealed class AuthenticationController : ControllerBase
     {
         userId = Guid.Empty;
         if (!HttpContext.Items.TryGetValue(_itemsUserIdKey, out var value))
-        {
             return false;
-        }
 
         if (value is Guid directUserId)
         {

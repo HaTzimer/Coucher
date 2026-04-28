@@ -40,22 +40,16 @@ public sealed class CurrentUserService : ICurrentUserService
         if (httpContext.Items.TryGetValue(_itemsUserIdKey, out var cachedUserId))
         {
             if (cachedUserId is Guid userId)
-            {
                 return userId;
-            }
 
             if (cachedUserId is string userIdString && Guid.TryParse(userIdString, out userId))
-            {
                 return userId;
-            }
         }
 
         httpContext.Request.Headers.TryGetValue(_sessionIdHeader, out var sessionId);
         var authResult = await _authenticationService.AuthenticateSessionAsync(sessionId.ToString(), cancellationToken);
         if (authResult.HeaderAuthentication != SessionAuthenticationResult.Valid || authResult.UserId is null)
-        {
             throw new AuthenticationException(authResult.ErrorMessage ?? "Unauthorized request.");
-        }
 
         httpContext.Items[_itemsUserIdKey] = authResult.UserId.Value;
 

@@ -49,9 +49,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entities = dbContext.Set<ClosedListItem>().Where(item => item.Key == key);
         if (excludedId.HasValue)
-        {
             entities = entities.Where(item => item.Id != excludedId.Value);
-        }
 
         var entityId = await entities
             .OrderByDescending(item => item.DisplayOrder ?? int.MinValue)
@@ -75,9 +73,7 @@ public sealed class ClosedListItemProvider : IClosedListItemProvider
             cancellationToken
         );
         if (targetEntity is null)
-        {
             return false;
-        }
 
         var highestDisplayOrder = await entities
             .Where(item => item.Key == key)

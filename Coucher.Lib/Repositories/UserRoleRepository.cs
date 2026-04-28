@@ -32,9 +32,7 @@ public sealed class UserRoleRepository : IUserRoleRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(UserRole)} '{id}' was not found.");
-        }
 
         return entity;
     }

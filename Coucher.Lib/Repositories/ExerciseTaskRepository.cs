@@ -31,9 +31,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseTask)} '{id}' was not found.");
-        }
 
         return entity;
     }
@@ -52,9 +50,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var dependency = await _provider.GetTaskDependencyByIdAsync(dependencyId, cancellationToken);
         if (dependency is null || !dependency.TaskId.HasValue)
-        {
             throw new KeyNotFoundException($"{nameof(TaskDependency)} '{dependencyId}' was not found.");
-        }
 
         var exerciseId = await GetRequiredExerciseIdByTaskIdAsync(dependency.TaskId.Value, cancellationToken);
 
@@ -71,9 +67,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
             cancellationToken
         );
         if (responsibility is null || !responsibility.TaskId.HasValue)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseTaskResponsibleUser)} '{responsibilityId}' was not found.");
-        }
 
         var exerciseId = await GetRequiredExerciseIdByTaskIdAsync(responsibility.TaskId.Value, cancellationToken);
 
@@ -141,9 +135,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var entity = await _provider.GetTaskDependencyByIdAsync(dependencyId, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(TaskDependency)} '{dependencyId}' was not found.");
-        }
 
         await _provider.DeleteTaskDependencyAsync(dependencyId, cancellationToken);
     }
@@ -183,9 +175,7 @@ public sealed class ExerciseTaskRepository : IExerciseTaskRepository
     {
         var entity = await _provider.GetExerciseTaskResponsibleUserByIdAsync(responsibilityId, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(ExerciseTaskResponsibleUser)} '{responsibilityId}' was not found.");
-        }
 
         await _provider.DeleteExerciseTaskResponsibleUserAsync(responsibilityId, cancellationToken);
     }

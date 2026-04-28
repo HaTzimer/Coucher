@@ -50,9 +50,7 @@ public sealed class UserProfileRepository : IUserProfileRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(UserProfile)} '{id}' was not found.");
-        }
 
         return entity;
     }

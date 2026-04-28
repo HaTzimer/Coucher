@@ -9,16 +9,19 @@ namespace Coucher.Lib.Services;
 
 public sealed class UserProfileService : IUserProfileService
 {
+    private readonly IAugustusLogger _logger;
     private readonly IUserProfileRepository _repository;
     private readonly IUserRoleRepository _userRoleRepository;
     private readonly GlobalRole _starterGlobalRole;
 
     public UserProfileService(
+        IAugustusLogger logger,
         IUserProfileRepository repository,
         IUserRoleRepository userRoleRepository,
         IAugustusConfiguration config
     )
     {
+        _logger = logger;
         _repository = repository;
         _userRoleRepository = userRoleRepository;
         _starterGlobalRole = config.GetOrThrow<GlobalRole>(
@@ -69,6 +72,12 @@ public sealed class UserProfileService : IUserProfileService
                 },
                 cancellationToken
             );
+
+            _logger.Info("User profile starter role created", new Dictionary<string, object>
+            {
+                { "userId", createdEntity.Id },
+                { "role", _starterGlobalRole.ToString() }
+            });
         }
 
         return createdEntity;

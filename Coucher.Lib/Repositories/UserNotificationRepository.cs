@@ -31,9 +31,7 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
     {
         var entity = await _provider.GetByIdAsync(id, cancellationToken);
         if (entity is null)
-        {
             throw new KeyNotFoundException($"{nameof(UserNotification)} '{id}' was not found.");
-        }
 
         return entity;
     }

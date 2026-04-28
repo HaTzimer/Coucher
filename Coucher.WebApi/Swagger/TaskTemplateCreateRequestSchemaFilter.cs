@@ -27,9 +27,7 @@ public sealed class TaskTemplateCreateRequestSchemaFilter : ISchemaFilter
     private static void ConfigureChildrenSchema(SchemaFilterContext context, OpenApiSchema schema)
     {
         if (!schema.Properties.TryGetValue("children", out var childrenSchema))
-        {
             return;
-        }
 
         _ = context.SchemaGenerator.GenerateSchema(typeof(CreateTaskTemplateChildRequest), context.SchemaRepository);
         childrenSchema.Type = "array";

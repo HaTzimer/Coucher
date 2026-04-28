@@ -18,8 +18,17 @@ Read [references/rules.md](references/rules.md) before making structural or form
 - Prefer small, readable methods over condensed expressions.
 - In model files, if at least one property uses attributes, add an empty line after every property in that model, including properties without attributes.
 - For Web API request bodies, if the payload is a single scalar value, do not create a one-property request model; accept the raw scalar body instead.
+- In service and repository methods, separate distinct phases with empty lines so the flow scans as categories instead of one dense block.
+  Authorization/guards
+  Data load or entity construction
+  Entity mutation
+  Persistence call
+  Logging
+  Return
+- For `if` statements with a single following statement, do not use braces.
 - Do not return expressions directly when a value can be assigned first.
 - Store returned values in a local `var` before returning them.
+- Do not write `return new ...`; first assign the created object to a local `var`, then return that variable.
 - Always put an empty line before a `return` statement.
 - After `await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);`, always add an empty line.
 - In fluent chains, keep the chained calls aligned to the left of the chain instead of adding extra indentation for each call.
@@ -45,6 +54,28 @@ Do not use:
 ```csharp
 var entity = await repository.GetByIdAsync(id, cancellationToken);
 return entity;
+```
+
+Do not use:
+
+```csharp
+return new HeaderAuthenticationResult
+{
+    HeaderAuthentication = SessionAuthenticationResult.Valid,
+    SessionId = sessionId
+};
+```
+
+Prefer:
+
+```csharp
+var authenticationResult = new HeaderAuthenticationResult
+{
+    HeaderAuthentication = SessionAuthenticationResult.Valid,
+    SessionId = sessionId
+};
+
+return authenticationResult;
 ```
 
 ## Fluent Chain Style
@@ -95,8 +126,11 @@ var entities = dbContext.Set<UserNotification>();
 ## Review Checklist
 
 - Reject direct-expression returns when a local variable should be used instead.
+- Reject direct `return new ...` object creation; the object must be assigned to a local variable first.
 - Reject model files that mix attributed properties with tightly packed property declarations; once one property in a model uses attributes, every property in that model must be separated by an empty line.
 - Reject one-property request DTOs whose only purpose is to wrap a single scalar request body.
+- Reject dense service/repository method bodies that mix authorization, mutation, persistence, logging, and return without visual separation.
+- Reject single-statement `if` blocks that still use braces.
 - Reject `return` statements that are not separated by an empty line.
 - Reject fluent chains that use extra indentation before chained calls.
 - Reject missing empty lines after async DbContext factory creation statements.

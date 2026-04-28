@@ -1,3 +1,4 @@
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
 using Coucher.Shared.Models.DAL.Users;
@@ -7,16 +8,19 @@ namespace Coucher.Lib.Services;
 
 public sealed class UserRoleService : IUserRoleService
 {
+    private readonly IAugustusLogger _logger;
     private readonly IUserRoleRepository _repository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ICoucherAuthorizationService _authorizationService;
 
     public UserRoleService(
+        IAugustusLogger logger,
         IUserRoleRepository repository,
         ICurrentUserService currentUserService,
         ICoucherAuthorizationService authorizationService
     )
     {
+        _logger = logger;
         _repository = repository;
         _currentUserService = currentUserService;
         _authorizationService = authorizationService;
@@ -57,6 +61,15 @@ public sealed class UserRoleService : IUserRoleService
         entity.AssignedTime = DateTime.UtcNow;
         entity.AssignedByUserId = currentUserId;
         var updatedEntity = await _repository.UpdateUserRoleAsync(entity, cancellationToken);
+
+        _logger.Info("User role updated", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "userRoleId", userRoleId },
+            { "targetUserId", request.UserId },
+            { "role", request.Role.ToString() },
+            { "result", "success" }
+        });
 
         return updatedEntity;
     }

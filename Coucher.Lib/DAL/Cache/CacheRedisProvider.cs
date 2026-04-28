@@ -69,9 +69,7 @@ public sealed class CacheRedisProvider : CommonRedisProvider, ICacheProvider
         var userKey = BuildUserKey(userId);
         var sessionId = await GetStringAsync(userKey);
         if (string.IsNullOrWhiteSpace(sessionId))
-        {
             return;
-        }
 
         var sessionKey = BuildSessionKey(sessionId);
         var transaction = RedisConnection.Database.CreateTransaction();
@@ -95,15 +93,11 @@ public sealed class CacheRedisProvider : CommonRedisProvider, ICacheProvider
 
         var redisValues = (RedisValue[])scriptResult!;
         if (!redisValues.Any() || redisValues[0].IsNullOrEmpty)
-        {
             return new UserAuthenticationResult { IsValid = false };
-        }
 
         var userIdValue = redisValues[0].ToString();
         if (!Guid.TryParse(userIdValue, out var userId))
-        {
             return new UserAuthenticationResult { IsValid = false };
-        }
 
         var userKey = BuildUserKey(userId);
         await RedisConnection.Database.KeyExpireAsync(userKey, _sessionDuration);

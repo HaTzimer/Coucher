@@ -25,9 +25,7 @@ public sealed class MockSeedController : ControllerBase
     )
     {
         if (!IsAllowedEnvironment(_environment))
-        {
             return NotFound();
-        }
 
         var options = new MockSeedOptions
         {
@@ -42,9 +40,7 @@ public sealed class MockSeedController : ControllerBase
 
         var summary = await _mockSeedService.SeedAsync(options, cancellationToken);
         if (!string.IsNullOrWhiteSpace(summary.Note))
-        {
             return Conflict(summary);
-        }
 
         return Ok(summary);
     }
@@ -52,9 +48,7 @@ public sealed class MockSeedController : ControllerBase
     private static bool IsAllowedEnvironment(IWebHostEnvironment environment)
     {
         if (environment.IsDevelopment())
-        {
             return true;
-        }
 
         var isLocal = environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
 

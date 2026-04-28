@@ -9,9 +9,7 @@ public sealed class TaskTemplateCreateRequestOperationFilter : IOperationFilter
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         if (operation.RequestBody is null)
-        {
             return;
-        }
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
@@ -25,9 +23,7 @@ public sealed class TaskTemplateCreateRequestOperationFilter : IOperationFilter
             }
 
             if (schemaReferenceId == "CreateTaskTemplateChildRequest")
-            {
                 content.Example = BuildChildExample("child-b", "Child B", 1, new[] { "child-a" });
-            }
         }
     }
 

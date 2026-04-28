@@ -1,3 +1,4 @@
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Shared.Interfaces.Repositories;
 using Coucher.Shared.Interfaces.Services;
 using Coucher.Shared.Models.DAL.Admin;
@@ -7,16 +8,19 @@ namespace Coucher.Lib.Services;
 
 public sealed class TaskTemplateService : ITaskTemplateService
 {
+    private readonly IAugustusLogger _logger;
     private readonly ITaskTemplateRepository _repository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ICoucherAuthorizationService _authorizationService;
 
     public TaskTemplateService(
+        IAugustusLogger logger,
         ITaskTemplateRepository repository,
         ICurrentUserService currentUserService,
         ICoucherAuthorizationService authorizationService
     )
     {
+        _logger = logger;
         _repository = repository;
         _currentUserService = currentUserService;
         _authorizationService = authorizationService;
@@ -49,7 +53,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
         var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
@@ -57,6 +61,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
         var entity = BuildTaskTemplateTree(request, now, ref nextSerialNumber, nodesByKey, createdNodes);
         WireDependencies(nodesByKey, createdNodes, now);
         var createdEntity = await _repository.CreateTaskTemplateAsync(entity, cancellationToken);
+
+        _logger.Info("Task template created", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", createdEntity.Id },
+            { "childCount", createdEntity.Children.Count },
+            { "dependencyCount", createdNodes.Sum(item => item.Entity.Dependencies.Count) },
+            { "result", "success" }
+        });
 
         return createdEntity;
     }
@@ -67,15 +80,21 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         if (requests.Count == 0)
-        {
             return new List<TaskTemplate>();
-        }
 
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
         var entities = new List<TaskTemplate>(capacity: requests.Count);
+
+        _logger.Info("Task template bulk create started", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "count", requests.Count },
+            { "result", "started" }
+        });
+
         foreach (var request in requests)
         {
             var nodesByKey = new Dictionary<string, TaskTemplate>(StringComparer.Ordinal);
@@ -87,6 +106,13 @@ public sealed class TaskTemplateService : ITaskTemplateService
 
         var createdEntities = await _repository.CreateTaskTemplatesAsync(entities, cancellationToken);
 
+        _logger.Info("Task template bulk create completed", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "count", createdEntities.Count },
+            { "result", "success" }
+        });
+
         return createdEntities;
     }
 
@@ -97,7 +123,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.SeriesId = request.SeriesId;
         entity.CategoryId = request.CategoryId;
@@ -115,6 +141,14 @@ public sealed class TaskTemplateService : ITaskTemplateService
             cancellationToken
         );
 
+        _logger.Info("Task template updated", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "changedFields", new[] { "SeriesId", "CategoryId", "Name", "Description", "Notes", "DefaultWeeksBeforeExerciseStart", "InfluencerIds" } },
+            { "result", "success" }
+        });
+
         return updatedEntity;
     }
 
@@ -125,11 +159,20 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.SeriesId = seriesId;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
+
+        _logger.Info("Task template series updated", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "changedFields", new[] { "SeriesId" } },
+            { "seriesId", seriesId ?? Guid.Empty },
+            { "result", "success" }
+        });
 
         return updatedEntity;
     }
@@ -141,11 +184,20 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.CategoryId = categoryId;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
+
+        _logger.Info("Task template category updated", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "changedFields", new[] { "CategoryId" } },
+            { "categoryId", categoryId ?? Guid.Empty },
+            { "result", "success" }
+        });
 
         return updatedEntity;
     }
@@ -157,11 +209,19 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.DefaultWeeksBeforeExerciseStart = defaultWeeksBeforeExerciseStart;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
+
+        _logger.Info("Task template default weeks updated", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "changedFields", new[] { "DefaultWeeksBeforeExerciseStart" } },
+            { "result", "success" }
+        });
 
         return updatedEntity;
     }
@@ -173,13 +233,21 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var entity = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         entity.Name = request.Name;
         entity.Description = request.Description;
         entity.Notes = request.Notes;
         entity.LastUpdateTime = DateTime.UtcNow;
         var updatedEntity = await _repository.UpdateTaskTemplateAsync(entity, cancellationToken);
+
+        _logger.Info("Task template details updated", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "changedFields", new[] { "Name", "Description", "Notes" } },
+            { "result", "success" }
+        });
 
         return updatedEntity;
     }
@@ -191,12 +259,10 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var parentTemplate = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         if (parentTemplate.ParentId.HasValue)
-        {
             throw new InvalidOperationException("Task templates support children only one level deep.");
-        }
 
         var now = DateTime.UtcNow;
         var nextSerialNumber = await _repository.GetNextSerialNumberAsync(cancellationToken);
@@ -208,6 +274,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
         WireDependencies(nodesByKey, createdNodes, now);
         var createdEntity = await _repository.CreateTaskTemplateAsync(entity, cancellationToken);
 
+        _logger.Info("Task template child created", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", createdEntity.Id },
+            { "parentTaskTemplateId", taskTemplateId },
+            { "dependencyCount", createdEntity.Dependencies.Count },
+            { "result", "success" }
+        });
+
         return createdEntity;
     }
 
@@ -218,14 +293,12 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(taskTemplateId, cancellationToken);
         _ = await _repository.GetRequiredByIdAsync(dependsOnId, cancellationToken);
 
         if (taskTemplateId == dependsOnId)
-        {
             throw new InvalidOperationException("A task template cannot depend on itself.");
-        }
 
         var entity = new TaskTemplateDependency
         {
@@ -235,6 +308,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
             CreationTime = DateTime.UtcNow
         };
         var createdEntity = await _repository.CreateTaskTemplateDependencyAsync(entity, cancellationToken);
+
+        _logger.Info("Task template dependency added", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "dependsOnId", dependsOnId },
+            { "dependencyId", createdEntity.Id },
+            { "result", "success" }
+        });
 
         return createdEntity;
     }
@@ -246,13 +328,21 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var createdEntities = await _repository.CreateTaskTemplateInfluencersAsync(
             taskTemplateId,
             influencerIds,
             DateTime.UtcNow,
             cancellationToken
         );
+
+        _logger.Info("Task template influencers added", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "count", createdEntities.Count },
+            { "result", "success" }
+        });
 
         return createdEntities;
     }
@@ -263,8 +353,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         await _repository.DeleteTaskTemplateDependencyAsync(dependencyId, cancellationToken);
+
+        _logger.Info("Task template dependency removed", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "dependencyId", dependencyId },
+            { "result", "success" }
+        });
     }
 
     public async Task DeleteTaskTemplateInfluencerAsync(
@@ -273,8 +370,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         await _repository.DeleteTaskTemplateInfluencerAsync(influencerLinkId, cancellationToken);
+
+        _logger.Info("Task template influencer removed", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "influencerLinkId", influencerLinkId },
+            { "result", "success" }
+        });
     }
 
     public async Task<TaskTemplate> ArchiveTaskTemplateAsync(
@@ -283,8 +387,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var archivedEntity = await _repository.ArchiveTaskTemplateAsync(taskTemplateId, cancellationToken);
+
+        _logger.Info("Task template archived", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "result", "success" }
+        });
 
         return archivedEntity;
     }
@@ -295,8 +406,15 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         await _authorizationService.EnsureCanAccessAdminSurfaceAsync(cancellationToken);
-        _ = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
+        var currentUserId = await _currentUserService.GetRequiredCurrentUserIdAsync(cancellationToken);
         var unarchivedEntity = await _repository.UnarchiveTaskTemplateAsync(taskTemplateId, cancellationToken);
+
+        _logger.Info("Task template unarchived", new Dictionary<string, object>
+        {
+            { "userId", currentUserId },
+            { "taskTemplateId", taskTemplateId },
+            { "result", "success" }
+        });
 
         return unarchivedEntity;
     }
@@ -393,9 +511,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
                 }
 
                 if (dependsOnEntity.Id == entity.Id)
-                {
                     throw new InvalidOperationException("A task template cannot depend on itself.");
-                }
 
                 entity.Dependencies.Add(new TaskTemplateDependency
                 {
@@ -415,14 +531,10 @@ public sealed class TaskTemplateService : ITaskTemplateService
     )
     {
         if (string.IsNullOrWhiteSpace(templateKey))
-        {
             return;
-        }
 
         if (nodesByKey.ContainsKey(templateKey))
-        {
             throw new InvalidOperationException($"Duplicate task template key '{templateKey}' was found in the create payload.");
-        }
 
         nodesByKey.Add(templateKey, entity);
     }

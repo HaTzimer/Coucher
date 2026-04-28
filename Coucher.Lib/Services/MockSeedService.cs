@@ -1,3 +1,4 @@
+using Augustus.Infra.Core.Shared.Interfaces;
 using Coucher.Lib.DAL;
 using Coucher.Lib.Mocking;
 using Coucher.Shared.Interfaces.Services;
@@ -8,11 +9,16 @@ namespace Coucher.Lib.Services;
 
 public sealed class MockSeedService : IMockSeedService
 {
+    private readonly IAugustusLogger _logger;
     private readonly IDbContextFactory<CoucherDbContext> _dbContextFactory;
     private readonly MockDataGenerator _generator;
 
-    public MockSeedService(IDbContextFactory<CoucherDbContext> dbContextFactory)
+    public MockSeedService(
+        IAugustusLogger logger,
+        IDbContextFactory<CoucherDbContext> dbContextFactory
+    )
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         _generator = new MockDataGenerator();
     }
@@ -20,6 +26,13 @@ public sealed class MockSeedService : IMockSeedService
     public async Task<MockSeedSummary> SeedAsync(MockSeedOptions options, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        if (ShouldLogMockSeed())
+            _logger.Info("Mock seed started", new Dictionary<string, object>
+            {
+                { "resetExisting", options.ResetExisting },
+                { "result", "started" }
+            });
 
         var hasAnyData = await dbContext.UserProfiles.AsNoTracking().AnyAsync(cancellationToken)
                          || await dbContext.Exercises.AsNoTracking().AnyAsync(cancellationToken);
@@ -32,6 +45,13 @@ public sealed class MockSeedService : IMockSeedService
                 Note = "Database already contains data. Re-run with ResetExisting=true to wipe and seed."
             };
 
+            if (ShouldLogMockSeed())
+                _logger.Info("Mock seed skipped", new Dictionary<string, object>
+                {
+                    { "resetExisting", options.ResetExisting },
+                    { "result", "skipped" }
+                });
+
             return summary;
         }
 
@@ -40,9 +60,7 @@ public sealed class MockSeedService : IMockSeedService
         await using var tx = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         if (options.ResetExisting)
-        {
             await ResetAsync(dbContext, cancellationToken);
-        }
 
         dbContext.ClosedListItems.AddRange(data.ClosedListItems);
         dbContext.Units.AddRange(data.Units);
@@ -86,6 +104,17 @@ public sealed class MockSeedService : IMockSeedService
             Note = null
         };
 
+        if (ShouldLogMockSeed())
+            _logger.Info("Mock seed completed", new Dictionary<string, object>
+            {
+                { "resetExisting", options.ResetExisting },
+                { "exerciseCount", data.Exercises.Count },
+                { "exerciseTaskCount", data.ExerciseTasks.Count },
+                { "taskTemplateCount", data.TaskTemplates.Count },
+                { "userCount", data.Users.Count },
+                { "result", "success" }
+            });
+
         return summaryResult;
     }
 
@@ -116,5 +145,13 @@ public sealed class MockSeedService : IMockSeedService
         {
             await dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
         }
+    }
+
+    private static bool ShouldLogMockSeed()
+    {
+        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+        return string.Equals(environmentName, "Development", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(environmentName, "Local", StringComparison.OrdinalIgnoreCase);
     }
 }
