@@ -452,11 +452,11 @@ public sealed class TaskTemplateService : ITaskTemplateService
             changedFields.Add("Notes");
         }
 
-        if (request.DefaultWeeksBeforeExerciseStart.HasValue
-            && entity.DefaultWeeksBeforeExerciseStart != request.DefaultWeeksBeforeExerciseStart.Value)
+        if (request.DefaultTimeBeforeExerciseToStart.HasValue
+            && entity.DefaultTimeBeforeExerciseToStart != request.DefaultTimeBeforeExerciseToStart.Value)
         {
-            entity.DefaultWeeksBeforeExerciseStart = request.DefaultWeeksBeforeExerciseStart.Value;
-            changedFields.Add("DefaultWeeksBeforeExerciseStart");
+            entity.DefaultTimeBeforeExerciseToStart = request.DefaultTimeBeforeExerciseToStart.Value;
+            changedFields.Add(nameof(entity.DefaultTimeBeforeExerciseToStart));
         }
 
         return changedFields;
@@ -502,7 +502,7 @@ public sealed class TaskTemplateService : ITaskTemplateService
             Name = request.Name,
             Description = request.Description,
             Notes = request.Notes,
-            DefaultWeeksBeforeExerciseStart = request.DefaultWeeksBeforeExerciseStart,
+            DefaultTimeBeforeExerciseToStart = request.DefaultTimeBeforeExerciseToStart,
             IsArchive = false,
             CreationTime = now,
             LastUpdateTime = now,

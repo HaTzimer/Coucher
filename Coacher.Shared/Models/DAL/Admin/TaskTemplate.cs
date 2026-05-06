@@ -3,6 +3,7 @@ using HotChocolate;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Coacher.Shared.Models.DAL.Admin;
 
@@ -40,8 +41,17 @@ public sealed class TaskTemplate
     [MaxLength(1024)]
     public string? Notes { get; set; }
 
-    [GraphQLDescription("The default lead time, in weeks before exercise start, for planning this template.")]
-    public int DefaultWeeksBeforeExerciseStart { get; set; }
+    [GraphQLIgnore]
+    [JsonIgnore]
+    public long DefaultTimeBeforeExerciseToStartTicks { get; set; }
+
+    [NotMapped]
+    [GraphQLDescription("The default lead time before exercise start for planning this template.")]
+    public TimeSpan DefaultTimeBeforeExerciseToStart
+    {
+        get => TimeSpan.FromTicks(DefaultTimeBeforeExerciseToStartTicks);
+        set => DefaultTimeBeforeExerciseToStartTicks = value.Ticks;
+    }
 
     [GraphQLDescription("Whether the template is archived and hidden from normal active management flows.")]
     public bool IsArchive { get; set; }

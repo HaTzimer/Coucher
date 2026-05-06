@@ -62,13 +62,14 @@ Suggested body:
 
 Expected:
 - `200 OK`
-- response contains counts for users, exercises, tasks, templates, and notifications
+- response contains counts for users, external ids, exercises, tasks, templates, and notifications
 
 ### 2. Seeded login conventions
 
 Mock users are generated with:
 - `identityNumber`: `300000000`, `300000001`, `300000002`, ...
 - `personalNumber`: `PN-1000`, `PN-1001`, `PN-1002`, ...
+- seeded external ids on alternating users from the `ExternalSource` closed list
 
 Use:
 - admin user: `300000000` / `PN-1000`
@@ -84,13 +85,14 @@ No seeded `Auditor` is created by default. Create one by updating a user role as
 
 Use GraphQL as admin to collect:
 - user ids
+- external id ids
 - user role ids
 - exercise ids
 - participant ids
 - task ids
 - section ids
 - influencer ids
-- closed-list ids for exercise status, task status, series, category, sections, influencers
+- closed-list ids for exercise status, task status, series, category, sections, influencers, external sources
 
 Suggested GraphQL query for admin:
 
@@ -101,6 +103,17 @@ query BootstrapData {
     identityNumber
     firstName
     lastName
+    externalIds {
+      id
+      externalIdValue
+      externalSourceId
+    }
+  }
+  externalIds {
+    id
+    userId
+    externalIdValue
+    externalSourceId
   }
   userRoles {
     id
@@ -736,7 +749,7 @@ Body scenarios:
 - only `SeriesId`
 - only `CategoryId`
 - only `Name`
-- only `DefaultWeeksBeforeExerciseStart`
+- only `DefaultTimeBeforeExerciseToStart`
 - `Description` with `ClearDescription = true`
 - `Notes` with `ClearNotes = true`
 - mixed root-field updates in one request

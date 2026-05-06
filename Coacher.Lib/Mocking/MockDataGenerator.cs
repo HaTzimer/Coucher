@@ -31,6 +31,7 @@ internal sealed class MockDataGenerator
 
         var units = BuildUnits(now, byKey[ConstantValues.UnitEchelonClosedListKey]);
         var users = BuildUsers(now, userCount, units, rng);
+        var externalIds = BuildExternalIds(now, users, byKey[ConstantValues.ExternalSourceClosedListKey], rng);
         var userRoles = BuildUserRoles(now, users);
 
         var exercises = BuildExercises(
@@ -81,6 +82,7 @@ internal sealed class MockDataGenerator
             ClosedListItems = closedListItems,
             Units = units,
             Users = users,
+            ExternalIds = externalIds,
             UserRoles = userRoles,
             Exercises = exercises,
             ExerciseParticipants = exerciseParticipants,
@@ -118,6 +120,7 @@ internal sealed class MockDataGenerator
         AddList(items, ConstantValues.SectionClosedListKey, new[] { "מבצעים", "מודיעין", "לוגיסטיקה", "תקשוב" }, now);
         AddList(items, ConstantValues.InfluencerClosedListKey, new[] { "אוכלוסיה", "תשתיות", "מידע", "תשתיות לאומיות", "בריאות" }, now);
         AddList(items, ConstantValues.UnitEchelonClosedListKey, new[] { "גדוד", "חטיבה", "אוגדה", "פיקוד" }, now);
+        AddList(items, ConstantValues.ExternalSourceClosedListKey, new[] { "ERP", "HR", "SSO", "Legacy" }, now);
 
         items.Single(item => item.Key == ConstantValues.ExerciseStatusClosedListKey && item.DisplayOrder == 1).Id =
             ConstantValues.MockDefaultExerciseStatusId;
@@ -216,7 +219,6 @@ internal sealed class MockDataGenerator
                 FirstName = first,
                 LastName = last,
                 PersonalNumber = $"PN-{1000 + i}",
-                ExternalId = null,
                 UnitId = unit.Id,
                 Rank = ranks[rng.Next(ranks.Length)],
                 Position = positions[rng.Next(positions.Length)],
@@ -231,11 +233,39 @@ internal sealed class MockDataGenerator
                 Roles = new List<UserRole>(),
                 ExerciseParticipants = new List<ExerciseParticipant>(),
                 ResponsibleTaskLinks = new List<ExerciseTaskResponsibleUser>(),
-                Notifications = new List<UserNotification>()
+                Notifications = new List<UserNotification>(),
+                ExternalIds = new List<ExternalId>()
             });
         }
 
         return users;
+    }
+
+    private static List<ExternalId> BuildExternalIds(
+        DateTime now,
+        List<UserProfile> users,
+        List<ClosedListItem> externalSources,
+        Random rng
+    )
+    {
+        var externalIds = new List<ExternalId>();
+
+        foreach (var user in users.Where((_, index) => index % 2 == 0))
+        {
+            var externalSource = externalSources[rng.Next(externalSources.Count)];
+            var externalId = new ExternalId
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                ExternalIdValue = $"EXT-{rng.Next(100000, 999999)}",
+                ExternalSourceId = externalSource.Id,
+                CreationTime = now
+            };
+            externalIds.Add(externalId);
+            user.ExternalIds.Add(externalId);
+        }
+
+        return externalIds;
     }
 
     private static List<UserRole> BuildUserRoles(DateTime now, List<UserProfile> users)
@@ -508,7 +538,7 @@ internal sealed class MockDataGenerator
                 Name = $"{names[i % names.Length]}",
                 Description = "משימת תבנית לדוגמה.",
                 Notes = null,
-                DefaultWeeksBeforeExerciseStart = rng.Next(1, 12),
+                DefaultTimeBeforeExerciseToStart = TimeSpan.FromDays(rng.Next(7, 85)),
                 IsArchive = false,
                 CreationTime = now,
                 LastUpdateTime = now,

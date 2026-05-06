@@ -73,8 +73,8 @@ namespace Coacher.Lib.DAL.Migrations
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DefaultWeeksBeforeExerciseStart")
-                        .HasColumnType("int");
+                    b.Property<long>("DefaultTimeBeforeExerciseToStartTicks")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1024)
@@ -379,6 +379,37 @@ namespace Coacher.Lib.DAL.Migrations
                     b.ToTable("ExerciseUnitContacts");
                 });
 
+            modelBuilder.Entity("Coacher.Shared.Models.DAL.Users.ExternalId", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExternalIdValue")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid?>("ExternalSourceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExternalIdValue");
+
+                    b.HasIndex("ExternalSourceId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ExternalIds");
+                });
+
             modelBuilder.Entity("Coacher.Shared.Models.DAL.Notifications.UserNotification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -566,10 +597,6 @@ namespace Coacher.Lib.DAL.Migrations
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ExternalId")
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -623,8 +650,6 @@ namespace Coacher.Lib.DAL.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ExternalId");
 
                     b.HasIndex("IdentityNumber")
                         .IsUnique();
@@ -819,6 +844,23 @@ namespace Coacher.Lib.DAL.Migrations
                     b.Navigation("Exercise");
                 });
 
+            modelBuilder.Entity("Coacher.Shared.Models.DAL.Users.ExternalId", b =>
+                {
+                    b.HasOne("Coacher.Shared.Models.DAL.Admin.ClosedListItem", "ExternalSource")
+                        .WithMany()
+                        .HasForeignKey("ExternalSourceId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Coacher.Shared.Models.DAL.Users.UserProfile", "User")
+                        .WithMany("ExternalIds")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("ExternalSource");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Coacher.Shared.Models.DAL.Notifications.UserNotification", b =>
                 {
                     b.HasOne("Coacher.Shared.Models.DAL.Exercises.Exercise", "Exercise")
@@ -976,6 +1018,8 @@ namespace Coacher.Lib.DAL.Migrations
 
             modelBuilder.Entity("Coacher.Shared.Models.DAL.Users.UserProfile", b =>
                 {
+                    b.Navigation("ExternalIds");
+
                     b.Navigation("ExerciseParticipants");
 
                     b.Navigation("Notifications");

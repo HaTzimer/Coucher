@@ -14,7 +14,7 @@ public abstract class TaskTemplateNodeRequestBase
 
     public string? Notes { get; set; }
 
-    public int DefaultWeeksBeforeExerciseStart { get; set; }
+    public TimeSpan DefaultTimeBeforeExerciseToStart { get; set; }
 
     public List<Guid>? InfluencerIds { get; set; }
 

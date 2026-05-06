@@ -11,6 +11,7 @@ internal sealed class MockSeedData
     public required List<ClosedListItem> ClosedListItems { get; init; }
     public required List<Unit> Units { get; init; }
     public required List<UserProfile> Users { get; init; }
+    public required List<ExternalId> ExternalIds { get; init; }
     public required List<UserRole> UserRoles { get; init; }
     public required List<Exercise> Exercises { get; init; }
     public required List<ExerciseParticipant> ExerciseParticipants { get; init; }

@@ -78,12 +78,6 @@ public sealed class ExerciseTask
     [GraphQLDescription("The exercise that owns the task.")]
     public Exercise? Exercise { get; set; }
 
-    [ForeignKey(nameof(ParentId))]
-    [InverseProperty(nameof(Children))]
-    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
-    [GraphQLDescription("The parent task when this task is nested under another task.")]
-    public ExerciseTask? Parent { get; set; }
-
     [ForeignKey(nameof(SourceId))]
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The source task template from which the task was created.")]
@@ -103,7 +97,13 @@ public sealed class ExerciseTask
     [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
     [GraphQLDescription("The closed-list entry that represents the task status.")]
     public ClosedListItem? Status { get; set; }
-
+    
+    [ForeignKey(nameof(ParentId))]
+    [InverseProperty(nameof(Children))]
+    [DeleteBehavior(ConstantValues.DeleteBehaviorType)]
+    [GraphQLDescription("The parent task when this task is nested under another task.")]
+    public ExerciseTask? Parent { get; set; }
+    
     [InverseProperty(nameof(Parent))]
     [GraphQLDescription("Child tasks nested under this task.")]
     public required List<ExerciseTask> Children { get; set; }
@@ -119,5 +119,4 @@ public sealed class ExerciseTask
     [InverseProperty("DependsOn")]
     [GraphQLDescription("Dependency links where other tasks depend on this task.")]
     public required List<TaskDependency> DependedOnBy { get; set; }
-
 }

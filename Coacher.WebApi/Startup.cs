@@ -15,6 +15,8 @@ using Coacher.WebApi.GraphQl;
 using Coacher.WebApi.Swagger;
 using Coacher.WebApi.Filters;
 using HotChocolate.Data;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json.Serialization;
@@ -33,7 +35,7 @@ public sealed class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddGenericAugustusServices();
-        services.AddPooledDbContextFactory<CoacherDbContext>(Configuration);
+        RegisterCoacherDbContextFactory(services);
         services.AddHttpContextAccessor();
 
         services.AddScoped<IExerciseProvider, ExerciseProvider>();
@@ -124,6 +126,8 @@ public sealed class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
     {
+        ApplyPendingMigrations(app);
+
         if (environment.IsDevelopment() || environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase))
         {
             app.UseSwagger();
@@ -131,12 +135,48 @@ public sealed class Startup
         }
 
         app.UseRouting();
-        app.UseHttpsRedirection();
+        if (!environment.IsDevelopment() && !environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase))
+            app.UseHttpsRedirection();
         app.UseAuthorization();
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
             endpoints.MapGraphQL("/graphql");
+        });
+    }
+
+    private static void ApplyPendingMigrations(IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<CoacherDbContext>>();
+        using var dbContext = dbContextFactory.CreateDbContext();
+        dbContext.Database.Migrate();
+    }
+
+    private void RegisterCoacherDbContextFactory(IServiceCollection services)
+    {
+        var uri = Configuration["SqlDb:uri"] ?? throw new InvalidOperationException("Missing SqlDb:uri configuration.");
+        var initialCatalog = Configuration["SqlDb:initialCatalog"] ?? throw new InvalidOperationException("Missing SqlDb:initialCatalog configuration.");
+        var userId = Configuration["SqlDb:userId"] ?? throw new InvalidOperationException("Missing SqlDb:userId configuration.");
+        var password = Configuration["SqlDb:password"] ?? throw new InvalidOperationException("Missing SqlDb:password configuration.");
+
+        services.AddPooledDbContextFactory<CoacherDbContext>(contextOptionsBuilder =>
+        {
+            var connectionStringBuilder = new SqlConnectionStringBuilder
+            {
+                DataSource = uri,
+                InitialCatalog = initialCatalog,
+                UserID = userId,
+                Password = password,
+                Encrypt = false,
+                TrustServerCertificate = true,
+                MultipleActiveResultSets = true
+            };
+
+            contextOptionsBuilder.UseSqlServer(
+                connectionStringBuilder.ConnectionString,
+                builder => builder.UseNetTopologySuite()
+            );
         });
     }
 }

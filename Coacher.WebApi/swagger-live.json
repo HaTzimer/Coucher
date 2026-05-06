@@ -4806,6 +4806,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "externalIdCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "userRoleCount": {
             "type": "integer",
             "format": "int32"
@@ -5372,6 +5376,41 @@
         },
         "additionalProperties": false
       },
+      "ExternalId": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "externalIdValue": {
+            "maxLength": 512,
+            "type": "string",
+            "nullable": true
+          },
+          "externalSourceId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          },
+          "externalSource": {
+            "$ref": "#/components/schemas/ClosedListItem"
+          }
+        },
+        "additionalProperties": false
+      },
       "UserProfile": {
         "type": "object",
         "properties": {
@@ -5396,11 +5435,6 @@
           },
           "personalNumber": {
             "maxLength": 128,
-            "type": "string",
-            "nullable": true
-          },
-          "externalId": {
-            "maxLength": 512,
             "type": "string",
             "nullable": true
           },
@@ -5485,6 +5519,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UserNotification"
+            },
+            "nullable": true
+          },
+          "externalIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalId"
             },
             "nullable": true
           }

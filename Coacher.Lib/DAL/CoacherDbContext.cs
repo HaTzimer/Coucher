@@ -24,6 +24,7 @@ public sealed class CoacherDbContext : DbContext
     public DbSet<TaskDependency> TaskDependencies => Set<TaskDependency>();
     public DbSet<ExerciseTaskResponsibleUser> ExerciseTaskResponsibleUsers => Set<ExerciseTaskResponsibleUser>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<ExternalId> ExternalIds => Set<ExternalId>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
     public DbSet<ClosedListItem> ClosedListItems => Set<ClosedListItem>();

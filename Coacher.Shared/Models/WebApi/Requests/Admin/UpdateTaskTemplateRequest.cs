@@ -16,5 +16,5 @@ public sealed class UpdateTaskTemplateRequest
 
     public bool ClearNotes { get; set; }
 
-    public int? DefaultWeeksBeforeExerciseStart { get; set; }
+    public TimeSpan? DefaultTimeBeforeExerciseToStart { get; set; }
 }

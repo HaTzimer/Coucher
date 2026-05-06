@@ -275,6 +275,23 @@ public sealed class CoacherQuery
         return query;
     }
 
+    [GraphQLDescription("Returns external identifiers attached to users.")]
+    [UseDbContext(typeof(CoacherDbContext))]
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public async Task<IQueryable<ExternalId>> GetExternalIds(
+        CoacherDbContext dbContext,
+        [Service] ICoacherAuthorizationService authorizationService,
+        CancellationToken cancellationToken
+    )
+    {
+        await EnsureAdminAccessAsync(authorizationService, cancellationToken);
+        var query = dbContext.ExternalIds.AsNoTracking();
+
+        return query;
+    }
+
     [GraphQLDescription("Returns global role assignments for users.")]
     [UseDbContext(typeof(CoacherDbContext))]
     [UseProjection]

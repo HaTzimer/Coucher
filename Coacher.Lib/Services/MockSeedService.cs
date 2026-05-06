@@ -65,6 +65,7 @@ public sealed class MockSeedService : IMockSeedService
         dbContext.ClosedListItems.AddRange(data.ClosedListItems);
         dbContext.Units.AddRange(data.Units);
         dbContext.UserProfiles.AddRange(data.Users);
+        dbContext.ExternalIds.AddRange(data.ExternalIds);
         dbContext.UserRoles.AddRange(data.UserRoles);
         dbContext.Exercises.AddRange(data.Exercises);
         dbContext.ExerciseParticipants.AddRange(data.ExerciseParticipants);
@@ -88,6 +89,7 @@ public sealed class MockSeedService : IMockSeedService
             ClosedListItemCount = data.ClosedListItems.Count,
             UnitCount = data.Units.Count,
             UserCount = data.Users.Count,
+            ExternalIdCount = data.ExternalIds.Count,
             UserRoleCount = data.UserRoles.Count,
             ExerciseCount = data.Exercises.Count,
             ExerciseParticipantCount = data.ExerciseParticipants.Count,
@@ -135,6 +137,7 @@ public sealed class MockSeedService : IMockSeedService
             "DELETE FROM [TaskTemplateDependencies]",
             "DELETE FROM [TaskTemplateInfluencers]",
             "DELETE FROM [TaskTemplates]",
+            "DELETE FROM [ExternalIds]",
             "DELETE FROM [UserRoles]",
             "DELETE FROM [UserProfiles]",
             "DELETE FROM [Units]",

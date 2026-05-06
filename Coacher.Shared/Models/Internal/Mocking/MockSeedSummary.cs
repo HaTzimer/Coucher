@@ -6,6 +6,7 @@ public sealed class MockSeedSummary
     public int ClosedListItemCount { get; set; }
     public int UnitCount { get; set; }
     public int UserCount { get; set; }
+    public int ExternalIdCount { get; set; }
     public int UserRoleCount { get; set; }
     public int ExerciseCount { get; set; }
     public int ExerciseParticipantCount { get; set; }

@@ -12,7 +12,6 @@ namespace Coacher.Shared.Models.DAL.Users;
 
 [Table(ConstantValues.UserProfileTableName)]
 [Index(nameof(IdentityNumber), IsUnique = true)]
-[Index(nameof(ExternalId))]
 [Index(nameof(UnitId))]
 [GraphQLDescription("A user profile stored by the system.")]
 public sealed class UserProfile
@@ -35,10 +34,6 @@ public sealed class UserProfile
     [GraphQLDescription("An optional personal number for the user.")]
     [MaxLength(128)]
     public string? PersonalNumber { get; set; }
-
-    [GraphQLDescription("An optional external id from another source system.")]
-    [MaxLength(512)]
-    public string? ExternalId { get; set; }
 
     [GraphQLDescription("The unit id assigned to the user.")]
     public Guid? UnitId { get; set; }
@@ -100,5 +95,9 @@ public sealed class UserProfile
     [InverseProperty("User")]
     [GraphQLDescription("Notifications shown to the user.")]
     public required List<UserNotification> Notifications { get; set; }
+
+    [InverseProperty(nameof(ExternalId.User))]
+    [GraphQLDescription("External identifiers attached to the user from source systems.")]
+    public required List<ExternalId> ExternalIds { get; set; }
 
 }

@@ -12,6 +12,7 @@ public static class ConstantValues
     public const string ClosedListItemTableName = "ClosedListItems";
     public const string UnitTableName = "Units";
     public const string UserProfileTableName = "UserProfiles";
+    public const string ExternalIdTableName = "ExternalIds";
     public const string UserRoleTableName = "UserRoles";
     public const string UserNotificationTableName = "UserNotifications";
     public const string ExerciseTableName = "Exercises";
@@ -34,6 +35,7 @@ public static class ConstantValues
     public const string SectionClosedListKey = "Section";
     public const string InfluencerClosedListKey = "Influencer";
     public const string UnitEchelonClosedListKey = "UnitEchelon";
+    public const string ExternalSourceClosedListKey = "ExternalSource";
 
     // SQL Server doesn't allow multiple cascading actions (including SET NULL) from a single principal table.
     // We default to NO ACTION and handle any delete semantics explicitly in workflows.

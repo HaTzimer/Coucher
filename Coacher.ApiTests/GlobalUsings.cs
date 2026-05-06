@@ -1,0 +1,17 @@
+global using System.Net;
+global using System.Net.Http.Headers;
+global using System.Net.Http.Json;
+global using System.Text;
+global using System.Text.Json;
+global using System.Text.Json.Nodes;
+global using System.Text.Json.Serialization;
+global using Coacher.Shared;
+global using Coacher.Shared.Models.Enums;
+global using Coacher.Shared.Models.Internal.Authentication;
+global using Coacher.Shared.Models.WebApi.Requests.Admin;
+global using Coacher.Shared.Models.WebApi.Requests.Auth;
+global using Coacher.Shared.Models.WebApi.Requests.Common;
+global using Coacher.Shared.Models.WebApi.Requests.Exercises;
+global using Coacher.Shared.Models.WebApi.Requests.Tasks;
+global using Coacher.ApiTests.Infrastructure;
+global using Xunit;

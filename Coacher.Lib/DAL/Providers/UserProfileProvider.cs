@@ -16,8 +16,12 @@ public sealed class UserProfileProvider : IUserProfileProvider
     public async Task<List<UserProfile>> ListAsync(CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
-        var items = await entities.ToListAsync(cancellationToken);
+        var items = await entities
+            .Include(item => item.ExternalIds)
+            .ThenInclude(item => item.ExternalSource)
+            .ToListAsync(cancellationToken);
 
         return items;
     }
@@ -25,6 +29,7 @@ public sealed class UserProfileProvider : IUserProfileProvider
     public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
         var exists = await entities.AnyAsync(item => item.Id == id, cancellationToken);
 
@@ -34,8 +39,12 @@ public sealed class UserProfileProvider : IUserProfileProvider
     public async Task<UserProfile?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
-        var entity = await entities.FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        var entity = await entities
+            .Include(item => item.ExternalIds)
+            .ThenInclude(item => item.ExternalSource)
+            .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
         return entity;
     }
@@ -43,11 +52,12 @@ public sealed class UserProfileProvider : IUserProfileProvider
     public async Task<UserProfile?> GetByIdentityNumberAsync(string identityNumber, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
-        var entity = await entities.FirstOrDefaultAsync(
-            item => item.IdentityNumber == identityNumber,
-            cancellationToken
-        );
+        var entity = await entities
+            .Include(item => item.ExternalIds)
+            .ThenInclude(item => item.ExternalSource)
+            .FirstOrDefaultAsync(item => item.IdentityNumber == identityNumber, cancellationToken);
 
         return entity;
     }
@@ -59,6 +69,7 @@ public sealed class UserProfileProvider : IUserProfileProvider
     )
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
         await entities
             .Where(item => item.Id == userId)
@@ -72,6 +83,7 @@ public sealed class UserProfileProvider : IUserProfileProvider
     public async Task<UserProfile> AddAsync(UserProfile entity, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
         await entities.AddAsync(entity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -82,6 +94,7 @@ public sealed class UserProfileProvider : IUserProfileProvider
     public async Task<UserProfile> UpdateAsync(UserProfile entity, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
         entities.Update(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -92,6 +105,7 @@ public sealed class UserProfileProvider : IUserProfileProvider
     public async Task DeleteAsync(UserProfile entity, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
         var entities = dbContext.Set<UserProfile>();
         entities.Remove(entity);
         await dbContext.SaveChangesAsync(cancellationToken);

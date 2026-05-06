@@ -12,7 +12,7 @@ COPY Coacher.Lib/Coacher.Lib.csproj Coacher.Lib/
 COPY Coacher.WebApi/Coacher.WebApi.csproj Coacher.WebApi/
 COPY .config/dotnet-tools.json .config/
 
-RUN dotnet restore Coacher.sln
+RUN dotnet restore Coacher.WebApi/Coacher.WebApi.csproj
 RUN dotnet tool restore
 
 COPY . ./
